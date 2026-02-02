@@ -10,38 +10,34 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
-<script src="app.js" defer></script>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333}
-header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center}
-header span{font-size:16px;cursor:pointer;background:#6366f1;padding:6px 10px;border-radius:6px}
-.container{max-width:1200px;margin:auto;padding:12px}
-.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.06)}
-h3{margin:0 0 8px 0;font-size:16px}
-input,select,button{width:100%;padding:10px 12px;margin:6px 0;border-radius:8px;border:1px solid #dcdcdc;font-size:14px;font-family:'Poppins'}
-input:focus,select:focus{outline:none;border-color:#6366f1}
-button{background:#6366f1;color:#fff;border:none;font-weight:500;cursor:pointer;transition:.2s}
-button:hover{opacity:.9}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
-.qtyBox{display:flex;gap:10px;overflow:auto;margin-bottom:6px}
-.qtyItem{min-width:120px;background:#eef2ff;border:1px solid #c7d2fe;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;text-align:center}
-.qtyItem:hover{background:#dbeafe;border-color:#6366f1}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
-th{background:#111827;color:#fff;position:sticky;top:0}
-.status-Open{background:#fff7d6}
-.status-Matched{background:#dbfce7}
-.status-Closed{background:#ffe1e1}
-.actionIcons span{cursor:pointer;margin-right:6px;font-size:16px}
-.tableWrap{overflow:auto;max-height:420px}
+*{box-sizing:border-box} body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333} 
+header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center} 
+header span{font-size:16px;cursor:pointer;background:#6366f1;padding:6px 10px;border-radius:6px} 
+.container{max-width:1200px;margin:auto;padding:12px} 
+.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.06)} 
+h3{margin:0 0 8px 0;font-size:16px} 
+input,select,button{width:100%;padding:10px 12px;margin:6px 0;border-radius:8px;border:1px solid #dcdcdc;font-size:14px;font-family:'Poppins'} 
+input:focus,select:focus{outline:none;border-color:#6366f1} 
+button{background:#6366f1;color:#fff;border:none;font-weight:500;cursor:pointer;transition:.2s} 
+button:hover{opacity:.9} 
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px} 
+.qtyBox{display:flex;gap:10px;overflow:auto;margin-bottom:6px} 
+.qtyItem{min-width:120px;background:#eef2ff;border:1px solid #c7d2fe;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;text-align:center} 
+.qtyItem:hover{background:#dbeafe;border-color:#6366f1} 
+table{width:100%;border-collapse:collapse;font-size:13px} 
+th,td{padding:8px;border-bottom:1px solid #eee;text-align:left} 
+th{background:#111827;color:#fff;position:sticky;top:0} 
+.status-Open{background:#fff7d6} 
+.status-Matched{background:#dbfce7} 
+.status-Closed{background:#ffe1e1} 
+.actionIcons span{cursor:pointer;margin-right:6px;font-size:16px} 
+.tableWrap{overflow:auto;max-height:420px} 
 @media(max-width:600px){header{font-size:18px}}
 </style>
 </head>
-
 <body>
 
 <header>
@@ -52,19 +48,18 @@ th{background:#111827;color:#fff;position:sticky;top:0}
 <div class="container">
 
   <!-- Login / Signup -->
-  <div class="card" id="authCard">
-    <h3>Login / Signup</h3>
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <div style="display:flex;gap:6px">
-      <button onclick="login()">Login</button>
-      <button onclick="signup()">Signup</button>
-    </div>
+  <div class="card" id="loginBox">
+    <h3>Salesman Login / Signup</h3>
+    <input id="email" type="email" placeholder="Enter your email">
+    <input id="password" type="password" placeholder="Enter password">
+    <input id="salesmanName" placeholder="Enter your name (for signup)">
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Login</button>
   </div>
 
-  <!-- User Info -->
-  <div class="card" id="userCard" style="display:none">
+  <div class="card" id="userBox" style="display:none">
     Logged in as: <b id="userName"></b>
+    <span onclick="logout()" style="cursor:pointer;color:#6366f1;margin-left:10px;">Logout</span>
   </div>
 
   <!-- Totals -->
@@ -125,6 +120,154 @@ th{background:#111827;color:#fff;position:sticky;top:0}
   </div>
 
 </div>
+
+<script>
+  // 🔥 Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCuPj2Zayn-b-USaCoC3d_eA0FALPrBqXg",
+    authDomain: "inquiry-pool-dashboard.firebaseapp.com",
+    projectId: "inquiry-pool-dashboard",
+    storageBucket: "inquiry-pool-dashboard.appspot.com",
+    messagingSenderId: "722727372065",
+    appId: "1:722727372065:web:03302e83335325885dea60"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  let editId=null, currentFilter="", currentSalesmanFilter="";
+
+  // --- Auth state ---
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      document.getElementById("loginBox").style.display="none";
+      document.getElementById("userBox").style.display="block";
+      ["totalsCard","reportCard","inquiryCard","tableCard"].forEach(id=>document.getElementById(id).style.display="block");
+      document.getElementById("userName").innerText = user.email;
+      updateTable();
+    } else {
+      document.getElementById("loginBox").style.display="block";
+      document.getElementById("userBox").style.display="none";
+      ["totalsCard","reportCard","inquiryCard","tableCard"].forEach(id=>document.getElementById(id).style.display="none");
+    }
+  });
+
+  function signup(){
+    const email=document.getElementById("email").value.trim();
+    const password=document.getElementById("password").value.trim();
+    const name=document.getElementById("salesmanName").value.trim();
+    if(!email || !password || !name) return alert("Fill all fields");
+
+    auth.createUserWithEmailAndPassword(email,password)
+      .then(cred=>{
+        db.collection("users").doc(cred.user.uid).set({name,email});
+        alert("Signup successful!");
+      })
+      .catch(err=>alert(err.message));
+  }
+
+  function login(){
+    const email=document.getElementById("email").value.trim();
+    const password=document.getElementById("password").value.trim();
+    if(!email||!password) return alert("Enter email and password");
+
+    auth.signInWithEmailAndPassword(email,password).catch(err=>alert(err.message));
+  }
+
+  function logout(){ auth.signOut(); }
+
+  // --- Products ---
+  function loadProducts(){
+    const productSelect=document.getElementById("product");
+    db.collection("products").orderBy("createdAt","asc").onSnapshot(snap=>{
+      productSelect.innerHTML="<option value=''>Select Product</option>";
+      snap.forEach(doc=>productSelect.innerHTML+=`<option value="${doc.id}">${doc.id}</option>`);
+    });
+  }
+  loadProducts();
+
+  function addProduct(){
+    const p=document.getElementById("newProduct").value.trim();
+    if(!p) return alert("Enter product name");
+    db.collection("products").doc(p).set({name:p,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    document.getElementById("newProduct").value="";
+  }
+
+  // --- Inquiry ---
+  function addInquiry(){
+    const user=auth.currentUser;
+    if(!user) return alert("Login first");
+    const data={
+      date:new Date().toLocaleDateString(),
+      product:document.getElementById("product").value,
+      category:document.getElementById("category").value,
+      qty:Number(document.getElementById("qty").value),
+      party:document.getElementById("party").value,
+      rate:document.getElementById("rate").value,
+      availableWith:document.getElementById("availableWith").value,
+      salesman:user.email,
+      remark:document.getElementById("remark").value,
+      status:"Open",
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    };
+    if(!data.product) return alert("Select product");
+
+    if(editId){ db.collection("inquiries").doc(editId).update(data); editId=null; }
+    else db.collection("inquiries").add(data);
+
+    ["qty","party","rate","availableWith","remark","product"].forEach(id=>document.getElementById(id).value="");
+  }
+
+  function deleteRow(id){ if(confirm("Delete this entry?")) db.collection("inquiries").doc(id).delete(); }
+
+  function editRow(id,d){ editId=id; ["product","category","qty","party","rate","availableWith","remark"].forEach(f=>document.getElementById(f).value=d[f]); }
+
+  function toggleStatus(id,status){ const next=status==="Open"?"Matched":status==="Matched"?"Closed":"Open"; db.collection("inquiries").doc(id).update({status:next}); }
+
+  function filterByProduct(p){ currentFilter=currentFilter===p.toLowerCase()?"":p.toLowerCase(); updateTable(); }
+  function filterBySalesman(s){ currentSalesmanFilter=currentSalesmanFilter===s?"":s; updateTable(); }
+
+  function updateTable(){
+    db.collection("inquiries").orderBy("createdAt","desc").get().then(snap=>{
+      const tbody=document.getElementById("data");
+      const totalsDiv=document.getElementById("totals");
+      const reportBox=document.getElementById("reportBox");
+      const search=document.getElementById("search").value.toLowerCase();
+      tbody.innerHTML=""; totalsDiv.innerHTML=""; reportBox.innerHTML="";
+      let totals={}, salesmanTotals={};
+
+      snap.forEach(doc=>{
+        const d=doc.data();
+        if((search&&!d.product.toLowerCase().includes(search))||
+           (currentFilter&&d.product.toLowerCase()!==currentFilter)||
+           (currentSalesmanFilter&&d.salesman!==currentSalesmanFilter)) return;
+
+        totals[d.product]=(totals[d.product]||0)+d.qty;
+        salesmanTotals[d.salesman]=(salesmanTotals[d.salesman]||0)+d.qty;
+
+        tbody.innerHTML+=`<tr class="status-${d.status}">
+          <td>${d.date}</td>
+          <td>${d.product}</td>
+          <td>${d.qty}</td>
+          <td>${d.party}</td>
+          <td>${d.availableWith}</td>
+          <td>${d.salesman}</td>
+          <td class="actionIcons">
+            <span title="Edit" onclick='editRow("${doc.id}", ${JSON.stringify(d)})'>✏️</span>
+            <span title="Delete" onclick="deleteRow('${doc.id}')">🗑️</span>
+            <span title="Toggle Status" onclick="toggleStatus('${doc.id}','${d.status}')">🔄</span>
+          </td>
+        </tr>`;
+      });
+
+      for(let p in totals) totalsDiv.innerHTML+=`<div class="qtyItem" onclick="filterByProduct('${p}')">${p}: <b>${totals[p]}</b></div>`;
+      for(let s in salesmanTotals) reportBox.innerHTML+=`<div class="qtyItem" onclick="filterBySalesman('${s}')">${s}: <b>${salesmanTotals[s]}</b></div>`;
+    });
+  }
+
+  db.collection("inquiries").orderBy("createdAt","desc").onSnapshot(()=>updateTable());
+  document.getElementById("search").addEventListener("input",()=>updateTable());
+</script>
 
 </body>
 </html>
