@@ -52,9 +52,12 @@ th{background:#111827;color:#fff;position:sticky;top:0}
     <h3>Salesman Login / Signup</h3>
     <input id="email" type="email" placeholder="Enter your email">
     <input id="password" type="password" placeholder="Enter password">
-    <input id="salesmanName" placeholder="Enter your name (for signup)">
-    <button onclick="signup()">Sign Up</button>
-    <button onclick="login()">Login</button>
+    <input id="salesmanName" placeholder="Enter your name (for signup)" style="display:none">
+ <button onclick="showLogin(); login()">Login</button>
+<button onclick="showSignup()">Sign Up</button>
+<button onclick="signup()">Confirm Sign Up</button>
+
+
   </div>
 
   <div class="card" id="userBox" style="display:none">
@@ -146,6 +149,14 @@ th{background:#111827;color:#fff;position:sticky;top:0}
     });
     updateTable();
   });
+
+function showLogin(){
+  document.getElementById("salesmanName").style.display = "none";
+}
+
+function showSignup(){
+  document.getElementById("salesmanName").style.display = "block";
+}
 
   // --- Auth state ---
   auth.onAuthStateChanged(user=>{
@@ -313,6 +324,9 @@ th{background:#111827;color:#fff;position:sticky;top:0}
     .onSnapshot(()=>updateTable());
 
   search.addEventListener("input",()=>updateTable());
+
+ // ✅ default mode = login
+  showLogin();
 </script>
 
 </body>
