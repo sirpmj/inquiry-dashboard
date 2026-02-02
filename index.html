@@ -3,22 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Inquiry Pool Dashboard (Local Trial)</title>
-
-
-
-
+<title>Inquiry Pool Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 * {box-sizing:border-box;}
 body {margin:0; font-family:'Poppins',sans-serif; background:#f4f6f9; color:#333;}
-header {background:linear-gradient(135deg,#1f2937,#111827); color:#fff; padding:16px; text-align:center; font-size:20px; font-weight:600; display:flex; justify-content:space-between; align-items:center;}
+header {background:linear-gradient(135deg,#1f2937,#111827); color:#fff; padding:16px; display:flex; justify-content:space-between; align-items:center; font-size:20px;}
 header span {font-size:16px; cursor:pointer; background:#6366f1; padding:6px 10px; border-radius:6px;}
 .container {max-width:1200px; margin:auto; padding:12px;}
 .card {background:#fff; border-radius:12px; padding:14px; margin-bottom:14px; box-shadow:0 4px 14px rgba(0,0,0,.06);}
 h3 {margin:0 0 8px 0; font-size:16px;}
 label {display:block; font-weight:500; margin-top:6px;}
-input, select, button {width:100%; padding:10px 12px; margin:4px 0; border-radius:8px; border:1px solid #dcdcdc; font-size:14px; font-family:'Poppins';}
+input, select, button {width:100%; padding:10px 12px; margin:4px 0; border-radius:8px; border:1px solid #dcdcdc; font-size:14px;}
 input:focus, select:focus {outline:none; border-color:#6366f1;}
 button {background:#6366f1; color:#fff; border:none; font-weight:500; cursor:pointer; transition:.2s;}
 button:hover {opacity:.9;}
@@ -52,10 +48,8 @@ th {background:#111827; color:#fff; position:sticky; top:0; cursor:pointer;}
     <h3>Salesman Login / Signup</h3>
     <input id="email" type="email" placeholder="Enter your email">
     <input id="password" type="password" placeholder="Enter password">
-    <input id="salesmanName" placeholder="Enter your name (for signup)" style="display:none">
-    <button onclick="showLogin()">Login</button>
-    <button onclick="showSignup()">Sign Up</button>
-    <button onclick="signup()" id="confirmSignupBtn" style="display:none">Confirm Sign Up</button>
+    <button onclick="login()">Login</button>
+    <button onclick="signup()">Sign Up</button>
   </div>
 
   <div class="card" id="userBox" style="display:none">
@@ -88,37 +82,13 @@ th {background:#111827; color:#fff; position:sticky; top:0; cursor:pointer;}
   <div class="card" id="inquiryCard" style="display:none">
     <h3>Add / Update Inquiry</h3>
     <div class="grid">
-      <div>
-        <label>Product</label>
-        <input id="product" placeholder="Product Name">
-      </div>
-      <div>
-        <label>Sale / Purchase</label>
-        <select id="salePurchase">
-          <option>Sale</option>
-          <option>Purchase</option>
-        </select>
-      </div>
-      <div>
-        <label>Qty</label>
-        <input id="qty" type="number" placeholder="Quantity">
-      </div>
-      <div>
-        <label>Party</label>
-        <input id="party" placeholder="Party Name">
-      </div>
-      <div>
-        <label>Rate</label>
-        <input id="rate" placeholder="Rate">
-      </div>
-      <div>
-        <label>Available With</label>
-        <input id="availableWith" placeholder="Available With">
-      </div>
-      <div>
-        <label>Remark</label>
-        <input id="remark" placeholder="Remark">
-      </div>
+      <div><label>Product</label><input id="product" placeholder="Product Name"></div>
+      <div><label>Sale / Purchase</label><select id="salePurchase"><option>Sale</option><option>Purchase</option></select></div>
+      <div><label>Qty</label><input id="qty" type="number" placeholder="Quantity"></div>
+      <div><label>Party</label><input id="party" placeholder="Party Name"></div>
+      <div><label>Rate</label><input id="rate" placeholder="Rate"></div>
+      <div><label>Available With</label><input id="availableWith" placeholder="Available With"></div>
+      <div><label>Remark</label><input id="remark" placeholder="Remark"></div>
     </div>
     <button onclick="addInquiry()">Save Inquiry</button>
   </div>
@@ -152,17 +122,13 @@ th {background:#111827; color:#fff; position:sticky; top:0; cursor:pointer;}
 
 </div>
 
-<!-- Firebase App -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<!-- Firebase Auth -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<!-- Firebase Firestore -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-
 <script>
-
-// 🔹 Firebase Config
+// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyCuPj2Zayn-b-USaCoC3d_eA0FALPrBqXg",
     authDomain: "inquiry-pool-dashboard.firebaseapp.com",
@@ -171,54 +137,81 @@ const firebaseConfig = {
     messagingSenderId: "722727372065",
     appId: "1:722727372065:web:03302e83335325885dea60"
 };
-
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-
-// ==== LOCAL DEMO DATA ====
+// Global
 let inquiries = [];
-let usersMap = {};
 let editIndex = null;
 
-// Sample Salesmen
-usersMap = {1:'Kailash',2:'Suresh',3:'Amit'};
-let salesmanId = 1; // Simulate logged-in user
+// ===== LOGIN / SIGNUP =====
+function signup() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const name = prompt("Enter your name for signup:");
 
-// ==== LOGIN/LOGOUT/Signup UI ====
-function showLogin(){
-  document.getElementById("salesmanName").style.display = "none";
-  document.getElementById("confirmSignupBtn").style.display = "none";
+  if(!email || !password || !name) { alert("All fields required"); return; }
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(userCredential => {
+      const uid = userCredential.user.uid;
+      return db.collection("users").doc(uid).set({ name });
+    })
+    .then(() => showDashboardFirebase())
+    .catch(err => alert(err.message));
 }
-function showSignup(){
-  document.getElementById("salesmanName").style.display = "block";
-  document.getElementById("confirmSignupBtn").style.display = "block";
+
+function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  if(!email || !password) { alert("Email & password required"); return; }
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => showDashboardFirebase())
+    .catch(err => alert(err.message));
 }
-function signup(){
-  const name = document.getElementById("salesmanName").value.trim();
-  if(!name){ alert("Enter name"); return; }
-  usersMap[++salesmanId] = name;
-  alert("Signup successful! Logged in as "+name);
-  showDashboard();
-}
-function showDashboard(){
+
+function showDashboardFirebase() {
+  const user = auth.currentUser;
+  if(!user) return;
+
   document.getElementById("loginBox").style.display="none";
   document.getElementById("userBox").style.display="block";
   document.getElementById("totalsCard").style.display="block";
   document.getElementById("filterCard").style.display="block";
   document.getElementById("inquiryCard").style.display="block";
   document.getElementById("tableCard").style.display="block";
-  document.getElementById("userName").innerText = usersMap[salesmanId];
-  updateFilters();
+
+  db.collection("users").doc(user.uid).get().then(doc=>{
+    document.getElementById("userName").innerText = doc.data().name;
+  });
+
+  loadInquiries();
 }
 
-// ==== Inquiry CRUD ====
-function addInquiry(){
+// ===== LOAD INQUIRIES =====
+function loadInquiries() {
+  const user = auth.currentUser;
+  if(!user) return;
+
+  db.collection("inquiries").where("salesmanId","==",user.uid).get()
+    .then(snapshot => {
+      inquiries = [];
+      snapshot.forEach(doc => inquiries.push(doc.data()));
+      renderTable();
+    });
+}
+
+// ===== ADD INQUIRY =====
+function addInquiry() {
+  const user = auth.currentUser;
+  if(!user) return alert("Not logged in");
+
   const p = document.getElementById("product").value.trim();
   const qtyVal = Number(document.getElementById("qty").value);
-  if(!p || !qtyVal){ alert("Product & Qty required"); return; }
+  if(!p || !qtyVal) { alert("Product & Qty required"); return; }
+
   const obj = {
     product: p,
     salePurchase: document.getElementById("salePurchase").value,
@@ -227,77 +220,48 @@ function addInquiry(){
     rate: document.getElementById("rate").value,
     availableWith: document.getElementById("availableWith").value,
     remark: document.getElementById("remark").value,
-    salesmanId: salesmanId,
+    salesmanId: user.uid,
     status: "Open",
     date: new Date().toLocaleDateString()
   };
-  if(editIndex!==null){
-    inquiries[editIndex] = obj;
-    editIndex = null;
-  }else{
-    inquiries.push(obj);
-  }
-  clearInquiryForm();
-  renderTable();
+
+  db.collection("inquiries").add(obj)
+    .then(() => {
+      inquiries.push(obj);
+      clearInquiryForm();
+      renderTable();
+    })
+    .catch(err => alert(err.message));
 }
+
 function clearInquiryForm(){
   ["product","qty","party","rate","availableWith","remark"].forEach(id=>document.getElementById(id).value="");
 }
-function deleteRow(index){ if(confirm("Delete?")) { inquiries.splice(index,1); renderTable(); } }
-function toggleStatus(index){ 
-  const s = inquiries[index].status;
-  inquiries[index].status = s==="Open"?"Matched":s==="Matched"?"Closed":"Open";
-  renderTable();
+
+// ===== LOGOUT =====
+function logout() {
+  auth.signOut().then(()=>location.reload());
 }
 
-// ==== Bulk Actions ====
-function toggleSelectAll(el){
-  const checkboxes = document.querySelectorAll(".rowCheckbox");
-  checkboxes.forEach(cb=>cb.checked=el.checked);
-}
-function bulkClose(){
-  document.querySelectorAll(".rowCheckbox").forEach((cb,i)=>{
-    if(cb.checked) inquiries[i].status="Closed";
-  });
-  renderTable();
-}
-function bulkDelete(){
-  for(let i=inquiries.length-1;i>=0;i--){
-    if(document.querySelectorAll(".rowCheckbox")[i].checked){
-      inquiries.splice(i,1);
-    }
-  }
-  renderTable();
-}
+// ===== TABLE / FILTERS / CRUD =====
+let sortField=null, sortAsc=true;
+function sortTable(field){ if(sortField===field) sortAsc=!sortAsc; else {sortField=field; sortAsc=true;} renderTable(); }
+function toggleSelectAll(el){ document.querySelectorAll(".rowCheckbox").forEach(cb=>cb.checked=el.checked); }
+function bulkClose(){ document.querySelectorAll(".rowCheckbox").forEach((cb,i)=>{ if(cb.checked) inquiries[i].status="Closed"; }); renderTable(); }
+function bulkDelete(){ for(let i=inquiries.length-1;i>=0;i--){ if(document.querySelectorAll(".rowCheckbox")[i].checked){ inquiries.splice(i,1); } } renderTable(); }
 
-// ==== Filters ====
-function updateFilters(){
-  const select = document.getElementById("salesmanFilter");
-  select.innerHTML = "<option value=''>All Salesmen</option>";
-  for(let id in usersMap) select.innerHTML+=`<option value='${id}'>${usersMap[id]}</option>`;
-}
-document.getElementById("search").addEventListener("input", renderTable);
-document.getElementById("categoryFilter").addEventListener("change", renderTable);
-document.getElementById("salesmanFilter").addEventListener("change", renderTable);
-
-// ==== Render Table & Totals ====
-let sortField = null; let sortAsc=true;
-function sortTable(field){
-  if(sortField===field) sortAsc = !sortAsc; else { sortField=field; sortAsc=true; }
-  renderTable();
-}
+document.getElementById("search").addEventListener("input",renderTable);
+document.getElementById("categoryFilter").addEventListener("change",renderTable);
 
 function renderTable(){
   const tbody = document.getElementById("data");
-  tbody.innerHTML = "";
-  const searchVal = document.getElementById("search").value.toLowerCase();
-  const catVal = document.getElementById("categoryFilter").value;
-  const salesVal = document.getElementById("salesmanFilter").value;
+  tbody.innerHTML="";
+  const searchVal=document.getElementById("search").value.toLowerCase();
+  const catVal=document.getElementById("categoryFilter").value;
 
   let filtered = inquiries.filter(i=>{
     if(searchVal && !i.product.toLowerCase().includes(searchVal)) return false;
     if(catVal && i.salePurchase!==catVal) return false;
-    if(salesVal && i.salesmanId!=salesVal) return false;
     return true;
   });
 
@@ -319,20 +283,18 @@ function renderTable(){
       <td contenteditable="true" onblur="updateField(${index},'qty',this.innerText)">${i.qty}</td>
       <td contenteditable="true" onblur="updateField(${index},'party',this.innerText)">${i.party}</td>
       <td contenteditable="true" onblur="updateField(${index},'availableWith',this.innerText)">${i.availableWith}</td>
-      <td>${usersMap[i.salesmanId]}</td>
+      <td>${i.salesmanId}</td>
       <td class="actionIcons">
         <span onclick="editInquiry(${index})">✏️</span>
-        <span onclick="deleteRow(${index})">🗑️</span>
         <span onclick="toggleStatus(${index})">🔄</span>
       </td>
     </tr>`;
   });
 
   // Totals
-  const totalsDiv = document.getElementById("totals");
-  totalsDiv.innerHTML = "";
-  let totals = {};
-  let pending=0, closed=0;
+  const totalsDiv=document.getElementById("totals");
+  totalsDiv.innerHTML="";
+  let totals={}, pending=0, closed=0;
   inquiries.forEach(i=>{
     totals[i.product]=(totals[i.product]||0)+i.qty;
     if(i.status==="Open") pending+=i.qty;
@@ -342,29 +304,22 @@ function renderTable(){
   document.getElementById("statusTotals").innerHTML=`<b>Pending Qty:</b> ${pending} | <b>Closed Qty:</b> ${closed}`;
 }
 
-// Inline edit handler
 function updateField(index,field,value){
-  if(field==="qty") value = Number(value);
-  inquiries[index][field] = value;
+  if(field==="qty") value=Number(value);
+  inquiries[index][field]=value;
 }
 
-// Edit Inquiry
 function editInquiry(index){
-  editIndex = index;
-  document.getElementById("product").value = inquiries[index].product;
-  document.getElementById("salePurchase").value = inquiries[index].salePurchase;
-  document.getElementById("qty").value = inquiries[index].qty;
-  document.getElementById("party").value = inquiries[index].party;
-  document.getElementById("rate").value = inquiries[index].rate;
-  document.getElementById("availableWith").value = inquiries[index].availableWith;
-  document.getElementById("remark").value = inquiries[index].remark;
+  editIndex=index;
+  document.getElementById("product").value=inquiries[index].product;
+  document.getElementById("salePurchase").value=inquiries[index].salePurchase;
+  document.getElementById("qty").value=inquiries[index].qty;
+  document.getElementById("party").value=inquiries[index].party;
+  document.getElementById("rate").value=inquiries[index].rate;
+  document.getElementById("availableWith").value=inquiries[index].availableWith;
+  document.getElementById("remark").value=inquiries[index].remark;
 }
 
-// ==== Logout ====
-function logout(){ location.reload(); }
-
-showLogin();
 </script>
-
 </body>
 </html>
