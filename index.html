@@ -12,7 +12,6 @@
 
 <script src="app.js" defer></script>
 
-<!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
@@ -27,10 +26,6 @@ input,select,button{width:100%;padding:10px 12px;margin:6px 0;border-radius:8px;
 input:focus,select:focus{outline:none;border-color:#6366f1}
 button{background:#6366f1;color:#fff;border:none;font-weight:500;cursor:pointer;transition:.2s}
 button:hover{opacity:.9}
-
-#product,#newProduct{width:100%;font-size:15px;padding:10px}
-select option{white-space:normal}
-
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
 .qtyBox{display:flex;gap:10px;overflow:auto;margin-bottom:6px}
 .qtyItem{min-width:120px;background:#eef2ff;border:1px solid #c7d2fe;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;text-align:center}
@@ -56,43 +51,44 @@ th{background:#111827;color:#fff;position:sticky;top:0}
 
 <div class="container">
 
-  <!-- Login -->
-  <div class="card">
-    <div id="loginBox">
-      <h3>Salesman Login</h3>
-      <input id="name" placeholder="Enter Your Name">
+  <!-- Login / Signup -->
+  <div class="card" id="authCard">
+    <h3>Login / Signup</h3>
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <div style="display:flex;gap:6px">
       <button onclick="login()">Login</button>
-    </div>
-    <div id="userBox" style="display:none">
-      Logged in as: <b id="userName"></b>
+      <button onclick="signup()">Signup</button>
     </div>
   </div>
 
+  <!-- User Info -->
+  <div class="card" id="userCard" style="display:none">
+    Logged in as: <b id="userName"></b>
+  </div>
+
   <!-- Totals -->
-  <div class="card">
+  <div class="card" id="totalsCard" style="display:none">
     <h3>📊 Product Wise Total Qty</h3>
     <div class="qtyBox" id="totals"></div>
   </div>
 
   <!-- Reports -->
-  <div class="card">
+  <div class="card" id="reportCard" style="display:none">
     <h3>📈 Salesman Wise Report</h3>
     <div class="qtyBox" id="reportBox"></div>
   </div>
 
   <!-- Add Inquiry -->
-  <div class="card">
+  <div class="card" id="inquiryCard" style="display:none">
     <h3>Add / Update Inquiry</h3>
-
     <input id="search" placeholder="🔍 Search Product">
-
     <div class="grid">
       <select id="product"></select>
       <div style="display:flex;gap:6px;width:100%;align-items:center">
-  <input id="newProduct" placeholder="Add New Product" style="flex:1">
-  <button type="button" onclick="addProduct()" style="flex:0 0 60px;padding:10px 6px;font-size:13px">Add</button>
-</div>
-
+        <input id="newProduct" placeholder="Add New Product" style="flex:1">
+        <button type="button" onclick="addProduct()" style="flex:0 0 60px;padding:10px 6px;font-size:13px">Add</button>
+      </div>
       <select id="category">
         <option>Product</option>
         <option>By Product</option>
@@ -104,12 +100,11 @@ th{background:#111827;color:#fff;position:sticky;top:0}
       <input id="availableWith" placeholder="Available With">
       <input id="remark" placeholder="Remark">
     </div>
-
     <button onclick="addInquiry()">Save Inquiry</button>
   </div>
 
   <!-- Table -->
-  <div class="card">
+  <div class="card" id="tableCard" style="display:none">
     <h3>📋 Live Inquiry Table</h3>
     <div class="tableWrap">
       <table>
