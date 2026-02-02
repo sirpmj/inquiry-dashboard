@@ -15,16 +15,16 @@
 <style>
 *{box-sizing:border-box} 
 body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333} 
-header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center} 
+header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;display:flex;justify-content:space-between;align-items:center} 
 header span{font-size:16px;cursor:pointer;background:#6366f1;padding:6px 10px;border-radius:6px} 
 .container{max-width:1200px;margin:auto;padding:12px} 
 .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.06)} 
-h3{margin:0 0 8px 0;font-size:16px} 
+h3{margin:0 0 12px 0;font-size:16px;font-weight:500} 
 input,select,button{width:100%;padding:10px 12px;margin:6px 0;border-radius:8px;border:1px solid #dcdcdc;font-size:14px;font-family:'Poppins'} 
 input:focus,select:focus{outline:none;border-color:#6366f1} 
 button{background:#6366f1;color:#fff;border:none;font-weight:500;cursor:pointer;transition:.2s} 
 button:hover{opacity:.9} 
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px} 
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px} 
 .qtyBox{display:flex;gap:10px;overflow:auto;margin-bottom:6px} 
 .qtyItem{min-width:120px;background:#eef2ff;border:1px solid #c7d2fe;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;text-align:center} 
 .qtyItem:hover{background:#dbeafe;border-color:#6366f1} 
@@ -37,6 +37,7 @@ th{background:#111827;color:#fff;position:sticky;top:0}
 .actionIcons span{cursor:pointer;margin-right:6px;font-size:16px} 
 .tableWrap{overflow:auto;max-height:420px} 
 @media(max-width:600px){header{font-size:18px}}
+#loginBox input, #loginBox button{margin:4px 0} 
 </style>
 </head>
 <body>
@@ -54,9 +55,11 @@ th{background:#111827;color:#fff;position:sticky;top:0}
     <input id="email" type="email" placeholder="Enter your email">
     <input id="password" type="password" placeholder="Enter password">
     <input id="salesmanName" placeholder="Enter your name (for signup)" style="display:none">
-    <button onclick="showLogin(); login()">Login</button>
-    <button onclick="showSignup()">Sign Up</button>
-    <button onclick="signup()">Confirm Sign Up</button>
+    <div style="display:flex;gap:6px">
+      <button style="flex:1" onclick="login()">Login</button>
+      <button style="flex:1" onclick="showSignup()">Sign Up</button>
+      <button style="flex:1;display:none" id="confirmSignupBtn" onclick="signup()">Confirm Sign Up</button>
+    </div>
   </div>
 
   <div class="card" id="userBox" style="display:none">
@@ -70,31 +73,38 @@ th{background:#111827;color:#fff;position:sticky;top:0}
     <div class="qtyBox" id="totals"></div>
   </div>
 
-  <!-- Reports -->
-  <div class="card" id="reportCard" style="display:none">
-    <h3>📈 Salesman Wise Report</h3>
-    <div class="qtyBox" id="reportBox"></div>
-  </div>
-
   <!-- Add Inquiry -->
   <div class="card" id="inquiryCard" style="display:none">
     <h3>Add / Update Inquiry</h3>
-    <input id="search" placeholder="🔍 Search Product">
     <div class="grid">
+      <label>Product</label>
       <select id="product"></select>
+
+      <label>Add New Product</label>
       <div style="display:flex;gap:6px;width:100%;align-items:center">
         <input id="newProduct" placeholder="Add New Product" style="flex:1">
         <button type="button" onclick="addProduct()" style="flex:0 0 60px;padding:10px 6px;font-size:13px">Add</button>
       </div>
+
+      <label>Type</label>
       <select id="category">
-        <option>Product</option>
-        <option>By Product</option>
-        <option>Hazard</option>
+        <option>Sale</option>
+        <option>Purchase</option>
       </select>
+
+      <label>Qty</label>
       <input id="qty" placeholder="Qty">
+
+      <label>Party Name</label>
       <input id="party" placeholder="Party Name">
+
+      <label>Rate</label>
       <input id="rate" placeholder="Rate">
+
+      <label>Available With</label>
       <input id="availableWith" placeholder="Available With">
+
+      <label>Remark</label>
       <input id="remark" placeholder="Remark">
     </div>
     <button onclick="addInquiry()">Save Inquiry</button>
@@ -103,12 +113,14 @@ th{background:#111827;color:#fff;position:sticky;top:0}
   <!-- Table -->
   <div class="card" id="tableCard" style="display:none">
     <h3>📋 Live Inquiry Table</h3>
+    <input id="search" placeholder="🔍 Search Product" style="margin-bottom:10px">
     <div class="tableWrap">
       <table>
         <thead>
           <tr>
             <th>Date</th>
             <th>Product</th>
+            <th>Type</th>
             <th>Qty</th>
             <th>Party</th>
             <th>Available</th>
@@ -124,158 +136,150 @@ th{background:#111827;color:#fff;position:sticky;top:0}
 </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCuPj2Zayn-b-USaCoC3d_eA0FALPrBqXg",
-  authDomain: "inquiry-pool-dashboard.firebaseapp.com",
-  projectId: "inquiry-pool-dashboard",
-  storageBucket: "inquiry-pool-dashboard.appspot.com",
-  messagingSenderId: "722727372065",
-  appId: "1:722727372065:web:03302e83335325885dea60"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-
-let editId = null, currentFilter = "", currentSalesmanFilter = "";
-let usersMap = {};
-
-// Load users name cache
-db.collection("users").onSnapshot(snap=>{
-  usersMap = {};
-  snap.forEach(doc => usersMap[doc.id] = doc.data().name);
-  updateTable();
-});
-
-function showLogin(){ salesmanName.style.display="none"; }
-function showSignup(){ salesmanName.style.display="block"; }
-
-auth.onAuthStateChanged(user=>{
-  if(user){
-    loginBox.style.display="none";
-    userBox.style.display="block";
-    ["totalsCard","reportCard","inquiryCard","tableCard"].forEach(id=>document.getElementById(id).style.display="block");
-    db.collection("users").doc(user.uid).get().then(doc=>userName.innerText = doc.exists?doc.data().name:user.email);
-    updateTable();
-  }else{
-    loginBox.style.display="block";
-    userBox.style.display="none";
-    ["totalsCard","reportCard","inquiryCard","tableCard"].forEach(id=>document.getElementById(id).style.display="none");
-  }
-});
-
-// Signup
-function signup(){
-  const emailV = email.value.trim();
-  const passV = password.value.trim();
-  const nameV = salesmanName.value.trim();
-  if(!emailV||!passV||!nameV) return alert("Fill all fields");
-  auth.createUserWithEmailAndPassword(emailV, passV)
-    .then(cred=>db.collection("users").doc(cred.user.uid).set({name:nameV,email:emailV}))
-    .then(()=>{showLogin(); alert("Signup successful!")})
-    .catch(err=>alert(err.message));
-}
-
-// Login
-function login(){
-  auth.signInWithEmailAndPassword(email.value,password.value)
-    .catch(err=>alert(err.message));
-}
-
-function logout(){ auth.signOut(); }
-
-// Products
-function loadProducts(){
-  const productSelect=document.getElementById("product");
-  db.collection("products").orderBy("createdAt","asc").onSnapshot(snap=>{
-    productSelect.innerHTML="<option value=''>Select Product</option>";
-    snap.forEach(doc=>productSelect.innerHTML+=`<option value="${doc.id}">${doc.id}</option>`);
-  });
-}
-loadProducts();
-
-function addProduct(){
-  const p = newProduct.value.trim();
-  if(!p) return alert("Enter product name");
-  db.collection("products").doc(p).set({name:p,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-  newProduct.value="";
-}
-
-// Inquiry
-function addInquiry(){
-  const user = auth.currentUser;
-  if(!user) return alert("Login first");
-
-  const dataObj={
-    date:new Date().toLocaleDateString(),
-    product:product.value,
-    category:category.value,
-    qty:Number(qty.value),
-    party:party.value,
-    rate:rate.value,
-    availableWith:availableWith.value,
-    salesmanId:user.uid,
-    remark:remark.value,
-    status:"Open",
-    createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  const firebaseConfig = {
+    apiKey: "AIzaSyCuPj2Zayn-b-USaCoC3d_eA0FALPrBqXg",
+    authDomain: "inquiry-pool-dashboard.firebaseapp.com",
+    projectId: "inquiry-pool-dashboard",
+    storageBucket: "inquiry-pool-dashboard.appspot.com",
+    messagingSenderId: "722727372065",
+    appId: "1:722727372065:web:03302e83335325885dea60"
   };
 
-  if(editId){
-    db.collection("inquiries").doc(editId).update(dataObj);
-    editId=null;
-  }else{
-    db.collection("inquiries").add(dataObj);
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+
+  let editId=null, currentFilter="", usersMap={};
+
+  const loginBox=document.getElementById("loginBox");
+  const userBox=document.getElementById("userBox");
+  const totals=document.getElementById("totals");
+  const data=document.getElementById("data");
+  const searchInput=document.getElementById("search");
+  const productSelect=document.getElementById("product");
+
+  // Load users for name lookup
+  db.collection("users").onSnapshot(snap=>{
+    usersMap={};
+    snap.forEach(doc=>{ usersMap[doc.id] = doc.data().name });
+    updateTable();
+  });
+
+  function showSignup(){
+    document.getElementById("salesmanName").style.display="block";
+    document.getElementById("confirmSignupBtn").style.display="block";
+  }
+  function login(){ auth.signInWithEmailAndPassword(email.value,password.value); }
+  function signup(){
+    const e=email.value.trim(), p=password.value.trim(), n=salesmanName.value.trim();
+    if(!e||!p||!n) return alert("Fill all fields");
+    auth.createUserWithEmailAndPassword(e,p)
+      .then(cred=>db.collection("users").doc(cred.user.uid).set({name:n,email:e}));
+  }
+  function logout(){ auth.signOut(); }
+
+  auth.onAuthStateChanged(user=>{
+    if(user){
+      loginBox.style.display="none";
+      userBox.style.display="block";
+      ["totalsCard","inquiryCard","tableCard"].forEach(id=>document.getElementById(id).style.display="block");
+      db.collection("users").doc(user.uid).get().then(doc=>userName.innerText=doc.exists?doc.data().name:user.email);
+      loadProducts();
+      updateTable();
+    } else {
+      loginBox.style.display="block";
+      userBox.style.display="none";
+      ["totalsCard","inquiryCard","tableCard"].forEach(id=>document.getElementById(id).style.display="none");
+    }
+  });
+
+  function loadProducts(){
+    db.collection("products").orderBy("createdAt").onSnapshot(snap=>{
+      productSelect.innerHTML="<option value=''>Select Product</option>";
+      snap.forEach(doc=>productSelect.innerHTML+=`<option value="${doc.id}">${doc.id}</option>`);
+    });
   }
 
-  ["qty","party","rate","availableWith","remark","product"].forEach(id=>document.getElementById(id).value="");
-}
+  function addProduct(){
+    const p=newProduct.value.trim();
+    if(!p) return alert("Enter product name");
+    db.collection("products").doc(p).set({name:p,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    newProduct.value="";
+  }
 
-function deleteRow(id){ if(confirm("Delete this entry?")) db.collection("inquiries").doc(id).delete(); }
-function editRow(id,d){ editId=id; ["product","category","qty","party","rate","availableWith","remark"].forEach(f=>document.getElementById(f).value=d[f]); }
-function toggleStatus(id,status){ const next=status==="Open"?"Matched":status==="Matched"?"Closed":"Open"; db.collection("inquiries").doc(id).update({status:next}); }
+  function addInquiry(){
+    const user=auth.currentUser;
+    if(!user) return alert("Login first");
 
-function filterByProduct(p){ currentFilter=currentFilter===p.toLowerCase()?"":p.toLowerCase(); updateTable(); }
-function filterBySalesman(s){ currentSalesmanFilter=currentSalesmanFilter===s?"":s; updateTable(); }
+    const dataObj={
+      date:new Date().toLocaleDateString(),
+      product:product.value,
+      category:category.value,
+      qty:Number(qty.value),
+      party:party.value,
+      rate:rate.value,
+      availableWith:availableWith.value,
+      salesmanId:user.uid,
+      remark:remark.value,
+      status:"Open",
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-function updateTable(){
-  db.collection("inquiries").orderBy("createdAt","desc").get().then(snap=>{
-    data.innerHTML=""; totals.innerHTML=""; reportBox.innerHTML="";
-    const totalsObj={}, salesmanTotals={};
-    const searchVal=search.value.toLowerCase();
+    if(editId){ db.collection("inquiries").doc(editId).update(dataObj); editId=null; }
+    else db.collection("inquiries").add(dataObj);
 
-    snap.forEach(doc=>{
-      const d = doc.data();
-      if((searchVal && !d.product.toLowerCase().includes(searchVal)) || (currentFilter && d.product.toLowerCase()!==currentFilter)) return;
-      const sName = usersMap[d.salesmanId] || "Unknown";
-      totalsObj[d.product]=(totalsObj[d.product]||0)+d.qty;
-      salesmanTotals[sName]=(salesmanTotals[sName]||0)+d.qty;
+    ["qty","party","rate","availableWith","remark","product"].forEach(id=>document.getElementById(id).value="");
+  }
 
-      data.innerHTML+=`
-        <tr class="status-${d.status}">
-          <td>${d.date}</td>
-          <td>${d.product}</td>
-          <td>${d.qty}</td>
-          <td>${d.party}</td>
-          <td>${d.availableWith}</td>
-          <td>${sName}</td>
-          <td class="actionIcons">
-            <span onclick='editRow("${doc.id}", ${JSON.stringify(d)})'>✏️</span>
-            <span onclick="deleteRow('${doc.id}')">🗑️</span>
-            <span onclick="toggleStatus('${doc.id}','${d.status}')">🔄</span>
-          </td>
-        </tr>`;
+  function deleteRow(id){ if(confirm("Delete this entry?")) db.collection("inquiries").doc(id).delete(); }
+
+  function editRow(id,d){
+    editId=id;
+    ["product","category","qty","party","rate","availableWith","remark"].forEach(f=>document.getElementById(f).value=d[f]);
+  }
+
+  function toggleStatus(id,status){
+    const next=status==="Open"?"Matched":status==="Matched"?"Closed":"Open";
+    db.collection("inquiries").doc(id).update({status:next});
+  }
+
+  function updateTable(){
+    db.collection("inquiries").orderBy("createdAt","desc").get().then(snap=>{
+      data.innerHTML=""; totals.innerHTML="";
+      let totalsObj={};
+      const searchVal=searchInput.value.toLowerCase();
+
+      snap.forEach(doc=>{
+        const d=doc.data();
+        if(searchVal && !d.product.toLowerCase().includes(searchVal)) return;
+        totalsObj[d.product]=(totalsObj[d.product]||0)+d.qty;
+        const sName = usersMap[d.salesmanId] || "Unknown";
+
+        data.innerHTML+=`
+          <tr class="status-${d.status}">
+            <td>${d.date}</td>
+            <td>${d.product}</td>
+            <td>${d.category}</td>
+            <td>${d.qty}</td>
+            <td>${d.party}</td>
+            <td>${d.availableWith}</td>
+            <td>${sName}</td>
+            <td class="actionIcons">
+              <span onclick='editRow("${doc.id}", ${JSON.stringify(d)})'>✏️</span>
+              <span onclick="deleteRow('${doc.id}')">🗑️</span>
+              <span onclick="toggleStatus('${doc.id}','${d.status}')">🔄</span>
+            </td>
+          </tr>`;
+      });
+
+      for(let p in totalsObj)
+        totals.innerHTML+=`<div class="qtyItem">${p}: <b>${totalsObj[p]}</b></div>`;
     });
+  }
 
-    for(let p in totalsObj) totals.innerHTML+=`<div class="qtyItem" onclick="filterByProduct('${p}')">${p}: <b>${totalsObj[p]}</b></div>`;
-    for(let s in salesmanTotals) reportBox.innerHTML+=`<div class="qtyItem" onclick="filterBySalesman('${s}')">${s}: <b>${salesmanTotals[s]}</b></div>`;
-  });
-}
-
-db.collection("inquiries").orderBy("createdAt","desc").onSnapshot(()=>updateTable());
-search.addEventListener("input",()=>updateTable());
-
-// Default view
-showLogin();
+  db.collection("inquiries").orderBy("createdAt","desc").onSnapshot(()=>updateTable());
+  searchInput.addEventListener("input",()=>updateTable());
+  showLogin();
 </script>
 
 </body>
