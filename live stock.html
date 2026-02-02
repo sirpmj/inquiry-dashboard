@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Inquiry Pool Dashboard</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<script src="app.js" defer></script>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333}
+header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center}
+header span{font-size:16px;cursor:pointer;background:#6366f1;padding:6px 10px;border-radius:6px}
+.container{max-width:1200px;margin:auto;padding:12px}
+.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+h3{margin:0 0 8px 0;font-size:16px}
+input,select,button{width:100%;padding:10px 12px;margin:6px 0;border-radius:8px;border:1px solid #dcdcdc;font-size:14px;font-family:'Poppins'}
+input:focus,select:focus{outline:none;border-color:#6366f1}
+button{background:#6366f1;color:#fff;border:none;font-weight:500;cursor:pointer;transition:.2s}
+button:hover{opacity:.9}
+
+#product,#newProduct{width:100%;font-size:15px;padding:10px}
+select option{white-space:normal}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.qtyBox{display:flex;gap:10px;overflow:auto;margin-bottom:6px}
+.qtyItem{min-width:120px;background:#eef2ff;border:1px solid #c7d2fe;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;text-align:center}
+.qtyItem:hover{background:#dbeafe;border-color:#6366f1}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+th{background:#111827;color:#fff;position:sticky;top:0}
+.status-Open{background:#fff7d6}
+.status-Matched{background:#dbfce7}
+.status-Closed{background:#ffe1e1}
+.actionIcons span{cursor:pointer;margin-right:6px;font-size:16px}
+.tableWrap{overflow:auto;max-height:420px}
+@media(max-width:600px){header{font-size:18px}}
+</style>
+</head>
+
+<body>
+
+<header>
+  📦 Inquiry Pool Dashboard
+  <span onclick="logout()">Logout</span>
+</header>
+
+<div class="container">
+
+  <!-- Login -->
+  <div class="card">
+    <div id="loginBox">
+      <h3>Salesman Login</h3>
+      <input id="name" placeholder="Enter Your Name">
+      <button onclick="login()">Login</button>
+    </div>
+    <div id="userBox" style="display:none">
+      Logged in as: <b id="userName"></b>
+    </div>
+  </div>
+
+  <!-- Totals -->
+  <div class="card">
+    <h3>📊 Product Wise Total Qty</h3>
+    <div class="qtyBox" id="totals"></div>
+  </div>
+
+  <!-- Reports -->
+  <div class="card">
+    <h3>📈 Salesman Wise Report</h3>
+    <div class="qtyBox" id="reportBox"></div>
+  </div>
+
+  <!-- Add Inquiry -->
+  <div class="card">
+    <h3>Add / Update Inquiry</h3>
+
+    <input id="search" placeholder="🔍 Search Product">
+
+    <div class="grid">
+      <select id="product"></select>
+      <div style="display:flex;gap:6px;width:100%;align-items:center">
+  <input id="newProduct" placeholder="Add New Product" style="flex:1">
+  <button type="button" onclick="addProduct()" style="flex:0 0 60px;padding:10px 6px;font-size:13px">Add</button>
+</div>
+
+      <select id="category">
+        <option>Product</option>
+        <option>By Product</option>
+        <option>Hazard</option>
+      </select>
+      <input id="qty" placeholder="Qty">
+      <input id="party" placeholder="Party Name">
+      <input id="rate" placeholder="Rate">
+      <input id="availableWith" placeholder="Available With">
+      <input id="remark" placeholder="Remark">
+    </div>
+
+    <button onclick="addInquiry()">Save Inquiry</button>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <h3>📋 Live Inquiry Table</h3>
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Party</th>
+            <th>Available</th>
+            <th>Salesman</th>
+            <th>Status / Action</th>
+          </tr>
+        </thead>
+        <tbody id="data"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
