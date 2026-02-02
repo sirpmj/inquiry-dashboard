@@ -203,15 +203,40 @@ function logout(){ auth.signOut().then(()=>location.reload()); }
 
 // ==== Load Dashboard ====
 function loadUserRole(){
-  db.collection('users').doc(currentUser.uid).get().then(doc=>{
-    userRole = doc.data().role;
-    document.getElementById("userName").innerText = doc.data().name;
-    document.getElementById("userRole").innerText = userRole;
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("dashboard").style.display="block";
-    setupRealtime();
-    updateFilters();
+  const uid = currentUser.uid;
+
+  db.collection('users').doc(uid).get().then(doc=>{
+    if(!doc.exists){
+      // 👇 AUTO CREATE USER PROFILE
+      const profile = {
+        name: currentUser.displayName || currentUser.email,
+        email: currentUser.email,
+        role: "admin" // 👈 first time admin (ya salesman)
+      };
+
+      db.collection('users').doc(uid).set(profile).then(()=>{
+        applyUserProfile(profile);
+      });
+
+    } else {
+      applyUserProfile(doc.data());
+    }
   });
+}
+
+function applyUserProfile(data){
+  userRole = data.role || "salesman";
+
+  document.getElementById("userName").innerText =
+    data.name || currentUser.email;
+
+  document.getElementById("userRole").innerText = userRole;
+
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("dashboard").style.display="block";
+
+  setupRealtime();
+  updateFilters();
 }
 
 // ==== Realtime Listener ====
