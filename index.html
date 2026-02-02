@@ -3,39 +3,39 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Inquiry Pool Dashboard</title>
+<title>Inquiry Pool Dashboard (Local Trial)</title>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
-*{box-sizing:border-box} body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333} 
-header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center} 
-header span{font-size:16px;cursor:pointer;background:#6366f1;padding:6px 10px;border-radius:6px} 
-.container{max-width:1200px;margin:auto;padding:12px} 
-.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.06)} 
-h3{margin:0 0 8px 0;font-size:16px} 
-input,select,button{width:100%;padding:10px 12px;margin:6px 0;border-radius:8px;border:1px solid #dcdcdc;font-size:14px;font-family:'Poppins'} 
-input:focus,select:focus{outline:none;border-color:#6366f1} 
-button{background:#6366f1;color:#fff;border:none;font-weight:500;cursor:pointer;transition:.2s} 
-button:hover{opacity:.9} 
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px} 
-.qtyBox{display:flex;gap:10px;overflow:auto;margin-bottom:6px} 
-.qtyItem{min-width:120px;background:#eef2ff;border:1px solid #c7d2fe;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;text-align:center} 
-.qtyItem:hover{background:#dbeafe;border-color:#6366f1} 
-table{width:100%;border-collapse:collapse;font-size:13px} 
-th,td{padding:8px;border-bottom:1px solid #eee;text-align:left} 
-th{background:#111827;color:#fff;position:sticky;top:0} 
-.status-Open{background:#fff7d6} 
-.status-Matched{background:#dbfce7} 
-.status-Closed{background:#ffe1e1} 
-.actionIcons span{cursor:pointer;margin-right:6px;font-size:16px} 
-.tableWrap{overflow:auto;max-height:420px} 
-@media(max-width:600px){header{font-size:18px}}
+* {box-sizing:border-box;}
+body {margin:0; font-family:'Poppins',sans-serif; background:#f4f6f9; color:#333;}
+header {background:linear-gradient(135deg,#1f2937,#111827); color:#fff; padding:16px; text-align:center; font-size:20px; font-weight:600; display:flex; justify-content:space-between; align-items:center;}
+header span {font-size:16px; cursor:pointer; background:#6366f1; padding:6px 10px; border-radius:6px;}
+.container {max-width:1200px; margin:auto; padding:12px;}
+.card {background:#fff; border-radius:12px; padding:14px; margin-bottom:14px; box-shadow:0 4px 14px rgba(0,0,0,.06);}
+h3 {margin:0 0 8px 0; font-size:16px;}
+label {display:block; font-weight:500; margin-top:6px;}
+input, select, button {width:100%; padding:10px 12px; margin:4px 0; border-radius:8px; border:1px solid #dcdcdc; font-size:14px; font-family:'Poppins';}
+input:focus, select:focus {outline:none; border-color:#6366f1;}
+button {background:#6366f1; color:#fff; border:none; font-weight:500; cursor:pointer; transition:.2s;}
+button:hover {opacity:.9;}
+.grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px;}
+.qtyBox {display:flex; gap:10px; overflow:auto; margin-bottom:6px;}
+.qtyItem {min-width:120px; background:#eef2ff; border:1px solid #c7d2fe; padding:8px 12px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; text-align:center;}
+.qtyItem:hover {background:#dbeafe; border-color:#6366f1;}
+table {width:100%; border-collapse:collapse; font-size:13px;}
+th, td {padding:8px; border-bottom:1px solid #eee; text-align:left;}
+th {background:#111827; color:#fff; position:sticky; top:0; cursor:pointer;}
+.status-Open {background:#fff7d6;}
+.status-Matched {background:#dbfce7;}
+.status-Closed {background:#ffe1e1;}
+.actionIcons span {cursor:pointer; margin-right:6px; font-size:16px;}
+.tableWrap {overflow:auto; max-height:420px;}
+@media(max-width:600px){header{font-size:18px;}}
+.checkbox {width:16px; height:16px; cursor:pointer;}
 </style>
 </head>
 <body>
@@ -53,11 +53,9 @@ th{background:#111827;color:#fff;position:sticky;top:0}
     <input id="email" type="email" placeholder="Enter your email">
     <input id="password" type="password" placeholder="Enter password">
     <input id="salesmanName" placeholder="Enter your name (for signup)" style="display:none">
- <button onclick="showLogin(); login()">Login</button>
-<button onclick="showSignup()">Sign Up</button>
-<button onclick="signup()">Confirm Sign Up</button>
-
-
+    <button onclick="showLogin()">Login</button>
+    <button onclick="showSignup()">Sign Up</button>
+    <button onclick="signup()" id="confirmSignupBtn" style="display:none">Confirm Sign Up</button>
   </div>
 
   <div class="card" id="userBox" style="display:none">
@@ -67,36 +65,60 @@ th{background:#111827;color:#fff;position:sticky;top:0}
 
   <!-- Totals -->
   <div class="card" id="totalsCard" style="display:none">
-    <h3>📊 Product Wise Total Qty</h3>
-    <div class="qtyBox" id="totals"></div>
+    <h3>📊 Product Totals</h3>
+    <div id="totals" class="qtyBox"></div>
+    <div id="statusTotals"></div>
   </div>
 
-  <!-- Reports -->
-  <div class="card" id="reportCard" style="display:none">
-    <h3>📈 Salesman Wise Report</h3>
-    <div class="qtyBox" id="reportBox"></div>
+  <!-- Filters -->
+  <div class="card" id="filterCard" style="display:none">
+    <h3>🔍 Filters</h3>
+    <input id="search" placeholder="Search Product">
+    <select id="categoryFilter">
+      <option value="">All Category</option>
+      <option>Sale</option>
+      <option>Purchase</option>
+    </select>
+    <select id="salesmanFilter">
+      <option value="">All Salesmen</option>
+    </select>
   </div>
 
   <!-- Add Inquiry -->
   <div class="card" id="inquiryCard" style="display:none">
     <h3>Add / Update Inquiry</h3>
-    <input id="search" placeholder="🔍 Search Product">
     <div class="grid">
-      <select id="product"></select>
-      <div style="display:flex;gap:6px;width:100%;align-items:center">
-        <input id="newProduct" placeholder="Add New Product" style="flex:1">
-        <button type="button" onclick="addProduct()" style="flex:0 0 60px;padding:10px 6px;font-size:13px">Add</button>
+      <div>
+        <label>Product</label>
+        <input id="product" placeholder="Product Name">
       </div>
-      <select id="category">
-        <option>Product</option>
-        <option>By Product</option>
-        <option>Hazard</option>
-      </select>
-      <input id="qty" placeholder="Qty">
-      <input id="party" placeholder="Party Name">
-      <input id="rate" placeholder="Rate">
-      <input id="availableWith" placeholder="Available With">
-      <input id="remark" placeholder="Remark">
+      <div>
+        <label>Sale / Purchase</label>
+        <select id="salePurchase">
+          <option>Sale</option>
+          <option>Purchase</option>
+        </select>
+      </div>
+      <div>
+        <label>Qty</label>
+        <input id="qty" type="number" placeholder="Quantity">
+      </div>
+      <div>
+        <label>Party</label>
+        <input id="party" placeholder="Party Name">
+      </div>
+      <div>
+        <label>Rate</label>
+        <input id="rate" placeholder="Rate">
+      </div>
+      <div>
+        <label>Available With</label>
+        <input id="availableWith" placeholder="Available With">
+      </div>
+      <div>
+        <label>Remark</label>
+        <input id="remark" placeholder="Remark">
+      </div>
     </div>
     <button onclick="addInquiry()">Save Inquiry</button>
   </div>
@@ -104,13 +126,19 @@ th{background:#111827;color:#fff;position:sticky;top:0}
   <!-- Table -->
   <div class="card" id="tableCard" style="display:none">
     <h3>📋 Live Inquiry Table</h3>
+    <div>
+      <button onclick="bulkClose()">Mark Selected Closed</button>
+      <button onclick="bulkDelete()">Delete Selected</button>
+    </div>
     <div class="tableWrap">
       <table>
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Product</th>
-            <th>Qty</th>
+            <th><input type="checkbox" id="selectAll" class="checkbox" onclick="toggleSelectAll(this)"></th>
+            <th onclick="sortTable('date')">Date</th>
+            <th onclick="sortTable('product')">Product</th>
+            <th>Sale / Purchase</th>
+            <th onclick="sortTable('qty')">Qty</th>
             <th>Party</th>
             <th>Available</th>
             <th>Salesman</th>
@@ -124,209 +152,218 @@ th{background:#111827;color:#fff;position:sticky;top:0}
 
 </div>
 
+<!-- Firebase App -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+
 <script>
-  const firebaseConfig = {
+
+// 🔹 Firebase Config
+const firebaseConfig = {
     apiKey: "AIzaSyCuPj2Zayn-b-USaCoC3d_eA0FALPrBqXg",
     authDomain: "inquiry-pool-dashboard.firebaseapp.com",
     projectId: "inquiry-pool-dashboard",
     storageBucket: "inquiry-pool-dashboard.appspot.com",
     messagingSenderId: "722727372065",
     appId: "1:722727372065:web:03302e83335325885dea60"
-  };
+};
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
 
-  let editId=null, currentFilter="", currentSalesmanFilter="";
-  let usersMap = {}; // 🔥 added
 
-  // 🔥 load users (name cache)
-  db.collection("users").onSnapshot(snap=>{
-    usersMap = {};
-    snap.forEach(doc=>{
-      usersMap[doc.id] = doc.data().name;
-    });
-    updateTable();
-  });
+// ==== LOCAL DEMO DATA ====
+let inquiries = [];
+let usersMap = {};
+let editIndex = null;
 
+// Sample Salesmen
+usersMap = {1:'Kailash',2:'Suresh',3:'Amit'};
+let salesmanId = 1; // Simulate logged-in user
+
+// ==== LOGIN/LOGOUT/Signup UI ====
 function showLogin(){
   document.getElementById("salesmanName").style.display = "none";
+  document.getElementById("confirmSignupBtn").style.display = "none";
 }
-
 function showSignup(){
   document.getElementById("salesmanName").style.display = "block";
+  document.getElementById("confirmSignupBtn").style.display = "block";
+}
+function signup(){
+  const name = document.getElementById("salesmanName").value.trim();
+  if(!name){ alert("Enter name"); return; }
+  usersMap[++salesmanId] = name;
+  alert("Signup successful! Logged in as "+name);
+  showDashboard();
+}
+function showDashboard(){
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("userBox").style.display="block";
+  document.getElementById("totalsCard").style.display="block";
+  document.getElementById("filterCard").style.display="block";
+  document.getElementById("inquiryCard").style.display="block";
+  document.getElementById("tableCard").style.display="block";
+  document.getElementById("userName").innerText = usersMap[salesmanId];
+  updateFilters();
 }
 
-  // --- Auth state ---
-  auth.onAuthStateChanged(user=>{
-    if(user){
-      loginBox.style.display="none";
-      userBox.style.display="block";
-      ["totalsCard","reportCard","inquiryCard","tableCard"]
-        .forEach(id=>document.getElementById(id).style.display="block");
+// ==== Inquiry CRUD ====
+function addInquiry(){
+  const p = document.getElementById("product").value.trim();
+  const qtyVal = Number(document.getElementById("qty").value);
+  if(!p || !qtyVal){ alert("Product & Qty required"); return; }
+  const obj = {
+    product: p,
+    salePurchase: document.getElementById("salePurchase").value,
+    qty: qtyVal,
+    party: document.getElementById("party").value,
+    rate: document.getElementById("rate").value,
+    availableWith: document.getElementById("availableWith").value,
+    remark: document.getElementById("remark").value,
+    salesmanId: salesmanId,
+    status: "Open",
+    date: new Date().toLocaleDateString()
+  };
+  if(editIndex!==null){
+    inquiries[editIndex] = obj;
+    editIndex = null;
+  }else{
+    inquiries.push(obj);
+  }
+  clearInquiryForm();
+  renderTable();
+}
+function clearInquiryForm(){
+  ["product","qty","party","rate","availableWith","remark"].forEach(id=>document.getElementById(id).value="");
+}
+function deleteRow(index){ if(confirm("Delete?")) { inquiries.splice(index,1); renderTable(); } }
+function toggleStatus(index){ 
+  const s = inquiries[index].status;
+  inquiries[index].status = s==="Open"?"Matched":s==="Matched"?"Closed":"Open";
+  renderTable();
+}
 
-      db.collection("users").doc(user.uid).get().then(doc=>{
-        userName.innerText = doc.exists ? doc.data().name : user.email;
-      });
-
-      updateTable();
-    } else {
-      loginBox.style.display="block";
-      userBox.style.display="none";
-      ["totalsCard","reportCard","inquiryCard","tableCard"]
-        .forEach(id=>document.getElementById(id).style.display="none");
+// ==== Bulk Actions ====
+function toggleSelectAll(el){
+  const checkboxes = document.querySelectorAll(".rowCheckbox");
+  checkboxes.forEach(cb=>cb.checked=el.checked);
+}
+function bulkClose(){
+  document.querySelectorAll(".rowCheckbox").forEach((cb,i)=>{
+    if(cb.checked) inquiries[i].status="Closed";
+  });
+  renderTable();
+}
+function bulkDelete(){
+  for(let i=inquiries.length-1;i>=0;i--){
+    if(document.querySelectorAll(".rowCheckbox")[i].checked){
+      inquiries.splice(i,1);
     }
+  }
+  renderTable();
+}
+
+// ==== Filters ====
+function updateFilters(){
+  const select = document.getElementById("salesmanFilter");
+  select.innerHTML = "<option value=''>All Salesmen</option>";
+  for(let id in usersMap) select.innerHTML+=`<option value='${id}'>${usersMap[id]}</option>`;
+}
+document.getElementById("search").addEventListener("input", renderTable);
+document.getElementById("categoryFilter").addEventListener("change", renderTable);
+document.getElementById("salesmanFilter").addEventListener("change", renderTable);
+
+// ==== Render Table & Totals ====
+let sortField = null; let sortAsc=true;
+function sortTable(field){
+  if(sortField===field) sortAsc = !sortAsc; else { sortField=field; sortAsc=true; }
+  renderTable();
+}
+
+function renderTable(){
+  const tbody = document.getElementById("data");
+  tbody.innerHTML = "";
+  const searchVal = document.getElementById("search").value.toLowerCase();
+  const catVal = document.getElementById("categoryFilter").value;
+  const salesVal = document.getElementById("salesmanFilter").value;
+
+  let filtered = inquiries.filter(i=>{
+    if(searchVal && !i.product.toLowerCase().includes(searchVal)) return false;
+    if(catVal && i.salePurchase!==catVal) return false;
+    if(salesVal && i.salesmanId!=salesVal) return false;
+    return true;
   });
 
-  function signup(){
-    const emailV=email.value.trim();
-    const passV=password.value.trim();
-    const nameV=salesmanName.value.trim();
-    if(!emailV||!passV||!nameV) return alert("Fill all fields");
-
-    auth.createUserWithEmailAndPassword(emailV,passV)
-      .then(cred=>{
-        db.collection("users").doc(cred.user.uid).set({name:nameV,email:emailV});
-      });
-  }
-
-  function login(){
-    auth.signInWithEmailAndPassword(email.value,password.value);
-  }
-
-  function logout(){ auth.signOut(); }
-
-  // --- Products ---
-  function loadProducts(){
-    const productSelect=document.getElementById("product");
-    db.collection("products").orderBy("createdAt","asc").onSnapshot(snap=>{
-      productSelect.innerHTML="<option value=''>Select Product</option>";
-      snap.forEach(doc=>{
-        productSelect.innerHTML+=`<option value="${doc.id}">${doc.id}</option>`;
-      });
-    });
-  }
-  loadProducts();
-
-  function addProduct(){
-    const p=newProduct.value.trim();
-    if(!p) return alert("Enter product name");
-    db.collection("products").doc(p)
-      .set({name:p,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    newProduct.value="";
-  }
-
-  // --- Inquiry ---
-  function addInquiry(){
-    const user=auth.currentUser;
-    if(!user) return alert("Login first");
-
-    const dataObj={
-      date:new Date().toLocaleDateString(),
-      product:product.value,
-      category:category.value,
-      qty:Number(qty.value),
-      party:party.value,
-      rate:rate.value,
-      availableWith:availableWith.value,
-      salesmanId:user.uid,   // 🔥 changed (was email)
-      remark:remark.value,
-      status:"Open",
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    if(editId){
-      db.collection("inquiries").doc(editId).update(dataObj);
-      editId=null;
-    }else{
-      db.collection("inquiries").add(dataObj);
-    }
-
-    ["qty","party","rate","availableWith","remark","product"].forEach(
-      id=>document.getElementById(id).value=""
-    );
-  }
-
-  function deleteRow(id){
-    if(confirm("Delete this entry?"))
-      db.collection("inquiries").doc(id).delete();
-  }
-
-  function editRow(id,d){
-    editId=id;
-    ["product","category","qty","party","rate","availableWith","remark"]
-      .forEach(f=>document.getElementById(f).value=d[f]);
-  }
-
-  function toggleStatus(id,status){
-    const next=status==="Open"?"Matched":status==="Matched"?"Closed":"Open";
-    db.collection("inquiries").doc(id).update({status:next});
-  }
-
-  function filterByProduct(p){
-    currentFilter=currentFilter===p.toLowerCase()?"":p.toLowerCase();
-    updateTable();
-  }
-
-  function filterBySalesman(s){
-    currentSalesmanFilter=currentSalesmanFilter===s?"":s;
-    updateTable();
-  }
-
-  function updateTable(){
-    db.collection("inquiries").orderBy("createdAt","desc").get().then(snap=>{
-      data.innerHTML="";
-      totals.innerHTML="";
-      reportBox.innerHTML="";
-
-      let totalsObj={}, salesmanTotals={};
-      const searchVal=search.value.toLowerCase();
-
-      snap.forEach(doc=>{
-        const d=doc.data();
-
-        if(
-          (searchVal && !d.product.toLowerCase().includes(searchVal)) ||
-          (currentFilter && d.product.toLowerCase()!==currentFilter)
-        ) return;
-
-        const sName = usersMap[d.salesmanId] || d.salesman || "Unknown";
-
-        totalsObj[d.product]=(totalsObj[d.product]||0)+d.qty;
-        salesmanTotals[sName]=(salesmanTotals[sName]||0)+d.qty;
-
-        data.innerHTML+=`
-        <tr class="status-${d.status}">
-          <td>${d.date}</td>
-          <td>${d.product}</td>
-          <td>${d.qty}</td>
-          <td>${d.party}</td>
-          <td>${d.availableWith}</td>
-          <td>${sName}</td>
-          <td class="actionIcons">
-            <span onclick='editRow("${doc.id}", ${JSON.stringify(d)})'>✏️</span>
-            <span onclick="deleteRow('${doc.id}')">🗑️</span>
-            <span onclick="toggleStatus('${doc.id}','${d.status}')">🔄</span>
-          </td>
-        </tr>`;
-      });
-
-      for(let p in totalsObj)
-        totals.innerHTML+=`<div class="qtyItem" onclick="filterByProduct('${p}')">${p}: <b>${totalsObj[p]}</b></div>`;
-
-      for(let s in salesmanTotals)
-        reportBox.innerHTML+=`<div class="qtyItem" onclick="filterBySalesman('${s}')">${s}: <b>${salesmanTotals[s]}</b></div>`;
+  if(sortField){
+    filtered.sort((a,b)=>{
+      if(a[sortField]<b[sortField]) return sortAsc?-1:1;
+      if(a[sortField]>b[sortField]) return sortAsc?1:-1;
+      return 0;
     });
   }
 
-  db.collection("inquiries").orderBy("createdAt","desc")
-    .onSnapshot(()=>updateTable());
+  filtered.forEach((i,index)=>{
+    tbody.innerHTML+=`
+    <tr class="status-${i.status}">
+      <td><input type="checkbox" class="rowCheckbox checkbox"></td>
+      <td>${i.date}</td>
+      <td>${i.product}</td>
+      <td>${i.salePurchase}</td>
+      <td contenteditable="true" onblur="updateField(${index},'qty',this.innerText)">${i.qty}</td>
+      <td contenteditable="true" onblur="updateField(${index},'party',this.innerText)">${i.party}</td>
+      <td contenteditable="true" onblur="updateField(${index},'availableWith',this.innerText)">${i.availableWith}</td>
+      <td>${usersMap[i.salesmanId]}</td>
+      <td class="actionIcons">
+        <span onclick="editInquiry(${index})">✏️</span>
+        <span onclick="deleteRow(${index})">🗑️</span>
+        <span onclick="toggleStatus(${index})">🔄</span>
+      </td>
+    </tr>`;
+  });
 
-  search.addEventListener("input",()=>updateTable());
+  // Totals
+  const totalsDiv = document.getElementById("totals");
+  totalsDiv.innerHTML = "";
+  let totals = {};
+  let pending=0, closed=0;
+  inquiries.forEach(i=>{
+    totals[i.product]=(totals[i.product]||0)+i.qty;
+    if(i.status==="Open") pending+=i.qty;
+    if(i.status==="Closed") closed+=i.qty;
+  });
+  for(let p in totals) totalsDiv.innerHTML+=`<div class="qtyItem">${p}: <b>${totals[p]}</b></div>`;
+  document.getElementById("statusTotals").innerHTML=`<b>Pending Qty:</b> ${pending} | <b>Closed Qty:</b> ${closed}`;
+}
 
- // ✅ default mode = login
-  showLogin();
+// Inline edit handler
+function updateField(index,field,value){
+  if(field==="qty") value = Number(value);
+  inquiries[index][field] = value;
+}
+
+// Edit Inquiry
+function editInquiry(index){
+  editIndex = index;
+  document.getElementById("product").value = inquiries[index].product;
+  document.getElementById("salePurchase").value = inquiries[index].salePurchase;
+  document.getElementById("qty").value = inquiries[index].qty;
+  document.getElementById("party").value = inquiries[index].party;
+  document.getElementById("rate").value = inquiries[index].rate;
+  document.getElementById("availableWith").value = inquiries[index].availableWith;
+  document.getElementById("remark").value = inquiries[index].remark;
+}
+
+// ==== Logout ====
+function logout(){ location.reload(); }
+
+showLogin();
 </script>
 
 </body>
