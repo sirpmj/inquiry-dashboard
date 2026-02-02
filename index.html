@@ -8,13 +8,12 @@
 <style>
 * {box-sizing:border-box;}
 body {margin:0; font-family:'Poppins',sans-serif; background:#f4f6f9; color:#333;}
-header {background:linear-gradient(135deg,#1f2937,#111827); color:#fff; padding:16px; display:flex; justify-content:space-between; align-items:center; font-size:20px;}
+header {background:linear-gradient(135deg,#1f2937,#111827); color:#fff; padding:16px; display:flex; justify-content:space-between; align-items:center;}
 header span {font-size:16px; cursor:pointer; background:#6366f1; padding:6px 10px; border-radius:6px;}
 .container {max-width:1200px; margin:auto; padding:12px;}
 .card {background:#fff; border-radius:12px; padding:14px; margin-bottom:14px; box-shadow:0 4px 14px rgba(0,0,0,.06);}
 h3 {margin:0 0 8px 0; font-size:16px;}
-label {display:block; font-weight:500; margin-top:6px;}
-input, select, button {width:100%; padding:10px 12px; margin:4px 0; border-radius:8px; border:1px solid #dcdcdc; font-size:14px;}
+input, select, button {width:100%; padding:10px 12px; margin:4px 0; border-radius:8px; border:1px solid #dcdcdc; font-size:14px; font-family:'Poppins';}
 input:focus, select:focus {outline:none; border-color:#6366f1;}
 button {background:#6366f1; color:#fff; border:none; font-weight:500; cursor:pointer; transition:.2s;}
 button:hover {opacity:.9;}
@@ -30,28 +29,29 @@ th {background:#111827; color:#fff; position:sticky; top:0; cursor:pointer;}
 .status-Closed {background:#ffe1e1;}
 .actionIcons span {cursor:pointer; margin-right:6px; font-size:16px;}
 .tableWrap {overflow:auto; max-height:420px;}
-@media(max-width:600px){header{font-size:18px;}}
 .checkbox {width:16px; height:16px; cursor:pointer;}
+@media(max-width:600px){header{font-size:18px;}}
 </style>
 </head>
 <body>
 
 <header>
   📦 Inquiry Pool Dashboard
-  <span onclick="logout()">Logout</span>
+  <span onclick="logout()" id="logoutBtn" style="display:none">Logout</span>
 </header>
 
 <div class="container">
 
   <!-- Login / Signup -->
   <div class="card" id="loginBox">
-    <h3>Salesman Login / Signup</h3>
+    <h3>Login / Signup</h3>
     <input id="email" type="email" placeholder="Enter your email">
     <input id="password" type="password" placeholder="Enter password">
     <button onclick="login()">Login</button>
     <button onclick="signup()">Sign Up</button>
   </div>
 
+  <!-- User Info -->
   <div class="card" id="userBox" style="display:none">
     Logged in as: <b id="userName"></b>
     <span onclick="logout()" style="cursor:pointer;color:#6366f1;margin-left:10px;">Logout</span>
@@ -83,7 +83,12 @@ th {background:#111827; color:#fff; position:sticky; top:0; cursor:pointer;}
     <h3>Add / Update Inquiry</h3>
     <div class="grid">
       <div><label>Product</label><input id="product" placeholder="Product Name"></div>
-      <div><label>Sale / Purchase</label><select id="salePurchase"><option>Sale</option><option>Purchase</option></select></div>
+      <div><label>Sale / Purchase</label>
+        <select id="salePurchase">
+          <option>Sale</option>
+          <option>Purchase</option>
+        </select>
+      </div>
       <div><label>Qty</label><input id="qty" type="number" placeholder="Quantity"></div>
       <div><label>Party</label><input id="party" placeholder="Party Name"></div>
       <div><label>Rate</label><input id="rate" placeholder="Rate"></div>
@@ -122,13 +127,12 @@ th {background:#111827; color:#fff; position:sticky; top:0; cursor:pointer;}
 
 </div>
 
-<!-- Firebase SDK -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyCuPj2Zayn-b-USaCoC3d_eA0FALPrBqXg",
     authDomain: "inquiry-pool-dashboard.firebaseapp.com",
@@ -141,123 +145,111 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// Global
+let currentUser = null;
 let inquiries = [];
 let editIndex = null;
+let sortField = null, sortAsc=true;
 
-// ===== LOGIN / SIGNUP =====
-function signup() {
-  const email = document.getElementById("email").value.trim();
+// ==== LOGIN / SIGNUP ====
+function login(){
+  const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  const name = prompt("Enter your name for signup:");
-
-  if(!email || !password || !name) { alert("All fields required"); return; }
-
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      const uid = userCredential.user.uid;
-      return db.collection("users").doc(uid).set({ name });
-    })
-    .then(() => showDashboardFirebase())
-    .catch(err => alert(err.message));
+  auth.signInWithEmailAndPassword(email,password)
+    .then(res=>{
+      currentUser = res.user;
+      showDashboard();
+    }).catch(err=>alert(err.message));
 }
 
-function login() {
-  const email = document.getElementById("email").value.trim();
+function signup(){
+  const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  if(!email || !password) { alert("Email & password required"); return; }
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => showDashboardFirebase())
-    .catch(err => alert(err.message));
+  auth.createUserWithEmailAndPassword(email,password)
+    .then(res=>{
+      currentUser = res.user;
+      db.collection("users").doc(currentUser.uid).set({name:email,isAdmin:false});
+      showDashboard();
+    }).catch(err=>alert(err.message));
 }
 
-function showDashboardFirebase() {
-  const user = auth.currentUser;
-  if(!user) return;
+function logout(){ auth.signOut().then(()=>location.reload()); }
 
+// ==== DASHBOARD ====
+function showDashboard(){
   document.getElementById("loginBox").style.display="none";
   document.getElementById("userBox").style.display="block";
   document.getElementById("totalsCard").style.display="block";
   document.getElementById("filterCard").style.display="block";
   document.getElementById("inquiryCard").style.display="block";
   document.getElementById("tableCard").style.display="block";
+  document.getElementById("logoutBtn").style.display="inline-block";
 
-  db.collection("users").doc(user.uid).get().then(doc=>{
-    document.getElementById("userName").innerText = doc.data().name;
-  });
+  db.collection("users").doc(currentUser.uid).get().then(doc=>{
+    const data = doc.data();
+    document.getElementById("userName").innerText = data.name || currentUser.email;
+    currentUser.isAdmin = data.isAdmin || false;
+  }).then(()=>loadInquiries());
 
-  loadInquiries();
+  updateFilters();
 }
 
-// ===== LOAD INQUIRIES =====
-function loadInquiries() {
-  const user = auth.currentUser;
-  if(!user) return;
-
-  db.collection("inquiries").where("salesmanId","==",user.uid).get()
-    .then(snapshot => {
-      inquiries = [];
-      snapshot.forEach(doc => inquiries.push(doc.data()));
-      renderTable();
+// ==== LOAD INQUIRIES ====
+function loadInquiries(){
+  db.collection("inquiries").get().then(snapshot=>{
+    inquiries = [];
+    let promises = [];
+    snapshot.forEach(doc=>{
+      const data = doc.data();
+      const p = db.collection("users").doc(data.salesmanId).get().then(u=>{
+        data.salesmanName = u.exists ? u.data().name : "Unknown";
+        data.docId = doc.id;
+        inquiries.push(data);
+      });
+      promises.push(p);
     });
+    Promise.all(promises).then(()=>renderTable());
+  });
 }
 
-// ===== ADD INQUIRY =====
-function addInquiry() {
-  const user = auth.currentUser;
-  if(!user) return alert("Not logged in");
-
+// ==== ADD / UPDATE INQUIRY ====
+function addInquiry(){
   const p = document.getElementById("product").value.trim();
   const qtyVal = Number(document.getElementById("qty").value);
-  if(!p || !qtyVal) { alert("Product & Qty required"); return; }
+  if(!p || !qtyVal){ alert("Product & Qty required"); return; }
 
   const obj = {
-    product: p,
-    salePurchase: document.getElementById("salePurchase").value,
-    qty: qtyVal,
-    party: document.getElementById("party").value,
-    rate: document.getElementById("rate").value,
-    availableWith: document.getElementById("availableWith").value,
-    remark: document.getElementById("remark").value,
-    salesmanId: user.uid,
-    status: "Open",
-    date: new Date().toLocaleDateString()
+    product:p,
+    salePurchase:document.getElementById("salePurchase").value,
+    qty:qtyVal,
+    party:document.getElementById("party").value,
+    rate:document.getElementById("rate").value,
+    availableWith:document.getElementById("availableWith").value,
+    remark:document.getElementById("remark").value,
+    salesmanId: currentUser.uid,
+    status:"Open",
+    date:new Date().toLocaleDateString()
   };
 
-  db.collection("inquiries").add(obj)
-    .then(() => {
-      inquiries.push(obj);
-      clearInquiryForm();
-      renderTable();
-    })
-    .catch(err => alert(err.message));
+  if(editIndex!==null){
+    const id = inquiries[editIndex].docId;
+    db.collection("inquiries").doc(id).set(obj).then(()=>{
+      editIndex=null; clearInquiryForm(); loadInquiries();
+    });
+  }else{
+    db.collection("inquiries").add(obj).then(()=>{ clearInquiryForm(); loadInquiries(); });
+  }
 }
 
 function clearInquiryForm(){
   ["product","qty","party","rate","availableWith","remark"].forEach(id=>document.getElementById(id).value="");
 }
 
-// ===== LOGOUT =====
-function logout() {
-  auth.signOut().then(()=>location.reload());
-}
-
-// ===== TABLE / FILTERS / CRUD =====
-let sortField=null, sortAsc=true;
-function sortTable(field){ if(sortField===field) sortAsc=!sortAsc; else {sortField=field; sortAsc=true;} renderTable(); }
-function toggleSelectAll(el){ document.querySelectorAll(".rowCheckbox").forEach(cb=>cb.checked=el.checked); }
-function bulkClose(){ document.querySelectorAll(".rowCheckbox").forEach((cb,i)=>{ if(cb.checked) inquiries[i].status="Closed"; }); renderTable(); }
-function bulkDelete(){ for(let i=inquiries.length-1;i>=0;i--){ if(document.querySelectorAll(".rowCheckbox")[i].checked){ inquiries.splice(i,1); } } renderTable(); }
-
-document.getElementById("search").addEventListener("input",renderTable);
-document.getElementById("categoryFilter").addEventListener("change",renderTable);
-
+// ==== TABLE RENDER ====
 function renderTable(){
   const tbody = document.getElementById("data");
-  tbody.innerHTML="";
-  const searchVal=document.getElementById("search").value.toLowerCase();
-  const catVal=document.getElementById("categoryFilter").value;
+  tbody.innerHTML = "";
+  const searchVal = document.getElementById("search").value.toLowerCase();
+  const catVal = document.getElementById("categoryFilter").value;
 
   let filtered = inquiries.filter(i=>{
     if(searchVal && !i.product.toLowerCase().includes(searchVal)) return false;
@@ -274,27 +266,103 @@ function renderTable(){
   }
 
   filtered.forEach((i,index)=>{
+    const canEdit = currentUser.isAdmin || i.salesmanId===currentUser.uid;
     tbody.innerHTML+=`
     <tr class="status-${i.status}">
       <td><input type="checkbox" class="rowCheckbox checkbox"></td>
       <td>${i.date}</td>
       <td>${i.product}</td>
-      <td>${i.salePurchase}</td>
-      <td contenteditable="true" onblur="updateField(${index},'qty',this.innerText)">${i.qty}</td>
-      <td contenteditable="true" onblur="updateField(${index},'party',this.innerText)">${i.party}</td>
-      <td contenteditable="true" onblur="updateField(${index},'availableWith',this.innerText)">${i.availableWith}</td>
-      <td>${i.salesmanId}</td>
+      <td>${i.salePurchase||''}</td>
+      <td contenteditable="${canEdit}" onblur="${canEdit ? `updateField('${i.docId}','qty',this.innerText)` : ''}">${i.qty}</td>
+      <td contenteditable="${canEdit}" onblur="${canEdit ? `updateField('${i.docId}','party',this.innerText)` : ''}">${i.party}</td>
+      <td contenteditable="${canEdit}" onblur="${canEdit ? `updateField('${i.docId}','availableWith',this.innerText)` : ''}">${i.availableWith}</td>
+      <td>${i.salesmanName||i.salesmanId}</td>
       <td class="actionIcons">
-        <span onclick="editInquiry(${index})">✏️</span>
-        <span onclick="toggleStatus(${index})">🔄</span>
+        ${canEdit?`<span onclick="editInquiry(${index})">✏️</span>`:""}
+        ${canEdit?`<span onclick="deleteRow(${index})">🗑️</span>`:""}
+        <span onclick="toggleStatus('${i.docId}')">🔄</span>
       </td>
     </tr>`;
   });
 
-  // Totals
-  const totalsDiv=document.getElementById("totals");
-  totalsDiv.innerHTML="";
-  let totals={}, pending=0, closed=0;
+  updateTotals();
+}
+
+// ==== UPDATE FIELD INLINE ====
+function updateField(docId,field,value){
+  const obj = {};
+  obj[field] = field==="qty"?Number(value):value;
+  db.collection("inquiries").doc(docId).update(obj);
+  loadInquiries();
+}
+
+// ==== EDIT / DELETE / TOGGLE ====
+function editInquiry(index){
+  const i = inquiries[index];
+  if(!currentUser.isAdmin && i.salesmanId!==currentUser.uid){ alert("Not allowed"); return; }
+  editIndex = index;
+  document.getElementById("product").value = i.product;
+  document.getElementById("salePurchase").value = i.salePurchase;
+  document.getElementById("qty").value = i.qty;
+  document.getElementById("party").value = i.party;
+  document.getElementById("rate").value = i.rate;
+  document.getElementById("availableWith").value = i.availableWith;
+  document.getElementById("remark").value = i.remark;
+}
+
+function deleteRow(index){
+  const i = inquiries[index];
+  if(!currentUser.isAdmin && i.salesmanId!==currentUser.uid){ alert("Not allowed"); return; }
+  if(confirm("Delete?")){
+    db.collection("inquiries").doc(i.docId).delete().then(()=>loadInquiries());
+  }
+}
+
+function toggleStatus(docId){
+  const i = inquiries.find(x=>x.docId===docId);
+  const next = i.status==="Open"?"Matched":i.status==="Matched"?"Closed":"Open";
+  db.collection("inquiries").doc(docId).update({status:next}).then(()=>loadInquiries());
+}
+
+// ==== BULK ====
+function toggleSelectAll(el){
+  const checkboxes = document.querySelectorAll(".rowCheckbox");
+  checkboxes.forEach(cb=>cb.checked=el.checked);
+}
+
+function bulkClose(){
+  document.querySelectorAll(".rowCheckbox").forEach((cb,i)=>{
+    if(cb.checked){
+      toggleStatus(inquiries[i].docId);
+    }
+  });
+}
+
+function bulkDelete(){
+  document.querySelectorAll(".rowCheckbox").forEach((cb,i)=>{
+    if(cb.checked){
+      deleteRow(i);
+    }
+  });
+}
+
+// ==== FILTERS & TOTALS ====
+document.getElementById("search").addEventListener("input", renderTable);
+document.getElementById("categoryFilter").addEventListener("change", renderTable);
+
+function updateFilters(){
+  const select = document.getElementById("salesmanFilter");
+  select.innerHTML = "<option value=''>All Salesmen</option>";
+  inquiries.forEach(i=>{
+    select.innerHTML += `<option value="${i.salesmanId}">${i.salesmanName}</option>`;
+  });
+}
+
+function updateTotals(){
+  const totalsDiv = document.getElementById("totals");
+  totalsDiv.innerHTML = "";
+  let totals = {};
+  let pending=0, closed=0;
   inquiries.forEach(i=>{
     totals[i.product]=(totals[i.product]||0)+i.qty;
     if(i.status==="Open") pending+=i.qty;
@@ -304,22 +372,11 @@ function renderTable(){
   document.getElementById("statusTotals").innerHTML=`<b>Pending Qty:</b> ${pending} | <b>Closed Qty:</b> ${closed}`;
 }
 
-function updateField(index,field,value){
-  if(field==="qty") value=Number(value);
-  inquiries[index][field]=value;
+// ==== SORT TABLE ====
+function sortTable(field){
+  if(sortField===field) sortAsc=!sortAsc; else { sortField=field; sortAsc=true; }
+  renderTable();
 }
-
-function editInquiry(index){
-  editIndex=index;
-  document.getElementById("product").value=inquiries[index].product;
-  document.getElementById("salePurchase").value=inquiries[index].salePurchase;
-  document.getElementById("qty").value=inquiries[index].qty;
-  document.getElementById("party").value=inquiries[index].party;
-  document.getElementById("rate").value=inquiries[index].rate;
-  document.getElementById("availableWith").value=inquiries[index].availableWith;
-  document.getElementById("remark").value=inquiries[index].remark;
-}
-
 </script>
 </body>
 </html>
