@@ -13,7 +13,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box} body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333} 
+*{box-sizing:border-box} 
+body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333} 
 header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center} 
 header span{font-size:16px;cursor:pointer;background:#6366f1;padding:6px 10px;border-radius:6px} 
 .container{max-width:1200px;margin:auto;padding:12px} 
@@ -53,11 +54,9 @@ th{background:#111827;color:#fff;position:sticky;top:0}
     <input id="email" type="email" placeholder="Enter your email">
     <input id="password" type="password" placeholder="Enter password">
     <input id="salesmanName" placeholder="Enter your name (for signup)" style="display:none">
- <button onclick="showLogin(); login()">Login</button>
-<button onclick="showSignup()">Sign Up</button>
-<button onclick="signup()">Confirm Sign Up</button>
-
-
+    <button onclick="showLogin(); login()">Login</button>
+    <button onclick="showSignup()">Sign Up</button>
+    <button onclick="signup()">Confirm Sign Up</button>
   </div>
 
   <div class="card" id="userBox" style="display:none">
@@ -125,178 +124,133 @@ th{background:#111827;color:#fff;position:sticky;top:0}
 </div>
 
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCuPj2Zayn-b-USaCoC3d_eA0FALPrBqXg",
-    authDomain: "inquiry-pool-dashboard.firebaseapp.com",
-    projectId: "inquiry-pool-dashboard",
-    storageBucket: "inquiry-pool-dashboard.appspot.com",
-    messagingSenderId: "722727372065",
-    appId: "1:722727372065:web:03302e83335325885dea60"
+const firebaseConfig = {
+  apiKey: "AIzaSyCuPj2Zayn-b-USaCoC3d_eA0FALPrBqXg",
+  authDomain: "inquiry-pool-dashboard.firebaseapp.com",
+  projectId: "inquiry-pool-dashboard",
+  storageBucket: "inquiry-pool-dashboard.appspot.com",
+  messagingSenderId: "722727372065",
+  appId: "1:722727372065:web:03302e83335325885dea60"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+let editId = null, currentFilter = "", currentSalesmanFilter = "";
+let usersMap = {};
+
+// Load users name cache
+db.collection("users").onSnapshot(snap=>{
+  usersMap = {};
+  snap.forEach(doc => usersMap[doc.id] = doc.data().name);
+  updateTable();
+});
+
+function showLogin(){ salesmanName.style.display="none"; }
+function showSignup(){ salesmanName.style.display="block"; }
+
+auth.onAuthStateChanged(user=>{
+  if(user){
+    loginBox.style.display="none";
+    userBox.style.display="block";
+    ["totalsCard","reportCard","inquiryCard","tableCard"].forEach(id=>document.getElementById(id).style.display="block");
+    db.collection("users").doc(user.uid).get().then(doc=>userName.innerText = doc.exists?doc.data().name:user.email);
+    updateTable();
+  }else{
+    loginBox.style.display="block";
+    userBox.style.display="none";
+    ["totalsCard","reportCard","inquiryCard","tableCard"].forEach(id=>document.getElementById(id).style.display="none");
+  }
+});
+
+// Signup
+function signup(){
+  const emailV = email.value.trim();
+  const passV = password.value.trim();
+  const nameV = salesmanName.value.trim();
+  if(!emailV||!passV||!nameV) return alert("Fill all fields");
+  auth.createUserWithEmailAndPassword(emailV, passV)
+    .then(cred=>db.collection("users").doc(cred.user.uid).set({name:nameV,email:emailV}))
+    .then(()=>{showLogin(); alert("Signup successful!")})
+    .catch(err=>alert(err.message));
+}
+
+// Login
+function login(){
+  auth.signInWithEmailAndPassword(email.value,password.value)
+    .catch(err=>alert(err.message));
+}
+
+function logout(){ auth.signOut(); }
+
+// Products
+function loadProducts(){
+  const productSelect=document.getElementById("product");
+  db.collection("products").orderBy("createdAt","asc").onSnapshot(snap=>{
+    productSelect.innerHTML="<option value=''>Select Product</option>";
+    snap.forEach(doc=>productSelect.innerHTML+=`<option value="${doc.id}">${doc.id}</option>`);
+  });
+}
+loadProducts();
+
+function addProduct(){
+  const p = newProduct.value.trim();
+  if(!p) return alert("Enter product name");
+  db.collection("products").doc(p).set({name:p,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  newProduct.value="";
+}
+
+// Inquiry
+function addInquiry(){
+  const user = auth.currentUser;
+  if(!user) return alert("Login first");
+
+  const dataObj={
+    date:new Date().toLocaleDateString(),
+    product:product.value,
+    category:category.value,
+    qty:Number(qty.value),
+    party:party.value,
+    rate:rate.value,
+    availableWith:availableWith.value,
+    salesmanId:user.uid,
+    remark:remark.value,
+    status:"Open",
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
   };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();
+  if(editId){
+    db.collection("inquiries").doc(editId).update(dataObj);
+    editId=null;
+  }else{
+    db.collection("inquiries").add(dataObj);
+  }
 
-  let editId=null, currentFilter="", currentSalesmanFilter="";
-  let usersMap = {}; // 🔥 added
+  ["qty","party","rate","availableWith","remark","product"].forEach(id=>document.getElementById(id).value="");
+}
 
-  // 🔥 load users (name cache)
-  db.collection("users").onSnapshot(snap=>{
-    usersMap = {};
+function deleteRow(id){ if(confirm("Delete this entry?")) db.collection("inquiries").doc(id).delete(); }
+function editRow(id,d){ editId=id; ["product","category","qty","party","rate","availableWith","remark"].forEach(f=>document.getElementById(f).value=d[f]); }
+function toggleStatus(id,status){ const next=status==="Open"?"Matched":status==="Matched"?"Closed":"Open"; db.collection("inquiries").doc(id).update({status:next}); }
+
+function filterByProduct(p){ currentFilter=currentFilter===p.toLowerCase()?"":p.toLowerCase(); updateTable(); }
+function filterBySalesman(s){ currentSalesmanFilter=currentSalesmanFilter===s?"":s; updateTable(); }
+
+function updateTable(){
+  db.collection("inquiries").orderBy("createdAt","desc").get().then(snap=>{
+    data.innerHTML=""; totals.innerHTML=""; reportBox.innerHTML="";
+    const totalsObj={}, salesmanTotals={};
+    const searchVal=search.value.toLowerCase();
+
     snap.forEach(doc=>{
-      usersMap[doc.id] = doc.data().name;
-    });
-    updateTable();
-  });
+      const d = doc.data();
+      if((searchVal && !d.product.toLowerCase().includes(searchVal)) || (currentFilter && d.product.toLowerCase()!==currentFilter)) return;
+      const sName = usersMap[d.salesmanId] || "Unknown";
+      totalsObj[d.product]=(totalsObj[d.product]||0)+d.qty;
+      salesmanTotals[sName]=(salesmanTotals[sName]||0)+d.qty;
 
-function showLogin(){
-  document.getElementById("salesmanName").style.display = "none";
-}
-
-function showSignup(){
-  document.getElementById("salesmanName").style.display = "block";
-}
-
-  // --- Auth state ---
-  auth.onAuthStateChanged(user=>{
-    if(user){
-      loginBox.style.display="none";
-      userBox.style.display="block";
-      ["totalsCard","reportCard","inquiryCard","tableCard"]
-        .forEach(id=>document.getElementById(id).style.display="block");
-
-      db.collection("users").doc(user.uid).get().then(doc=>{
-        userName.innerText = doc.exists ? doc.data().name : user.email;
-      });
-
-      updateTable();
-    } else {
-      loginBox.style.display="block";
-      userBox.style.display="none";
-      ["totalsCard","reportCard","inquiryCard","tableCard"]
-        .forEach(id=>document.getElementById(id).style.display="none");
-    }
-  });
-
-  function signup(){
-    const emailV=email.value.trim();
-    const passV=password.value.trim();
-    const nameV=salesmanName.value.trim();
-    if(!emailV||!passV||!nameV) return alert("Fill all fields");
-
-    auth.createUserWithEmailAndPassword(emailV,passV)
-      .then(cred=>{
-        db.collection("users").doc(cred.user.uid).set({name:nameV,email:emailV});
-      });
-  }
-
-  function login(){
-    auth.signInWithEmailAndPassword(email.value,password.value);
-  }
-
-  function logout(){ auth.signOut(); }
-
-  // --- Products ---
-  function loadProducts(){
-    const productSelect=document.getElementById("product");
-    db.collection("products").orderBy("createdAt","asc").onSnapshot(snap=>{
-      productSelect.innerHTML="<option value=''>Select Product</option>";
-      snap.forEach(doc=>{
-        productSelect.innerHTML+=`<option value="${doc.id}">${doc.id}</option>`;
-      });
-    });
-  }
-  loadProducts();
-
-  function addProduct(){
-    const p=newProduct.value.trim();
-    if(!p) return alert("Enter product name");
-    db.collection("products").doc(p)
-      .set({name:p,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    newProduct.value="";
-  }
-
-  // --- Inquiry ---
-  function addInquiry(){
-    const user=auth.currentUser;
-    if(!user) return alert("Login first");
-
-    const dataObj={
-      date:new Date().toLocaleDateString(),
-      product:product.value,
-      category:category.value,
-      qty:Number(qty.value),
-      party:party.value,
-      rate:rate.value,
-      availableWith:availableWith.value,
-      salesmanId:user.uid,   // 🔥 changed (was email)
-      remark:remark.value,
-      status:"Open",
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    if(editId){
-      db.collection("inquiries").doc(editId).update(dataObj);
-      editId=null;
-    }else{
-      db.collection("inquiries").add(dataObj);
-    }
-
-    ["qty","party","rate","availableWith","remark","product"].forEach(
-      id=>document.getElementById(id).value=""
-    );
-  }
-
-  function deleteRow(id){
-    if(confirm("Delete this entry?"))
-      db.collection("inquiries").doc(id).delete();
-  }
-
-  function editRow(id,d){
-    editId=id;
-    ["product","category","qty","party","rate","availableWith","remark"]
-      .forEach(f=>document.getElementById(f).value=d[f]);
-  }
-
-  function toggleStatus(id,status){
-    const next=status==="Open"?"Matched":status==="Matched"?"Closed":"Open";
-    db.collection("inquiries").doc(id).update({status:next});
-  }
-
-  function filterByProduct(p){
-    currentFilter=currentFilter===p.toLowerCase()?"":p.toLowerCase();
-    updateTable();
-  }
-
-  function filterBySalesman(s){
-    currentSalesmanFilter=currentSalesmanFilter===s?"":s;
-    updateTable();
-  }
-
-  function updateTable(){
-    db.collection("inquiries").orderBy("createdAt","desc").get().then(snap=>{
-      data.innerHTML="";
-      totals.innerHTML="";
-      reportBox.innerHTML="";
-
-      let totalsObj={}, salesmanTotals={};
-      const searchVal=search.value.toLowerCase();
-
-      snap.forEach(doc=>{
-        const d=doc.data();
-
-        if(
-          (searchVal && !d.product.toLowerCase().includes(searchVal)) ||
-          (currentFilter && d.product.toLowerCase()!==currentFilter)
-        ) return;
-
-        const sName = usersMap[d.salesmanId] || d.salesman || "Unknown";
-
-        totalsObj[d.product]=(totalsObj[d.product]||0)+d.qty;
-        salesmanTotals[sName]=(salesmanTotals[sName]||0)+d.qty;
-
-        data.innerHTML+=`
+      data.innerHTML+=`
         <tr class="status-${d.status}">
           <td>${d.date}</td>
           <td>${d.product}</td>
@@ -310,23 +264,18 @@ function showSignup(){
             <span onclick="toggleStatus('${doc.id}','${d.status}')">🔄</span>
           </td>
         </tr>`;
-      });
-
-      for(let p in totalsObj)
-        totals.innerHTML+=`<div class="qtyItem" onclick="filterByProduct('${p}')">${p}: <b>${totalsObj[p]}</b></div>`;
-
-      for(let s in salesmanTotals)
-        reportBox.innerHTML+=`<div class="qtyItem" onclick="filterBySalesman('${s}')">${s}: <b>${salesmanTotals[s]}</b></div>`;
     });
-  }
 
-  db.collection("inquiries").orderBy("createdAt","desc")
-    .onSnapshot(()=>updateTable());
+    for(let p in totalsObj) totals.innerHTML+=`<div class="qtyItem" onclick="filterByProduct('${p}')">${p}: <b>${totalsObj[p]}</b></div>`;
+    for(let s in salesmanTotals) reportBox.innerHTML+=`<div class="qtyItem" onclick="filterBySalesman('${s}')">${s}: <b>${salesmanTotals[s]}</b></div>`;
+  });
+}
 
-  search.addEventListener("input",()=>updateTable());
+db.collection("inquiries").orderBy("createdAt","desc").onSnapshot(()=>updateTable());
+search.addEventListener("input",()=>updateTable());
 
- // ✅ default mode = login
-  showLogin();
+// Default view
+showLogin();
 </script>
 
 </body>
