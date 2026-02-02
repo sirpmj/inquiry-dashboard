@@ -1,43 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inquiry Pool Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-* {box-sizing:border-box;}
-body {margin:0; font-family:'Poppins',sans-serif; background:#f4f6f9; color:#333;}
-header {background:linear-gradient(135deg,#1f2937,#111827); color:#fff; padding:16px; display:flex; justify-content:space-between; align-items:center;}
-header span {font-size:16px; cursor:pointer; background:#6366f1; padding:6px 10px; border-radius:6px;}
-.container {max-width:1200px; margin:auto; padding:12px;}
-.card {background:#fff; border-radius:12px; padding:14px; margin-bottom:14px; box-shadow:0 4px 14px rgba(0,0,0,.06);}
-h3 {margin:0 0 8px 0; font-size:16px;}
-input, select, button {width:100%; padding:10px 12px; margin:4px 0; border-radius:8px; border:1px solid #dcdcdc; font-size:14px; font-family:'Poppins';}
-input:focus, select:focus {outline:none; border-color:#6366f1;}
-button {background:#6366f1; color:#fff; border:none; font-weight:500; cursor:pointer; transition:.2s;}
-button:hover {opacity:.9;}
-.grid {display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px;}
-.qtyBox {display:flex; gap:10px; overflow:auto; margin-bottom:6px;}
-.qtyItem {min-width:120px; background:#eef2ff; border:1px solid #c7d2fe; padding:8px 12px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; white-space:nowrap; text-align:center;}
-.qtyItem:hover {background:#dbeafe; border-color:#6366f1;}
-table {width:100%; border-collapse:collapse; font-size:13px;}
-th, td {padding:8px; border-bottom:1px solid #eee; text-align:left;}
-th {background:#111827; color:#fff; position:sticky; top:0; cursor:pointer;}
-.status-Open {background:#fff7d6;}
-.status-Matched {background:#dbfce7;}
-.status-Closed {background:#ffe1e1;}
-.actionIcons span {cursor:pointer; margin-right:6px; font-size:16px;}
-.tableWrap {overflow:auto; max-height:420px;}
-.checkbox {width:16px; height:16px; cursor:pointer;}
+*{box-sizing:border-box;}body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333;}
+header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+header span{font-size:16px;cursor:pointer;background:#6366f1;padding:6px 10px;border-radius:6px;}
+.container{max-width:1200px;margin:auto;padding:12px;}
+.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.06);}
+h3{margin:0 0 8px 0;font-size:16px;}
+label{display:block;font-weight:500;margin-top:6px;}
+input,select,button{width:100%;padding:10px 12px;margin:4px 0;border-radius:8px;border:1px solid #dcdcdc;font-size:14px;font-family:'Poppins';}
+input:focus,select:focus{outline:none;border-color:#6366f1;}
+button{background:#6366f1;color:#fff;border:none;font-weight:500;cursor:pointer;transition:.2s;}
+button:hover{opacity:.9;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;}
+.qtyBox{display:flex;gap:10px;overflow:auto;margin-bottom:6px;}
+.qtyItem{min-width:120px;background:#eef2ff;border:1px solid #c7d2fe;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;text-align:center;}
+.qtyItem:hover{background:#dbeafe;border-color:#6366f1;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;}
+th{background:#111827;color:#fff;position:sticky;top:0;cursor:pointer;}
+.status-Open{background:#fff7d6;}
+.status-Matched{background:#dbfce7;}
+.status-Closed{background:#ffe1e1;}
+.actionIcons span{cursor:pointer;margin-right:6px;font-size:16px;}
+.tableWrap{overflow:auto;max-height:420px;}
 @media(max-width:600px){header{font-size:18px;}}
+.checkbox{width:16px;height:16px;cursor:pointer;}
+#charts{display:flex;gap:12px;flex-wrap:wrap;}
+.chartCard{flex:1;min-width:220px;padding:10px;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
 </style>
 </head>
 <body>
 
 <header>
   📦 Inquiry Pool Dashboard
-  <span onclick="logout()" id="logoutBtn" style="display:none">Logout</span>
+  <span onclick="logout()">Logout</span>
 </header>
 
 <div class="container">
@@ -45,84 +47,109 @@ th {background:#111827; color:#fff; position:sticky; top:0; cursor:pointer;}
   <!-- Login / Signup -->
   <div class="card" id="loginBox">
     <h3>Login / Signup</h3>
-    <input id="email" type="email" placeholder="Enter your email">
-    <input id="password" type="password" placeholder="Enter password">
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
     <button onclick="login()">Login</button>
     <button onclick="signup()">Sign Up</button>
   </div>
 
-  <!-- User Info -->
-  <div class="card" id="userBox" style="display:none">
-    Logged in as: <b id="userName"></b>
-    <span onclick="logout()" style="cursor:pointer;color:#6366f1;margin-left:10px;">Logout</span>
-  </div>
+  <!-- Dashboard -->
+  <div id="dashboard" style="display:none">
 
-  <!-- Totals -->
-  <div class="card" id="totalsCard" style="display:none">
-    <h3>📊 Product Totals</h3>
-    <div id="totals" class="qtyBox"></div>
-    <div id="statusTotals"></div>
-  </div>
+    <div class="card" id="userBox">
+      Logged in as: <b id="userName"></b> (<span id="userRole"></span>)
+      <span onclick="logout()" style="cursor:pointer;color:#6366f1;margin-left:10px;">Logout</span>
+    </div>
 
-  <!-- Filters -->
-  <div class="card" id="filterCard" style="display:none">
-    <h3>🔍 Filters</h3>
-    <input id="search" placeholder="Search Product">
-    <select id="categoryFilter">
-      <option value="">All Category</option>
-      <option>Sale</option>
-      <option>Purchase</option>
-    </select>
-    <select id="salesmanFilter">
-      <option value="">All Salesmen</option>
-    </select>
-  </div>
+    <div class="card" id="totalsCard">
+      <h3>📊 Product Totals</h3>
+      <div id="totals" class="qtyBox"></div>
+      <div id="statusTotals"></div>
+    </div>
 
-  <!-- Add Inquiry -->
-  <div class="card" id="inquiryCard" style="display:none">
-    <h3>Add / Update Inquiry</h3>
-    <div class="grid">
-      <div><label>Product</label><input id="product" placeholder="Product Name"></div>
-      <div><label>Sale / Purchase</label>
-        <select id="salePurchase">
-          <option>Sale</option>
-          <option>Purchase</option>
-        </select>
+    <div class="card" id="filterCard">
+      <h3>🔍 Filters</h3>
+      <input id="search" placeholder="Search Product">
+      <select id="categoryFilter">
+        <option value="">All Category</option>
+        <option>Sale</option>
+        <option>Purchase</option>
+      </select>
+      <select id="salesmanFilter">
+        <option value="">All Salesmen</option>
+      </select>
+    </div>
+
+    <div class="card" id="inquiryCard">
+      <h3>Add / Update Inquiry</h3>
+      <div class="grid">
+        <div>
+          <label>Product</label>
+          <input id="product" placeholder="Product Name">
+        </div>
+        <div>
+          <label>Sale / Purchase</label>
+          <select id="salePurchase">
+            <option>Sale</option>
+            <option>Purchase</option>
+          </select>
+        </div>
+        <div>
+          <label>Qty</label>
+          <input id="qty" type="number" placeholder="Quantity">
+        </div>
+        <div>
+          <label>Party</label>
+          <input id="party" placeholder="Party Name">
+        </div>
+        <div>
+          <label>Rate</label>
+          <input id="rate" placeholder="Rate">
+        </div>
+        <div>
+          <label>Available With</label>
+          <input id="availableWith" placeholder="Available With">
+        </div>
+        <div>
+          <label>Remark</label>
+          <input id="remark" placeholder="Remark">
+        </div>
       </div>
-      <div><label>Qty</label><input id="qty" type="number" placeholder="Quantity"></div>
-      <div><label>Party</label><input id="party" placeholder="Party Name"></div>
-      <div><label>Rate</label><input id="rate" placeholder="Rate"></div>
-      <div><label>Available With</label><input id="availableWith" placeholder="Available With"></div>
-      <div><label>Remark</label><input id="remark" placeholder="Remark"></div>
+      <button onclick="addInquiry()">Save Inquiry</button>
     </div>
-    <button onclick="addInquiry()">Save Inquiry</button>
-  </div>
 
-  <!-- Table -->
-  <div class="card" id="tableCard" style="display:none">
-    <h3>📋 Live Inquiry Table</h3>
-    <div>
-      <button onclick="bulkClose()">Mark Selected Closed</button>
-      <button onclick="bulkDelete()">Delete Selected</button>
+    <div class="card" id="tableCard">
+      <h3>📋 Live Inquiry Table</h3>
+      <div>
+        <button onclick="bulkClose()">Mark Selected Closed</button>
+        <button onclick="bulkDelete()">Delete Selected</button>
+        <button onclick="exportCSV()">Export CSV</button>
+      </div>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="selectAll" class="checkbox" onclick="toggleSelectAll(this)"></th>
+              <th onclick="sortTable('date')">Date</th>
+              <th onclick="sortTable('product')">Product</th>
+              <th>Sale / Purchase</th>
+              <th onclick="sortTable('qty')">Qty</th>
+              <th>Party</th>
+              <th>Available</th>
+              <th>Salesman</th>
+              <th>Status / Action</th>
+            </tr>
+          </thead>
+          <tbody id="data"></tbody>
+        </table>
+      </div>
     </div>
-    <div class="tableWrap">
-      <table>
-        <thead>
-          <tr>
-            <th><input type="checkbox" id="selectAll" class="checkbox" onclick="toggleSelectAll(this)"></th>
-            <th onclick="sortTable('date')">Date</th>
-            <th onclick="sortTable('product')">Product</th>
-            <th>Sale / Purchase</th>
-            <th onclick="sortTable('qty')">Qty</th>
-            <th>Party</th>
-            <th>Available</th>
-            <th>Salesman</th>
-            <th>Status / Action</th>
-          </tr>
-        </thead>
-        <tbody id="data"></tbody>
-      </table>
+
+    <div id="charts" class="card">
+      <div class="chartCard"><canvas id="chartSalePurchase"></canvas></div>
+      <div class="chartCard"><canvas id="chartStatus"></canvas></div>
     </div>
+
   </div>
 
 </div>
@@ -131,8 +158,11 @@ th {background:#111827; color:#fff; position:sticky; top:0; cursor:pointer;}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+// 🔹 Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyCuPj2Zayn-b-USaCoC3d_eA0FALPrBqXg",
     authDomain: "inquiry-pool-dashboard.firebaseapp.com",
@@ -142,228 +172,209 @@ const firebaseConfig = {
     appId: "1:722727372065:web:03302e83335325885dea60"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
 const auth = firebase.auth();
+const db = firebase.firestore();
 
+// ==== Globals ====
 let currentUser = null;
-let inquiries = [];
-let editIndex = null;
-let sortField = null, sortAsc=true;
+let editId = null;
+let userRole = null; // 'admin' or 'salesman'
 
-// ==== LOGIN / SIGNUP ====
+// ==== Login/Signup ====
 function login(){
   const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  auth.signInWithEmailAndPassword(email,password)
-    .then(res=>{
-      currentUser = res.user;
-      showDashboard();
-    }).catch(err=>alert(err.message));
+  const pass = document.getElementById("password").value;
+  auth.signInWithEmailAndPassword(email,pass)
+  .then(res => {currentUser=res.user; loadUserRole();})
+  .catch(e=>alert(e.message));
 }
-
 function signup(){
   const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  auth.createUserWithEmailAndPassword(email,password)
-    .then(res=>{
-      currentUser = res.user;
-      db.collection("users").doc(currentUser.uid).set({name:email,isAdmin:false});
-      showDashboard();
-    }).catch(err=>alert(err.message));
+  const pass = document.getElementById("password").value;
+  auth.createUserWithEmailAndPassword(email,pass)
+  .then(res=>{
+    currentUser=res.user;
+    db.collection('users').doc(currentUser.uid).set({role:'salesman', name:email});
+    loadUserRole();
+  })
+  .catch(e=>alert(e.message));
 }
-
 function logout(){ auth.signOut().then(()=>location.reload()); }
 
-// ==== DASHBOARD ====
-function showDashboard(){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("userBox").style.display="block";
-  document.getElementById("totalsCard").style.display="block";
-  document.getElementById("filterCard").style.display="block";
-  document.getElementById("inquiryCard").style.display="block";
-  document.getElementById("tableCard").style.display="block";
-  document.getElementById("logoutBtn").style.display="inline-block";
-
-  db.collection("users").doc(currentUser.uid).get().then(doc=>{
-    const data = doc.data();
-    document.getElementById("userName").innerText = data.name || currentUser.email;
-    currentUser.isAdmin = data.isAdmin || false;
-  }).then(()=>loadInquiries());
-
-  updateFilters();
-}
-
-// ==== LOAD INQUIRIES ====
-function loadInquiries(){
-  db.collection("inquiries").get().then(snapshot=>{
-    inquiries = [];
-    let promises = [];
-    snapshot.forEach(doc=>{
-      const data = doc.data();
-      const p = db.collection("users").doc(data.salesmanId).get().then(u=>{
-        data.salesmanName = u.exists ? u.data().name : "Unknown";
-        data.docId = doc.id;
-        inquiries.push(data);
-      });
-      promises.push(p);
-    });
-    Promise.all(promises).then(()=>renderTable());
+// ==== Load Dashboard ====
+function loadUserRole(){
+  db.collection('users').doc(currentUser.uid).get().then(doc=>{
+    userRole = doc.data().role;
+    document.getElementById("userName").innerText = doc.data().name;
+    document.getElementById("userRole").innerText = userRole;
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("dashboard").style.display="block";
+    setupRealtime();
+    updateFilters();
   });
 }
 
-// ==== ADD / UPDATE INQUIRY ====
-function addInquiry(){
-  const p = document.getElementById("product").value.trim();
-  const qtyVal = Number(document.getElementById("qty").value);
-  if(!p || !qtyVal){ alert("Product & Qty required"); return; }
+// ==== Realtime Listener ====
+function setupRealtime(){
+  db.collection('inquiries').orderBy('date','desc').onSnapshot(snap=>{
+    window.inquiries = [];
+    snap.forEach(doc=>{
+      const i = doc.data(); i.id=doc.id;
+      window.inquiries.push(i);
+    });
+    renderTable();
+    renderCharts();
+  });
+}
 
-  const obj = {
+// ==== Filters ====
+document.getElementById("search").addEventListener("input", renderTable);
+document.getElementById("categoryFilter").addEventListener("change", renderTable);
+document.getElementById("salesmanFilter").addEventListener("change", renderTable);
+
+function updateFilters(){
+  db.collection('users').get().then(snap=>{
+    const select = document.getElementById("salesmanFilter");
+    select.innerHTML = "<option value=''>All Salesmen</option>";
+    snap.forEach(doc=>{
+      select.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`;
+    });
+  });
+}
+
+// ==== Add / Update Inquiry ====
+function addInquiry(){
+  const p=document.getElementById("product").value.trim();
+  const qty=Number(document.getElementById("qty").value);
+  if(!p||!qty){alert("Product & Qty required"); return;}
+  const obj={
     product:p,
     salePurchase:document.getElementById("salePurchase").value,
-    qty:qtyVal,
+    qty:qty,
     party:document.getElementById("party").value,
     rate:document.getElementById("rate").value,
     availableWith:document.getElementById("availableWith").value,
     remark:document.getElementById("remark").value,
-    salesmanId: currentUser.uid,
+    salesmanId:currentUser.uid,
     status:"Open",
-    date:new Date().toLocaleDateString()
+    date:new Date()
   };
-
-  if(editIndex!==null){
-    const id = inquiries[editIndex].docId;
-    db.collection("inquiries").doc(id).set(obj).then(()=>{
-      editIndex=null; clearInquiryForm(); loadInquiries();
-    });
+  if(editId){
+    db.collection('inquiries').doc(editId).set(obj);
+    editId=null;
   }else{
-    db.collection("inquiries").add(obj).then(()=>{ clearInquiryForm(); loadInquiries(); });
+    db.collection('inquiries').add(obj);
   }
+  clearInquiryForm();
 }
 
-function clearInquiryForm(){
-  ["product","qty","party","rate","availableWith","remark"].forEach(id=>document.getElementById(id).value="");
+// ==== Table Rendering ====
+let sortField=null, sortAsc=true;
+function sortTable(field){
+  if(sortField===field) sortAsc=!sortAsc; else {sortField=field; sortAsc=true;}
+  renderTable();
 }
-
-// ==== TABLE RENDER ====
 function renderTable(){
-  const tbody = document.getElementById("data");
-  tbody.innerHTML = "";
-  const searchVal = document.getElementById("search").value.toLowerCase();
-  const catVal = document.getElementById("categoryFilter").value;
+  const tbody=document.getElementById("data");
+  tbody.innerHTML="";
+  const searchVal=document.getElementById("search").value.toLowerCase();
+  const catVal=document.getElementById("categoryFilter").value;
+  const salesVal=document.getElementById("salesmanFilter").value;
 
-  let filtered = inquiries.filter(i=>{
+  let filtered = window.inquiries.filter(i=>{
     if(searchVal && !i.product.toLowerCase().includes(searchVal)) return false;
     if(catVal && i.salePurchase!==catVal) return false;
+    if(salesVal && i.salesmanId!==salesVal) return false;
     return true;
   });
 
   if(sortField){
     filtered.sort((a,b)=>{
-      if(a[sortField]<b[sortField]) return sortAsc?-1:1;
-      if(a[sortField]>b[sortField]) return sortAsc?1:-1;
+      let va = a[sortField], vb=b[sortField];
+      if(sortField==="date"){ va=new Date(va); vb=new Date(vb);}
+      if(va<vb) return sortAsc?-1:1;
+      if(va>vb) return sortAsc?1:-1;
       return 0;
     });
   }
 
-  filtered.forEach((i,index)=>{
-    const canEdit = currentUser.isAdmin || i.salesmanId===currentUser.uid;
+  filtered.forEach(i=>{
+    const canEdit = (userRole==='admin'||i.salesmanId===currentUser.uid);
     tbody.innerHTML+=`
-    <tr class="status-${i.status}">
-      <td><input type="checkbox" class="rowCheckbox checkbox"></td>
-      <td>${i.date}</td>
-      <td>${i.product}</td>
-      <td>${i.salePurchase||''}</td>
-      <td contenteditable="${canEdit}" onblur="${canEdit ? `updateField('${i.docId}','qty',this.innerText)` : ''}">${i.qty}</td>
-      <td contenteditable="${canEdit}" onblur="${canEdit ? `updateField('${i.docId}','party',this.innerText)` : ''}">${i.party}</td>
-      <td contenteditable="${canEdit}" onblur="${canEdit ? `updateField('${i.docId}','availableWith',this.innerText)` : ''}">${i.availableWith}</td>
-      <td>${i.salesmanName||i.salesmanId}</td>
-      <td class="actionIcons">
-        ${canEdit?`<span onclick="editInquiry(${index})">✏️</span>`:""}
-        ${canEdit?`<span onclick="deleteRow(${index})">🗑️</span>`:""}
-        <span onclick="toggleStatus('${i.docId}')">🔄</span>
-      </td>
-    </tr>`;
+      <tr class="status-${i.status}">
+        <td><input type="checkbox" class="rowCheckbox checkbox"></td>
+        <td>${new Date(i.date.seconds?i.date.seconds*1000:i.date).toLocaleDateString()}</td>
+        <td>${i.product}</td>
+        <td>${i.salePurchase}</td>
+        <td>${i.qty}</td>
+        <td>${i.party}</td>
+        <td>${i.availableWith}</td>
+        <td>${getSalesmanName(i.salesmanId)}</td>
+        <td class="actionIcons">
+          ${canEdit?`<span onclick="editInquiry('${i.id}')">✏️</span><span onclick="deleteRow('${i.id}')">🗑️</span>`:""}
+          <span onclick="toggleStatus('${i.id}')">🔄</span>
+        </td>
+      </tr>
+    `;
   });
 
-  updateTotals();
+  renderTotals();
 }
 
-// ==== UPDATE FIELD INLINE ====
-function updateField(docId,field,value){
-  const obj = {};
-  obj[field] = field==="qty"?Number(value):value;
-  db.collection("inquiries").doc(docId).update(obj);
-  loadInquiries();
+// ==== Helper ====
+function getSalesmanName(uid){
+  const sel=document.getElementById("salesmanFilter");
+  const option=Array.from(sel.options).find(o=>o.value===uid);
+  return option?option.text:'Unknown';
+}
+function clearInquiryForm(){ ["product","qty","party","rate","availableWith","remark"].forEach(id=>document.getElementById(id).value=""); }
+
+// ==== Edit/Delete/Toggle ====
+function editInquiry(id){
+  editId=id;
+  const i = window.inquiries.find(x=>x.id===id);
+  document.getElementById("product").value=i.product;
+  document.getElementById("salePurchase").value=i.salePurchase;
+  document.getElementById("qty").value=i.qty;
+  document.getElementById("party").value=i.party;
+  document.getElementById("rate").value=i.rate;
+  document.getElementById("availableWith").value=i.availableWith;
+  document.getElementById("remark").value=i.remark;
+}
+function deleteRow(id){ if(confirm("Delete?")) db.collection('inquiries').doc(id).delete(); }
+function toggleStatus(id){
+  const i = window.inquiries.find(x=>x.id===id);
+  let s=i.status==="Open"?"Matched":i.status==="Matched"?"Closed":"Open";
+  db.collection('inquiries').doc(id).update({status:s});
 }
 
-// ==== EDIT / DELETE / TOGGLE ====
-function editInquiry(index){
-  const i = inquiries[index];
-  if(!currentUser.isAdmin && i.salesmanId!==currentUser.uid){ alert("Not allowed"); return; }
-  editIndex = index;
-  document.getElementById("product").value = i.product;
-  document.getElementById("salePurchase").value = i.salePurchase;
-  document.getElementById("qty").value = i.qty;
-  document.getElementById("party").value = i.party;
-  document.getElementById("rate").value = i.rate;
-  document.getElementById("availableWith").value = i.availableWith;
-  document.getElementById("remark").value = i.remark;
-}
-
-function deleteRow(index){
-  const i = inquiries[index];
-  if(!currentUser.isAdmin && i.salesmanId!==currentUser.uid){ alert("Not allowed"); return; }
-  if(confirm("Delete?")){
-    db.collection("inquiries").doc(i.docId).delete().then(()=>loadInquiries());
-  }
-}
-
-function toggleStatus(docId){
-  const i = inquiries.find(x=>x.docId===docId);
-  const next = i.status==="Open"?"Matched":i.status==="Matched"?"Closed":"Open";
-  db.collection("inquiries").doc(docId).update({status:next}).then(()=>loadInquiries());
-}
-
-// ==== BULK ====
+// ==== Bulk Actions ====
 function toggleSelectAll(el){
-  const checkboxes = document.querySelectorAll(".rowCheckbox");
-  checkboxes.forEach(cb=>cb.checked=el.checked);
+  document.querySelectorAll(".rowCheckbox").forEach(cb=>cb.checked=el.checked);
 }
-
 function bulkClose(){
   document.querySelectorAll(".rowCheckbox").forEach((cb,i)=>{
     if(cb.checked){
-      toggleStatus(inquiries[i].docId);
+      const id = window.inquiries[i].id;
+      db.collection('inquiries').doc(id).update({status:'Closed'});
     }
   });
 }
-
 function bulkDelete(){
   document.querySelectorAll(".rowCheckbox").forEach((cb,i)=>{
     if(cb.checked){
-      deleteRow(i);
+      const id=window.inquiries[i].id;
+      db.collection('inquiries').doc(id).delete();
     }
   });
 }
 
-// ==== FILTERS & TOTALS ====
-document.getElementById("search").addEventListener("input", renderTable);
-document.getElementById("categoryFilter").addEventListener("change", renderTable);
-
-function updateFilters(){
-  const select = document.getElementById("salesmanFilter");
-  select.innerHTML = "<option value=''>All Salesmen</option>";
-  inquiries.forEach(i=>{
-    select.innerHTML += `<option value="${i.salesmanId}">${i.salesmanName}</option>`;
-  });
-}
-
-function updateTotals(){
-  const totalsDiv = document.getElementById("totals");
-  totalsDiv.innerHTML = "";
-  let totals = {};
-  let pending=0, closed=0;
-  inquiries.forEach(i=>{
+// ==== Totals & Charts ====
+function renderTotals(){
+  const totalsDiv=document.getElementById("totals");
+  totalsDiv.innerHTML="";
+  let totals={}, pending=0, closed=0;
+  window.inquiries.forEach(i=>{
     totals[i.product]=(totals[i.product]||0)+i.qty;
     if(i.status==="Open") pending+=i.qty;
     if(i.status==="Closed") closed+=i.qty;
@@ -372,11 +383,52 @@ function updateTotals(){
   document.getElementById("statusTotals").innerHTML=`<b>Pending Qty:</b> ${pending} | <b>Closed Qty:</b> ${closed}`;
 }
 
-// ==== SORT TABLE ====
-function sortTable(field){
-  if(sortField===field) sortAsc=!sortAsc; else { sortField=field; sortAsc=true; }
-  renderTable();
+let chartSP=null, chartStatus=null;
+
+function renderCharts(){
+  const spLabels=[], spData=[];
+  const statusLabels=['Open','Matched','Closed'];
+  const statusData=[0,0,0];
+  const spMap={};
+
+  window.inquiries.forEach(i=>{
+    spMap[i.salePurchase]=(spMap[i.salePurchase]||0)+i.qty;
+
+    if(i.status==="Open") statusData[0]+=i.qty;
+    if(i.status==="Matched") statusData[1]+=i.qty;
+    if(i.status==="Closed") statusData[2]+=i.qty;
+  });
+
+  for(let k in spMap){
+    spLabels.push(k);
+    spData.push(spMap[k]);
+  }
+
+  if(chartSP) chartSP.destroy();
+  chartSP = new Chart(document.getElementById("chartSalePurchase"),{
+    type:'bar',
+    data:{
+      labels:spLabels,
+      datasets:[{
+        label:'Total Qty',
+        data:spData,
+        backgroundColor:'#6366f1'
+      }]
+    },
+    options:{responsive:true}
+  });
+
+  if(chartStatus) chartStatus.destroy();
+  chartStatus = new Chart(document.getElementById("chartStatus"),{
+    type:'pie',
+    data:{
+      labels:statusLabels,
+      datasets:[{
+        data:statusData,
+        backgroundColor:['#fde68a','#86efac','#fca5a5']
+      }]
+    },
+    options:{responsive:true}
+  });
 }
 </script>
-</body>
-</html>
