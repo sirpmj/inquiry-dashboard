@@ -8,71 +8,86 @@ const firebaseConfig = {
   appId: "1:722727372065:web:03302e83335325885dea60"
 };
 
-// Initialize Firebase (compat)
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 // ---------- GLOBAL ----------
-let currentUser = localStorage.getItem("salesman") || null;
 let editId = null;
 let currentFilter = "";
 let currentSalesmanFilter = "";
 
-// ---------- SHOW USER ----------
-function showUser() {
-  if (currentUser) {
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("userBox").style.display = "block";
-    document.getElementById("userName").innerText = currentUser;
+// ---------- AUTH STATE ----------
+auth.onAuthStateChanged(user => {
+  if(user){
+    document.getElementById("authCard").style.display = "none";
+    document.getElementById("userCard").style.display = "block";
+    document.getElementById("totalsCard").style.display = "block";
+    document.getElementById("reportCard").style.display = "block";
+    document.getElementById("inquiryCard").style.display = "block";
+    document.getElementById("tableCard").style.display = "block";
+    document.getElementById("userName").innerText = user.email;
+    updateTable();
   } else {
-    document.getElementById("loginBox").style.display = "block";
-    document.getElementById("userBox").style.display = "none";
+    document.getElementById("authCard").style.display = "block";
+    document.getElementById("userCard").style.display = "none";
+    document.getElementById("totalsCard").style.display = "none";
+    document.getElementById("reportCard").style.display = "none";
+    document.getElementById("inquiryCard").style.display = "none";
+    document.getElementById("tableCard").style.display = "none";
   }
+});
+
+// ---------- SIGNUP ----------
+function signup(){
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value;
+  if(!email || !pass) return alert("Enter email & password");
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(() => alert("Signup successful!"))
+    .catch(err => alert(err.message));
 }
-showUser();
 
 // ---------- LOGIN ----------
-function login() {
-  const nameInput = document.getElementById("name").value.trim();
-  if (!nameInput) return alert("Enter your name");
-  currentUser = nameInput;
-  localStorage.setItem("salesman", currentUser);
-  showUser();
+function login(){
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value;
+  if(!email || !pass) return alert("Enter email & password");
+  auth.signInWithEmailAndPassword(email, pass)
+    .catch(err => alert(err.message));
 }
 
 // ---------- LOGOUT ----------
-function logout() {
-  localStorage.removeItem("salesman");
-  currentUser = null;
-  showUser();
-}
+function logout(){ auth.signOut(); }
 
-// ---------- LOAD PRODUCTS ----------
-function loadProducts() {
+// ---------- PRODUCTS ----------
+function loadProducts(){
   const productSelect = document.getElementById("product");
   db.collection("products").orderBy("createdAt","asc").onSnapshot(snap => {
     productSelect.innerHTML = "<option value=''>Select Product</option>";
-    snap.forEach(doc => {
+    snap.forEach(doc=>{
       productSelect.innerHTML += `<option value="${doc.id}">${doc.id}</option>`;
     });
   });
 }
 loadProducts();
 
-// ---------- ADD NEW PRODUCT ----------
-function addProduct() {
+function addProduct(){
   const p = document.getElementById("newProduct").value.trim();
-  if (!p) return alert("Enter product name");
+  if(!p) return alert("Enter product name");
   db.collection("products").doc(p).set({
-    name: p,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    name:p,
+    createdAt:firebase.firestore.FieldValue.serverTimestamp()
   });
-  document.getElementById("newProduct").value = "";
+  document.getElementById("newProduct").value="";
 }
 
 // ---------- ADD / UPDATE INQUIRY ----------
-function addInquiry() {
-  if (!currentUser) return alert("Login first");
+function addInquiry(){
+  const user = auth.currentUser;
+  if(!user) return alert("Login first");
+
   const data = {
     date: new Date().toLocaleDateString(),
     product: document.getElementById("product").value,
@@ -81,68 +96,51 @@ function addInquiry() {
     party: document.getElementById("party").value,
     rate: document.getElementById("rate").value,
     availableWith: document.getElementById("availableWith").value,
-    salesman: currentUser,
+    salesman: user.email,
     remark: document.getElementById("remark").value,
     status: "Open",
     createdAt: firebase.firestore.FieldValue.serverTimestamp()
   };
-  if (!data.product) return alert("Select product");
+  if(!data.product) return alert("Select product");
 
-  if (editId) {
+  if(editId){
     db.collection("inquiries").doc(editId).update(data);
     editId = null;
-  } else {
-    db.collection("inquiries").add(data);
-  }
+  } else db.collection("inquiries").add(data);
 
-  // Clear fields
-  document.getElementById("qty").value = "";
-  document.getElementById("party").value = "";
-  document.getElementById("rate").value = "";
-  document.getElementById("availableWith").value = "";
-  document.getElementById("remark").value = "";
-  document.getElementById("product").value = "";
+  ["qty","party","rate","availableWith","remark","product"].forEach(id => document.getElementById(id).value="");
 }
 
 // ---------- DELETE ----------
-function deleteRow(id) {
-  if (confirm("Delete this entry?")) db.collection("inquiries").doc(id).delete();
-}
+function deleteRow(id){ if(confirm("Delete this entry?")) db.collection("inquiries").doc(id).delete(); }
 
 // ---------- EDIT ----------
-function editRow(id,d) {
-  editId = id;
-  document.getElementById("product").value = d.product;
-  document.getElementById("category").value = d.category;
-  document.getElementById("qty").value = d.qty;
-  document.getElementById("party").value = d.party;
-  document.getElementById("rate").value = d.rate;
-  document.getElementById("availableWith").value = d.availableWith;
-  document.getElementById("remark").value = d.remark;
+function editRow(id,d){
+  editId=id;
+  ["product","category","qty","party","rate","availableWith","remark"].forEach(f=>document.getElementById(f).value=d[f]);
 }
 
 // ---------- TOGGLE STATUS ----------
-function toggleStatus(id,currentStatus) {
-  const nextStatus = currentStatus==="Open"?"Matched":currentStatus==="Matched"?"Closed":"Open";
+function toggleStatus(id,currentStatus){
+  const nextStatus=currentStatus==="Open"?"Matched":currentStatus==="Matched"?"Closed":"Open";
   db.collection("inquiries").doc(id).update({status:nextStatus});
 }
 
 // ---------- FILTER ----------
-function filterByProduct(productName) {
-  if(currentFilter === productName.toLowerCase()) currentFilter = "";
-  else currentFilter = productName.toLowerCase();
+function filterByProduct(productName){
+  if(currentFilter===productName.toLowerCase()) currentFilter="";
+  else currentFilter=productName.toLowerCase();
+  updateTable();
+}
+function filterBySalesman(salesman){
+  if(currentSalesmanFilter===salesman) currentSalesmanFilter="";
+  else currentSalesmanFilter=salesman;
   updateTable();
 }
 
-function filterBySalesman(salesman) {
-  if(currentSalesmanFilter === salesman) currentSalesmanFilter = "";
-  else currentSalesmanFilter = salesman;
-  updateTable();
-}
-
-// ---------- LOAD TABLE, TOTALS & REPORT ----------
-function updateTable() {
-  db.collection("inquiries").orderBy("createdAt","desc").get().then(snapshot => {
+// ---------- TABLE & TOTALS ----------
+function updateTable(){
+  db.collection("inquiries").orderBy("createdAt","desc").get().then(snapshot=>{
     const tbody = document.getElementById("data");
     const totalsDiv = document.getElementById("totals");
     const reportBox = document.getElementById("reportBox");
@@ -155,34 +153,31 @@ function updateTable() {
     let totals = {};
     let salesmanTotals = {};
 
-    snapshot.forEach(doc => {
+    snapshot.forEach(doc=>{
       const d = doc.data();
       if((searchTerm && !d.product.toLowerCase().includes(searchTerm)) ||
          (currentFilter && d.product.toLowerCase()!==currentFilter) ||
          (currentSalesmanFilter && d.salesman!==currentSalesmanFilter)) return;
 
-      totals[d.product] = (totals[d.product]||0) + d.qty;
-      salesmanTotals[d.salesman] = (salesmanTotals[d.salesman]||0) + d.qty;
+      totals[d.product]=(totals[d.product]||0)+d.qty;
+      salesmanTotals[d.salesman]=(salesmanTotals[d.salesman]||0)+d.qty;
 
-      tbody.innerHTML += `
-        <tr class="status-${d.status}">
-          <td>${d.date}</td>
-          <td>${d.product}</td>
-          <td>${d.qty}</td>
-          <td>${d.party}</td>
-          <td>${d.availableWith}</td>
-          <td>${d.salesman}</td>
-          <td class="actionIcons">
-            <span title="Edit" onclick='editRow("${doc.id}", ${JSON.stringify(d)})'>✏️</span>
-            <span title="Delete" onclick="deleteRow('${doc.id}')">🗑️</span>
-            <span title="Toggle Status" onclick="toggleStatus('${doc.id}','${d.status}')">🔄</span>
-          </td>
-        </tr>`;
+      tbody.innerHTML += `<tr class="status-${d.status}">
+        <td>${d.date}</td>
+        <td>${d.product}</td>
+        <td>${d.qty}</td>
+        <td>${d.party}</td>
+        <td>${d.availableWith}</td>
+        <td>${d.salesman}</td>
+        <td class="actionIcons">
+          <span title="Edit" onclick='editRow("${doc.id}", ${JSON.stringify(d)})'>✏️</span>
+          <span title="Delete" onclick="deleteRow('${doc.id}')">🗑️</span>
+          <span title="Toggle Status" onclick="toggleStatus('${doc.id}','${d.status}')">🔄</span>
+        </td>
+      </tr>`;
     });
 
-    // Product totals clickable
     for(let p in totals) totalsDiv.innerHTML += `<div class="qtyItem" onclick="filterByProduct('${p}')">${p}: <b>${totals[p]}</b></div>`;
-    // Salesman report clickable
     for(let s in salesmanTotals) reportBox.innerHTML += `<div class="qtyItem" onclick="filterBySalesman('${s}')">${s}: <b>${salesmanTotals[s]}</b></div>`;
   });
 }
