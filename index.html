@@ -184,22 +184,58 @@ let userRole = null; // 'admin' or 'salesman'
 function login(){
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
-  auth.signInWithEmailAndPassword(email,pass)
-  .then(res => {currentUser=res.user; loadUserRole();})
-  .catch(e=>alert(e.message));
+
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(res => {
+      currentUser = res.user;
+
+      // 🔹 Check Firestore user doc
+      const uid = currentUser.uid;
+      const userRef = db.collection('users').doc(uid);
+
+      userRef.get().then(doc => {
+        if(!doc.exists){
+          // Auto-create user doc if missing
+          const profile = {
+            name: currentUser.displayName || currentUser.email,
+            email: currentUser.email,
+            role: "salesman" // default role
+          };
+          userRef.set(profile).then(() => {
+            applyUserProfile(profile);
+          });
+        } else {
+          applyUserProfile(doc.data());
+        }
+      });
+    })
+    .catch(e => alert("Login failed: " + e.message));
 }
+
 function signup(){
   const email = document.getElementById("email").value;
   const pass = document.getElementById("password").value;
-  auth.createUserWithEmailAndPassword(email,pass)
-  .then(res=>{
-    currentUser=res.user;
-    db.collection('users').doc(currentUser.uid).set({role:'salesman', name:email});
-    loadUserRole();
-  })
-  .catch(e=>alert(e.message));
+
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(res => {
+      currentUser = res.user;
+
+      // 🔹 Auto-create Firestore doc for new user
+      const profile = {
+        name: currentUser.displayName || currentUser.email,
+        email: currentUser.email,
+        role: "salesman" // default role
+      };
+
+      db.collection('users').doc(currentUser.uid).set(profile)
+        .then(() => applyUserProfile(profile));
+    })
+    .catch(e => alert("Signup failed: " + e.message));
 }
-function logout(){ auth.signOut().then(()=>location.reload()); }
+
+function logout(){ 
+  auth.signOut().then(()=>location.reload()); 
+}
 
 // ==== Load Dashboard ====
 function loadUserRole(){
