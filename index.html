@@ -45,13 +45,17 @@ th{background:#111827;color:#fff;position:sticky;top:0;cursor:pointer;}
 <div class="container">
 
   <!-- Login / Signup -->
-<div class="card" id="loginBox">
-  <h3>Login / Signup</h3>
-  <input id="name" type="text" placeholder="Full Name (for Signup only)">
+  <div class="card" id="loginBox">
+  <h3 id="formTitle">Login</h3>
+
+  <input id="name" type="text" placeholder="Full Name" style="display:none;">
   <input id="email" type="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-  <button onclick="signup()">Sign Up</button>
+
+  <button id="mainBtn" onclick="login()">Login</button>
+  <button onclick="showSignup()" id="toggleBtn" style="background:#e5e7eb;color:#111;">
+    Create Account
+  </button>
 </div>
 
 
@@ -177,35 +181,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// ✅ Detect already logged in user
-auth.onAuthStateChanged(user => {
-  if(user){
-    currentUser = user;
-
-    db.collection('users').doc(user.uid).get()
-    .then(doc=>{
-      if(doc.exists){
-        applyUserProfile(doc.data());
-      }
-    });
-  }
-});
-
-function showMsg(msg, ok=true){
-  const d = document.createElement("div");
-  d.innerText = msg;
-  d.style.position="fixed";
-  d.style.top="20px";
-  d.style.right="20px";
-  d.style.padding="10px 14px";
-  d.style.background= ok ? "#16a34a" : "#dc2626";
-  d.style.color="#fff";
-  d.style.borderRadius="8px";
-  d.style.zIndex="9999";
-  document.body.appendChild(d);
-  setTimeout(()=>d.remove(),3000);
-}
-
 // ==== Globals ====
 let currentUser = null;
 let editId = null;
@@ -213,66 +188,83 @@ let userRole = null; // 'admin' or 'salesman'
 
 // ==== Login/Signup ====
 function login(){
-  const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("password").value.trim();
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
 
   auth.signInWithEmailAndPassword(email, pass)
     .then(res => {
       currentUser = res.user;
 
-      db.collection('users').doc(currentUser.uid).get()
-      .then(doc=>{
+      // 🔹 Check Firestore user doc
+      const uid = currentUser.uid;
+      const userRef = db.collection('users').doc(uid);
+
+      userRef.get().then(doc => {
         if(!doc.exists){
+          // Auto-create user doc if missing
           const profile = {
-            name: currentUser.displayName || email,
-            email: email,
-            role: "salesman"
+            name: currentUser.displayName || currentUser.email,
+            email: currentUser.email,
+            role: "salesman" // default role
           };
-          db.collection('users').doc(currentUser.uid).set(profile)
-          .then(()=>applyUserProfile(profile));
+          userRef.set(profile).then(() => {
+            applyUserProfile(profile);
+          });
         } else {
           applyUserProfile(doc.data());
         }
-        showMsg("Login Successful ✅");
       });
-
     })
-    .catch(e => showMsg(e.message,false));
+    .catch(e => alert("Login failed: " + e.message));
 }
 
-
 function signup(){
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("password").value.trim();
-
-  if(!name){ showMsg("Please enter name",false); return; }
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("password").value;
 
   auth.createUserWithEmailAndPassword(email, pass)
     .then(res => {
       currentUser = res.user;
 
-      currentUser.updateProfile({ displayName: name });
-
+      // 🔹 Auto-create Firestore doc for new user
       const profile = {
-        name: name,
-        email: email,
-        role: "salesman"
+        name: currentUser.displayName || currentUser.email,
+        email: currentUser.email,
+        role: "salesman" // default role
       };
 
       db.collection('users').doc(currentUser.uid).set(profile)
-        .then(() => {
-          showMsg("Signup Successful ✅");
-          applyUserProfile(profile);
-        });
+        .then(() => applyUserProfile(profile));
     })
-    .catch(e => showMsg(e.message,false));
+    .catch(e => alert("Signup failed: " + e.message));
 }
-
 
 function logout(){ 
   auth.signOut().then(()=>location.reload()); 
 }
+
+let isSignup = false;
+
+function showSignup(){
+  isSignup = true;
+  document.getElementById("name").style.display = "block";
+  document.getElementById("formTitle").innerText = "Sign Up";
+  document.getElementById("mainBtn").innerText = "Sign Up";
+  document.getElementById("mainBtn").onclick = signup;
+  document.getElementById("toggleBtn").innerText = "Back to Login";
+  document.getElementById("toggleBtn").onclick = showLogin;
+}
+
+function showLogin(){
+  isSignup = false;
+  document.getElementById("name").style.display = "none";
+  document.getElementById("formTitle").innerText = "Login";
+  document.getElementById("mainBtn").innerText = "Login";
+  document.getElementById("mainBtn").onclick = login;
+  document.getElementById("toggleBtn").innerText = "Create Account";
+  document.getElementById("toggleBtn").onclick = showSignup;
+}
+
 
 // ==== Load Dashboard ====
 function loadUserRole(){
