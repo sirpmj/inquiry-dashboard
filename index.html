@@ -181,7 +181,16 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-auth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    currentUser = user;
+    loadUserRole();   // direct dashboard
+  } else {
+    document.getElementById("loginBox").style.display="block";
+    document.getElementById("dashboard").style.display="none";
+  }
+});
+
 
 
 // ==== Globals ====
@@ -190,48 +199,55 @@ let editId = null;
 let userRole = null; // 'admin' or 'salesman'
 
 // ==== Login/Signup ====
-function login(){
-  const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("password").value.trim();
+async function login(){
+  try{
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("password").value.trim();
 
-  auth.signInWithEmailAndPassword(email, pass)
-    .then(res => {
-      currentUser = res.user;
+    const res = await auth.signInWithEmailAndPassword(email, pass);
+    currentUser = res.user;
 
-      db.collection('users').doc(currentUser.uid).get()
-      .then(doc=>{
-        applyUserProfile(doc.data());
-      });
-    })
-    .catch(e => showMsg(e.message,false));
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+
+    applyUserProfile(doc.data());
+
+  }catch(e){
+    showMsg(e.message,false);
+  }
 }
 
-function signup(){
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("password").value.trim();
+async function signup(){
+  try{
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("password").value.trim();
 
-  if(!name){ showMsg("Enter name", false); return; }
+    if(!name){ showMsg("Enter name", false); return; }
 
-  auth.createUserWithEmailAndPassword(email, pass)
-    .then(res => {
-      return res.user.updateProfile({ displayName: name }).then(()=>{
-        return db.collection('users').doc(res.user.uid).set({
-          name: name,
-          email: email,
-          role: "salesman"
-        });
-      });
-    })
-    .then(()=>{
-      // ✅ Signup ke baad direct logout & login screen
-      auth.signOut().then(()=>{
-        showLogin();   // login form dikhao
-        document.getElementById("email").value = "";
-        document.getElementById("password").value = "";
-      });
-    })
-    .catch(e => showMsg(e.message,false));
+    const res = await auth.createUserWithEmailAndPassword(email, pass);
+
+    await res.user.updateProfile({ displayName: name });
+
+    await db.collection('users').doc(res.user.uid).set({
+      name: name,
+      email: email,
+      role: "salesman"
+    });
+
+    // 🔴 IMPORTANT — logout after signup
+    await auth.signOut();
+
+    // ✅ clear fields
+    document.getElementById("name").value="";
+    document.getElementById("email").value="";
+    document.getElementById("password").value="";
+
+    // ✅ back to login screen
+    showLogin();
+
+  }catch(e){
+    showMsg(e.message,false);
+  }
 }
 
 function logout(){ 
