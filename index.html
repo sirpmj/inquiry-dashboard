@@ -42,17 +42,6 @@ th{
 #charts{display:flex;gap:12px;flex-wrap:wrap;}
 .chartCard{flex:1;min-width:220px;padding:10px;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
 
-.tableTopBar{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:8px;
-}
-.tableTopBar button{
-  width:auto;
-  padding:8px 14px;
-  font-size:13px;
-}
 
 
 .filterBar{
@@ -69,9 +58,24 @@ th{
   font-size:13px;
 }
 
+
+
 </style>
 </head>
+
 <body>
+
+<div id="followupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);align-items:center;justify-content:center;z-index:9999;">
+  <div style="background:#fff;width:320px;padding:16px;border-radius:10px;">
+    <h3 style="margin-top:0">Add Follow-up</h3>
+    <input type="date" id="fuDate" style="width:100%;margin-bottom:8px;">
+    <textarea id="fuNote" placeholder="Note" style="width:100%;height:60px;"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button onclick="saveFollowup()">Save</button>
+      <button onclick="closeFollowup()" style="background:#e5e7eb;color:#111;">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <header>
   📦 Inquiry Pool Dashboard
@@ -109,19 +113,7 @@ th{
       <div id="statusTotals"></div>
     </div>
 
-    <div class="card" id="filterCard">
-  <div class="filterBar">
-    <input id="search" placeholder="🔍 Search Product">
-    <select id="categoryFilter">
-      <option value="">All Category</option>
-      <option>Sale</option>
-      <option>Purchase</option>
-    </select>
-    <select id="salesmanFilter">
-      <option value="">All Salesmen</option>
-    </select>
-  </div>
-</div>
+   
 
 
     <div class="card" id="inquiryCard">
@@ -171,6 +163,17 @@ th{
       </div>
       <button onclick="addInquiry()">Save Inquiry</button>
     </div>
+
+<div class="filterBar">
+  <input id="search" placeholder="🔍 Search Product">
+  <select id="categoryFilter">
+    <option value="">All Category</option>
+    <option>Sale</option>
+    <option>Purchase</option>
+  </select>
+  <select id="salesmanFilter"></select>
+</div>
+
 
     <div class="card" id="tableCard">
       <h3>📋 Live Inquiry Table</h3>
@@ -257,6 +260,35 @@ function showMsg(msg, ok=true){
   setTimeout(()=>d.remove(),3000);
 }
 
+let fuParty="", fuMobile="";
+
+function addFollowup(party, mobile){
+  fuParty = party;
+  fuMobile = mobile;
+  document.getElementById("followupModal").style.display="flex";
+}
+
+function closeFollowup(){
+  document.getElementById("followupModal").style.display="none";
+}
+
+function saveFollowup(){
+  const date = document.getElementById("fuDate").value;
+  const note = document.getElementById("fuNote").value;
+
+  if(!date){ alert("Select date"); return; }
+
+  db.collection('followups').add({
+    party: fuParty,
+    mobile: fuMobile,
+    date,
+    note,
+    createdBy: currentUser.uid,
+    createdAt: new Date()
+  });
+
+  closeFollowup();
+}
 
 // ==== Globals ====
 let currentUser = null;
@@ -487,7 +519,7 @@ function renderTable(){
     tbody.innerHTML+=`
       <tr class="status-${i.status}">
         <td><input type="checkbox" class="rowCheckbox checkbox"></td>
-        <td>${new Date(i.date.seconds?i.date.seconds*1000:i.date).toLocaleDateString()}</td>
+        <td>${formatDate(i.date)}</td>
         <td>${i.product}</td>
         <td>${i.salePurchase}</td>
         <td>${i.qty}</td>
@@ -527,6 +559,14 @@ function getSalesmanName(uid){
 function clearInquiryForm(){
  ["product","qty","party","mobile","rate","availableWith","remark"]
  .forEach(id=>document.getElementById(id).value="");
+}
+
+function formatDate(d){
+  const dt = new Date(d.seconds ? d.seconds*1000 : d);
+  const dd = String(dt.getDate()).padStart(2,'0');
+  const mm = String(dt.getMonth()+1).padStart(2,'0');
+  const yyyy = dt.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
 }
 
 
@@ -653,20 +693,6 @@ function showPartyHistory(party){
   alert(text);
 }
 
-function addFollowup(party, mobile){
-  const date = prompt("Enter follow-up date (YYYY-MM-DD):");
-  if(!date) return;
 
-  db.collection('followups').add({
-    party,
-    mobile,
-    date,
-    note: "Inquiry follow-up",
-    createdBy: currentUser.uid,
-    createdAt: new Date()
-  });
-
-  alert("Follow-up added");
-}
 
 </script>
