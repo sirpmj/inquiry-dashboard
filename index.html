@@ -159,6 +159,11 @@ th{
           <label>Available With</label>
           <input id="availableWith" placeholder="Available With">
         </div>
+<div>
+  <label>Allot To Salesman</label>
+  <select id="assignSalesman"></select>
+</div>
+
         <div>
           <label>Remark</label>
           <input id="remark" placeholder="Remark">
@@ -373,9 +378,11 @@ function applyUserProfile(data){
   document.getElementById("loginBox").style.display="none";
   document.getElementById("dashboard").style.display="block";
 
+updateFilters().then(()=>{
   setupRealtime();
-  updateFilters();
+});
 }
+
 
 // ==== Realtime Listener ====
 function setupRealtime(){
@@ -395,20 +402,26 @@ document.getElementById("search").addEventListener("input", renderTable);
 document.getElementById("categoryFilter").addEventListener("change", renderTable);
 document.getElementById("salesmanFilter").addEventListener("change", renderTable);
 
-function updateFilters(){
-  db.collection('users').get().then(snap=>{
-    const select = document.getElementById("salesmanFilter");
-    select.innerHTML = "<option value=''>All Salesmen</option>";
+async function updateFilters(){
+  const snap = await db.collection('users').get();
 
-    usersMap = {}; // reset
+  const select = document.getElementById("salesmanFilter");
+  const assign = document.getElementById("assignSalesman");
 
-    snap.forEach(doc=>{
-      const data = doc.data();
-      usersMap[doc.id] = data.name;   // ✅ store in map
-      select.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
-    });
+  select.innerHTML = "<option value=''>All Salesmen</option>";
+  assign.innerHTML = "";
+
+  usersMap = {};
+
+  snap.forEach(doc=>{
+    const data = doc.data();
+    usersMap[doc.id] = data.name;
+
+    select.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
+    assign.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
   });
 }
+
 
 
 // ==== Add / Update Inquiry ====
@@ -425,7 +438,8 @@ mobile:document.getElementById("mobile").value,
     rate:document.getElementById("rate").value,
     availableWith:document.getElementById("availableWith").value,
     remark:document.getElementById("remark").value,
-    salesmanId:currentUser.uid,
+    salesmanId: document.getElementById("assignSalesman").value,
+
     status:"Open",
     date:new Date()
   };
@@ -509,6 +523,7 @@ function getSalesmanName(uid){
   return usersMap[uid] || "Unknown";
 }
 
+
 function clearInquiryForm(){
  ["product","qty","party","mobile","rate","availableWith","remark"]
  .forEach(id=>document.getElementById(id).value="");
@@ -526,6 +541,7 @@ function editInquiry(id){
 document.getElementById("mobile").value=i.mobile || '';
   document.getElementById("rate").value=i.rate;
   document.getElementById("availableWith").value=i.availableWith;
+document.getElementById("assignSalesman").value = i.salesmanId;
   document.getElementById("remark").value=i.remark;
 }
 function deleteRow(id){ if(confirm("Delete?")) db.collection('inquiries').doc(id).delete(); }
