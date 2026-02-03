@@ -181,6 +181,9 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+auth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+
+
 // ==== Globals ====
 let currentUser = null;
 let editId = null;
@@ -188,55 +191,47 @@ let userRole = null; // 'admin' or 'salesman'
 
 // ==== Login/Signup ====
 function login(){
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
 
   auth.signInWithEmailAndPassword(email, pass)
     .then(res => {
       currentUser = res.user;
 
-      // 🔹 Check Firestore user doc
-      const uid = currentUser.uid;
-      const userRef = db.collection('users').doc(uid);
-
-      userRef.get().then(doc => {
-        if(!doc.exists){
-          // Auto-create user doc if missing
-          const profile = {
-            name: currentUser.displayName || currentUser.email,
-            email: currentUser.email,
-            role: "salesman" // default role
-          };
-          userRef.set(profile).then(() => {
-            applyUserProfile(profile);
-          });
-        } else {
-          applyUserProfile(doc.data());
-        }
+      db.collection('users').doc(currentUser.uid).get()
+      .then(doc=>{
+        applyUserProfile(doc.data());
       });
     })
-    .catch(e => alert("Login failed: " + e.message));
+    .catch(e => showMsg(e.message,false));
 }
 
 function signup(){
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("password").value;
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
+
+  if(!name){ showMsg("Enter name", false); return; }
 
   auth.createUserWithEmailAndPassword(email, pass)
     .then(res => {
-      currentUser = res.user;
-
-      // 🔹 Auto-create Firestore doc for new user
-      const profile = {
-        name: currentUser.displayName || currentUser.email,
-        email: currentUser.email,
-        role: "salesman" // default role
-      };
-
-      db.collection('users').doc(currentUser.uid).set(profile)
-        .then(() => applyUserProfile(profile));
+      return res.user.updateProfile({ displayName: name }).then(()=>{
+        return db.collection('users').doc(res.user.uid).set({
+          name: name,
+          email: email,
+          role: "salesman"
+        });
+      });
     })
-    .catch(e => alert("Signup failed: " + e.message));
+    .then(()=>{
+      // ✅ Signup ke baad direct logout & login screen
+      auth.signOut().then(()=>{
+        showLogin();   // login form dikhao
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+      });
+    })
+    .catch(e => showMsg(e.message,false));
 }
 
 function logout(){ 
