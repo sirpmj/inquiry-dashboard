@@ -330,39 +330,41 @@ const mobile = document.getElementById("signupMobile").value.trim();
 
 async function signup(){
   try{
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const pass = document.getElementById("password").value.trim();
+    const name   = document.getElementById("name").value.trim();
+    const mobile = document.getElementById("signupMobile").value.trim();
+    const email  = document.getElementById("email").value.trim();
+    const pass   = document.getElementById("password").value.trim();
 
     if(!name){ showMsg("Enter name", false); return; }
+    if(!mobile){ showMsg("Enter mobile number", false); return; }
 
     const res = await auth.createUserWithEmailAndPassword(email, pass);
 
     await res.user.updateProfile({ displayName: name });
 
-   await db.collection('users').doc(res.user.uid).set({
-  name: name,
-  email: email,
-  mobile: mobile,
-  role: "salesman"
-});
+    await db.collection('users').doc(res.user.uid).set({
+      name: name,
+      email: email,
+      mobile: mobile,
+      role: "salesman"
+    });
 
-
-    // 🔴 IMPORTANT — logout after signup
     await auth.signOut();
 
-    // ✅ clear fields
+    // clear fields
     document.getElementById("name").value="";
     document.getElementById("email").value="";
     document.getElementById("password").value="";
+    document.getElementById("signupMobile").value="";
 
-    // ✅ back to login screen
     showLogin();
+    showMsg("Signup successful. Please login.");
 
   }catch(e){
     showMsg(e.message,false);
   }
 }
+
 
 function logout(){ 
   auth.signOut().then(()=>location.reload()); 
@@ -373,7 +375,8 @@ let isSignup = false;
 function showSignup(){
   isSignup = true;
   document.getElementById("name").style.display = "block";
-document.getElementById("mobile").style.display = "block";
+document.getElementById("signupMobile").style.display = "block";
+
   document.getElementById("formTitle").innerText = "Sign Up";
   document.getElementById("mainBtn").innerText = "Sign Up";
   document.getElementById("mainBtn").onclick = signup;
@@ -384,7 +387,8 @@ document.getElementById("mobile").style.display = "block";
 function showLogin(){
   isSignup = false;
   document.getElementById("name").style.display = "none";
-document.getElementById("mobile").style.display = "none";
+document.getElementById("signupMobile").style.display = "none";
+
   document.getElementById("formTitle").innerText = "Login";
   document.getElementById("mainBtn").innerText = "Login";
   document.getElementById("mainBtn").onclick = login;
