@@ -100,6 +100,7 @@ th{
   <h3 id="formTitle">Login</h3>
 
   <input id="name" type="text" placeholder="Full Name" style="display:none;">
+<input id="mobile" type="text" placeholder="Mobile Number" style="display:none;">
   <input id="email" type="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
 
@@ -312,6 +313,7 @@ async function login(){
   try{
     const email = document.getElementById("email").value.trim();
     const pass = document.getElementById("password").value.trim();
+const mobile = document.getElementById("mobile").value.trim();
 
     const res = await auth.signInWithEmailAndPassword(email, pass);
     currentUser = res.user;
@@ -337,11 +339,13 @@ async function signup(){
 
     await res.user.updateProfile({ displayName: name });
 
-    await db.collection('users').doc(res.user.uid).set({
-      name: name,
-      email: email,
-      role: "salesman"
-    });
+   await db.collection('users').doc(res.user.uid).set({
+  name: name,
+  email: email,
+  mobile: mobile,
+  role: "salesman"
+});
+
 
     // 🔴 IMPORTANT — logout after signup
     await auth.signOut();
@@ -368,6 +372,7 @@ let isSignup = false;
 function showSignup(){
   isSignup = true;
   document.getElementById("name").style.display = "block";
+document.getElementById("mobile").style.display = "block";
   document.getElementById("formTitle").innerText = "Sign Up";
   document.getElementById("mainBtn").innerText = "Sign Up";
   document.getElementById("mainBtn").onclick = signup;
@@ -378,6 +383,7 @@ function showSignup(){
 function showLogin(){
   isSignup = false;
   document.getElementById("name").style.display = "none";
+document.getElementById("mobile").style.display = "none";
   document.getElementById("formTitle").innerText = "Login";
   document.getElementById("mainBtn").innerText = "Login";
   document.getElementById("mainBtn").onclick = login;
