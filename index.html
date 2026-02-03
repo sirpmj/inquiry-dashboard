@@ -565,12 +565,13 @@ function renderTable(){
 
         <td>${i.availableWith}</td>
         <td>
-  ${getSalesmanName(d.salesmanId)}
+  ${getSalesmanName(i.salesmanId)}
   <span style="cursor:pointer"
-        onclick='whatsappSalesman("${d.salesmanId}", ${JSON.stringify(d)})'>
+        onclick='whatsappSalesman("${i.salesmanId}", ${JSON.stringify(i)})'>
     🟢
   </span>
 </td>
+
 
         <td class="actionIcons">
           ${canEdit?`<span onclick="editInquiry('${i.id}')">✏️</span><span onclick="deleteRow('${i.id}')">🗑️</span>`:""}
