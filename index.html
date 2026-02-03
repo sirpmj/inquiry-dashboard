@@ -23,7 +23,15 @@ button:hover{opacity:.9;}
 .qtyItem:hover{background:#dbeafe;border-color:#6366f1;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
 th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;}
-th{background:#111827;color:#fff;position:sticky;top:0;cursor:pointer;}
+th{
+  background:#111827;
+  color:#fff;
+  position:sticky;
+  top:0;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
 .status-Open{background:#fff7d6;}
 .status-Matched{background:#dbfce7;}
 .status-Closed{background:#ffe1e1;}
@@ -33,6 +41,19 @@ th{background:#111827;color:#fff;position:sticky;top:0;cursor:pointer;}
 .checkbox{width:16px;height:16px;cursor:pointer;}
 #charts{display:flex;gap:12px;flex-wrap:wrap;}
 .chartCard{flex:1;min-width:220px;padding:10px;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
+
+.tableTopBar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:8px;
+}
+.tableTopBar button{
+  width:auto;
+  padding:8px 14px;
+  font-size:13px;
+}
+
 </style>
 </head>
 <body>
@@ -126,11 +147,12 @@ th{background:#111827;color:#fff;position:sticky;top:0;cursor:pointer;}
 
     <div class="card" id="tableCard">
       <h3>📋 Live Inquiry Table</h3>
-      <div>
-        <button onclick="bulkClose()">Mark Selected Closed</button>
-        <button onclick="bulkDelete()">Delete Selected</button>
-        <button onclick="exportCSV()">Export CSV</button>
-      </div>
+      <div class="tableTopBar">
+  <button onclick="bulkClose()">Mark Selected Closed</button>
+  <button onclick="bulkDelete()">Delete Selected</button>
+  <button onclick="exportCSV()">Export CSV</button>
+</div>
+
       <div class="tableWrap">
         <table>
           <thead>
