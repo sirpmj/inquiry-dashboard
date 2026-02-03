@@ -185,12 +185,11 @@ th{
   <select id="salesmanFilter"></select>
 </div>
 
-
-    <div class="card" id="tableCard">
+   <div class="card" id="tableCard">
       <h3>📋 Live Inquiry Table</h3>
       <div class="tableTopBar">
-  <button onclick="bulkClose()">Mark Selected Closed</button>
-  <button onclick="bulkDelete()">Delete Selected</button>
+  <button onclick="bulkClose()">Selected Closed</button>
+  <button onclick="bulkDelete()">Selected Delete</button>
   <button onclick="exportCSV()">Export CSV</button>
 </div>
 
@@ -541,7 +540,7 @@ function renderTable(){
   ${i.mobile ? `
     <div style="display:flex;gap:6px;margin-top:4px;font-size:16px;">
       <span onclick="callParty('${i.mobile}')" title="Call">📞</span>
-      <span onclick="whatsappParty('${i.mobile}','${i.party}','${i.product}')" title="WhatsApp">🟢</span>
+      <span onclick="sendWhatsApp('${i.id}')" style="cursor:pointer">🟢</span>
       <span onclick="showPartyHistory('${i.party}')" title="History">📜</span>
       <span onclick="addFollowup('${i.party}','${i.mobile}')" title="Follow Up">⏰</span>
     </div>
@@ -634,7 +633,7 @@ function renderTotals(){
     if(i.status==="Closed") closed+=i.qty;
   });
   for(let p in totals) totalsDiv.innerHTML+=`<div class="qtyItem">${p}: <b>${totals[p]}</b></div>`;
-  document.getElementById("statusTotals").innerHTML=`<b>Pending Qty:</b> ${pending} | <b>Closed Qty:</b> ${closed}`;
+  document.getElementById("statusTotals").innerHTML=`<b>Open Qty:</b> ${pending} | <b>Closed Qty:</b> ${closed}`;
 }
 
 let chartSP=null, chartStatus=null;
@@ -702,6 +701,44 @@ function showPartyHistory(party){
     text += `${r.product} | Qty:${r.qty} | ${r.salePurchase} | ${r.status}\n`;
   });
   alert(text);
+}
+
+function sendWhatsApp(id){
+  const i = window.inquiries.find(x=>x.id===id);
+
+  const partyMobile = i.mobile || "";
+  const salesman = usersMap[i.salesmanId];
+  const salesmanMobile = salesman?.mobile || "";
+
+  // ✅ Party Message
+  const partyMsg = `Hello ${i.party},
+
+We have inquiry for:
+Product: ${i.product}
+Qty: ${i.qty}
+
+We will contact you shortly.`;
+
+  // ✅ Salesman Message
+  const salesmanMsg = `New Inquiry Assigned
+
+Party: ${i.party}
+Mobile: ${i.mobile}
+Product: ${i.product}
+Qty: ${i.qty}
+Status: ${i.status}`;
+
+  // Party WhatsApp
+  if(partyMobile){
+    window.open(`https://wa.me/91${partyMobile}?text=${encodeURIComponent(partyMsg)}`);
+  }
+
+  // Salesman WhatsApp (delay)
+  if(salesmanMobile){
+    setTimeout(()=>{
+      window.open(`https://wa.me/91${salesmanMobile}?text=${encodeURIComponent(salesmanMsg)}`);
+    },800);
+  }
 }
 
 
