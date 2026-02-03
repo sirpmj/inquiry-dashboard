@@ -564,7 +564,14 @@ function renderTable(){
 </td>
 
         <td>${i.availableWith}</td>
-        <td>${getSalesmanName(i.salesmanId)}</td>
+        <td>
+  ${getSalesmanName(d.salesmanId)}
+  <span style="cursor:pointer"
+        onclick='whatsappSalesman("${d.salesmanId}", ${JSON.stringify(d)})'>
+    🟢
+  </span>
+</td>
+
         <td class="actionIcons">
           ${canEdit?`<span onclick="editInquiry('${i.id}')">✏️</span><span onclick="deleteRow('${i.id}')">🗑️</span>`:""}
           <span onclick="toggleStatus('${i.id}')">🔄</span>
@@ -578,7 +585,10 @@ function renderTable(){
 
 // ==== Helper ====
 function getSalesmanName(uid){
-  return usersMap[uid] || "Unknown";
+  if(usersMap[uid]){
+    return usersMap[uid].name;
+  }
+  return "Unknown";
 }
 
 
@@ -759,6 +769,29 @@ Status: ${i.status}`;
   }
 }
 
+function whatsappSalesman(uid, inquiry){
+  const user = usersMap[uid];
+  if(!user || !user.mobile){
+    alert("Salesman mobile not found");
+    return;
+  }
+
+  const msg =
+`Hello ${user.name},
+
+New Inquiry Assigned:
+
+Product: ${inquiry.product}
+Party: ${inquiry.party}
+Qty: ${inquiry.qty}
+Type: ${inquiry.type}
+Date: ${inquiry.date}
+
+Please follow up.`;
+
+  const url = "https://wa.me/91" + user.mobile + "?text=" + encodeURIComponent(msg);
+  window.open(url, "_blank");
+}
 
 
 </script>
