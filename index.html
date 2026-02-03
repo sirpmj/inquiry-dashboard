@@ -177,6 +177,20 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// ✅ Detect already logged in user
+auth.onAuthStateChanged(user => {
+  if(user){
+    currentUser = user;
+
+    db.collection('users').doc(user.uid).get()
+    .then(doc=>{
+      if(doc.exists){
+        applyUserProfile(doc.data());
+      }
+    });
+  }
+});
+
 function showMsg(msg, ok=true){
   const d = document.createElement("div");
   d.innerText = msg;
