@@ -54,6 +54,21 @@ th{
   font-size:13px;
 }
 
+
+.filterBar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.filterBar input,
+.filterBar select{
+  width:auto;
+  min-width:180px;
+  padding:8px 12px;
+  font-size:13px;
+}
+
 </style>
 </head>
 <body>
@@ -95,17 +110,19 @@ th{
     </div>
 
     <div class="card" id="filterCard">
-      <h3>🔍 Filters</h3>
-      <input id="search" placeholder="Search Product">
-      <select id="categoryFilter">
-        <option value="">All Category</option>
-        <option>Sale</option>
-        <option>Purchase</option>
-      </select>
-      <select id="salesmanFilter">
-        <option value="">All Salesmen</option>
-      </select>
-    </div>
+  <div class="filterBar">
+    <input id="search" placeholder="🔍 Search Product">
+    <select id="categoryFilter">
+      <option value="">All Category</option>
+      <option>Sale</option>
+      <option>Purchase</option>
+    </select>
+    <select id="salesmanFilter">
+      <option value="">All Salesmen</option>
+    </select>
+  </div>
+</div>
+
 
     <div class="card" id="inquiryCard">
       <h3>Add / Update Inquiry</h3>
@@ -234,6 +251,8 @@ function showMsg(msg, ok=true){
 let currentUser = null;
 let editId = null;
 let userRole = null; // 'admin' or 'salesman'
+let usersMap = {};
+
 
 // ==== Login/Signup ====
 async function login(){
@@ -374,11 +393,17 @@ function updateFilters(){
   db.collection('users').get().then(snap=>{
     const select = document.getElementById("salesmanFilter");
     select.innerHTML = "<option value=''>All Salesmen</option>";
+
+    usersMap = {}; // reset
+
     snap.forEach(doc=>{
-      select.innerHTML += `<option value="${doc.id}">${doc.data().name}</option>`;
+      const data = doc.data();
+      usersMap[doc.id] = data.name;   // ✅ store in map
+      select.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
     });
   });
 }
+
 
 // ==== Add / Update Inquiry ====
 function addInquiry(){
@@ -461,10 +486,9 @@ function renderTable(){
 
 // ==== Helper ====
 function getSalesmanName(uid){
-  const sel=document.getElementById("salesmanFilter");
-  const option=Array.from(sel.options).find(o=>o.value===uid);
-  return option?option.text:'Unknown';
+  return usersMap[uid] || "Unknown";
 }
+
 function clearInquiryForm(){ ["product","qty","party","rate","availableWith","remark"].forEach(id=>document.getElementById(id).value=""); }
 
 // ==== Edit/Delete/Toggle ====
