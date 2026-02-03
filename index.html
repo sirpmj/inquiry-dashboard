@@ -146,6 +146,11 @@ th{
           <label>Party</label>
           <input id="party" placeholder="Party Name">
         </div>
+<div>
+  <label>Mobile No</label>
+  <input id="mobile" placeholder="Mobile Number">
+</div>
+
         <div>
           <label>Rate</label>
           <input id="rate" placeholder="Rate">
@@ -180,6 +185,7 @@ th{
               <th>Sale / Purchase</th>
               <th onclick="sortTable('qty')">Qty</th>
               <th>Party</th>
+<th>Mobile</th>
               <th>Available</th>
               <th>Salesman</th>
               <th>Status / Action</th>
@@ -415,6 +421,7 @@ function addInquiry(){
     salePurchase:document.getElementById("salePurchase").value,
     qty:qty,
     party:document.getElementById("party").value,
+mobile:document.getElementById("mobile").value,
     rate:document.getElementById("rate").value,
     availableWith:document.getElementById("availableWith").value,
     remark:document.getElementById("remark").value,
@@ -471,6 +478,19 @@ function renderTable(){
         <td>${i.salePurchase}</td>
         <td>${i.qty}</td>
         <td>${i.party}</td>
+
+<td>
+  ${i.mobile || ''}
+  ${i.mobile ? `
+    <div style="display:flex;gap:6px;margin-top:4px;font-size:16px;">
+      <span onclick="callParty('${i.mobile}')" title="Call">📞</span>
+      <span onclick="whatsappParty('${i.mobile}','${i.party}','${i.product}')" title="WhatsApp">🟢</span>
+      <span onclick="showPartyHistory('${i.party}')" title="History">📜</span>
+      <span onclick="addFollowup('${i.party}','${i.mobile}')" title="Follow Up">⏰</span>
+    </div>
+  ` : ``}
+</td>
+
         <td>${i.availableWith}</td>
         <td>${getSalesmanName(i.salesmanId)}</td>
         <td class="actionIcons">
@@ -489,7 +509,11 @@ function getSalesmanName(uid){
   return usersMap[uid] || "Unknown";
 }
 
-function clearInquiryForm(){ ["product","qty","party","rate","availableWith","remark"].forEach(id=>document.getElementById(id).value=""); }
+function clearInquiryForm(){
+ ["product","qty","party","mobile","rate","availableWith","remark"]
+ .forEach(id=>document.getElementById(id).value="");
+}
+
 
 // ==== Edit/Delete/Toggle ====
 function editInquiry(id){
@@ -499,6 +523,7 @@ function editInquiry(id){
   document.getElementById("salePurchase").value=i.salePurchase;
   document.getElementById("qty").value=i.qty;
   document.getElementById("party").value=i.party;
+document.getElementById("mobile").value=i.mobile || '';
   document.getElementById("rate").value=i.rate;
   document.getElementById("availableWith").value=i.availableWith;
   document.getElementById("remark").value=i.remark;
@@ -593,4 +618,39 @@ function renderCharts(){
     options:{responsive:true}
   });
 }
+
+function callParty(mobile){
+  window.open(`tel:${mobile}`);
+}
+
+function whatsappParty(mobile, party, product){
+  const msg = `Hello ${party}, regarding ${product} inquiry.`;
+  window.open(`https://wa.me/91${mobile}?text=${encodeURIComponent(msg)}`);
+}
+
+function showPartyHistory(party){
+  const rows = window.inquiries.filter(i=>i.party===party);
+  let text = `History for ${party}:\n\n`;
+  rows.forEach(r=>{
+    text += `${r.product} | Qty:${r.qty} | ${r.salePurchase} | ${r.status}\n`;
+  });
+  alert(text);
+}
+
+function addFollowup(party, mobile){
+  const date = prompt("Enter follow-up date (YYYY-MM-DD):");
+  if(!date) return;
+
+  db.collection('followups').add({
+    party,
+    mobile,
+    date,
+    note: "Inquiry follow-up",
+    createdBy: currentUser.uid,
+    createdAt: new Date()
+  });
+
+  alert("Follow-up added");
+}
+
 </script>
