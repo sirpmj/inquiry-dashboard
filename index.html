@@ -100,7 +100,7 @@ th{
   <h3 id="formTitle">Login</h3>
 
   <input id="name" type="text" placeholder="Full Name" style="display:none;">
-<input id="mobile" type="text" placeholder="Mobile Number" style="display:none;">
+<input id="signupMobile" type="text" placeholder="Mobile Number" style="display:none;">
   <input id="email" type="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
 
@@ -152,7 +152,8 @@ th{
         </div>
 <div>
   <label>Mobile No</label>
-  <input id="mobile" placeholder="Mobile Number">
+  <input id="partyMobile" placeholder="Mobile Number">
+
 </div>
 
         <div>
@@ -313,7 +314,7 @@ async function login(){
   try{
     const email = document.getElementById("email").value.trim();
     const pass = document.getElementById("password").value.trim();
-const mobile = document.getElementById("mobile").value.trim();
+const mobile = document.getElementById("signupMobile").value.trim();
 
     const res = await auth.signInWithEmailAndPassword(email, pass);
     currentUser = res.user;
@@ -463,7 +464,11 @@ async function updateFilters(){
 
   snap.forEach(doc=>{
     const data = doc.data();
-    usersMap[doc.id] = data.name;
+
+    usersMap[doc.id] = {
+      name: data.name,
+      mobile: data.mobile || ""
+    };
 
     select.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
     assign.innerHTML += `<option value="${doc.id}">${data.name}</option>`;
@@ -482,7 +487,8 @@ function addInquiry(){
     salePurchase:document.getElementById("salePurchase").value,
     qty:qty,
     party:document.getElementById("party").value,
-mobile:document.getElementById("mobile").value,
+mobile:document.getElementById("partyMobile").value,
+
     rate:document.getElementById("rate").value,
     availableWith:document.getElementById("availableWith").value,
     remark:document.getElementById("remark").value,
@@ -573,7 +579,8 @@ function getSalesmanName(uid){
 
 
 function clearInquiryForm(){
- ["product","qty","party","mobile","rate","availableWith","remark"]
+ ["product","qty","party","partyMobile","rate","availableWith","remark"]
+
  .forEach(id=>document.getElementById(id).value="");
 }
 
@@ -594,7 +601,8 @@ function editInquiry(id){
   document.getElementById("salePurchase").value=i.salePurchase;
   document.getElementById("qty").value=i.qty;
   document.getElementById("party").value=i.party;
-document.getElementById("mobile").value=i.mobile || '';
+document.getElementById("partyMobile").value=i.mobile || '';
+
   document.getElementById("rate").value=i.rate;
   document.getElementById("availableWith").value=i.availableWith;
 document.getElementById("assignSalesman").value = i.salesmanId;
