@@ -171,6 +171,21 @@ th{
   }
 }
 
+
+.actionRow{
+  display:flex;              /* 🔥 line mein */
+  flex-direction:row;        /* 🔥 vertical nahi */
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+}
+
+.actionRow .icon{
+  cursor:pointer;
+  font-size:16px;
+}
+
+
 /* ================= MOBILE COMPACT MODE ================= */
 /*@media(max-width:700px){
 
@@ -371,7 +386,7 @@ td:before{
           <th>Sale / Purchase</th>
           <th onclick="sortTable('qty')">Qty</th>
           <th>Party</th>
-          <th>Mobile</th>
+          <th>Party Action</th>
           <th>Available</th>
           <th>Salesman</th>
           <th>Status / Action</th>
@@ -738,7 +753,6 @@ let filtered = window.inquiries.filter(i=>{
 
 <td data-label="Mobile">
   <div class="mobileCell">
-    <span class="mobileNo">${i.mobile || ''}</span>
 
     ${i.mobile ? `
       <span class="mIcon" onclick="callParty('${i.mobile}')">📞</span>
@@ -746,8 +760,10 @@ let filtered = window.inquiries.filter(i=>{
       <span class="mIcon" onclick="showPartyHistory('${i.party}')">📜</span>
       <span class="mIcon" onclick="addFollowup('${i.party}','${i.mobile}')">⏰</span>
     ` : ''}
+
   </div>
 </td>
+
 
 
 <td data-label="Available">${i.availableWith}</td>
@@ -758,13 +774,14 @@ let filtered = window.inquiries.filter(i=>{
         style="cursor:pointer;margin-left:6px;">🟢</span>
 </td>
 
-<td data-label="Action" class="actionIcons">
-  ${canEdit?`
-    <span onclick="editInquiry('${i.id}')">✏️</span>
-    <span onclick="deleteRow('${i.id}')">🗑️</span>
-  `:''}
-  <span onclick="toggleStatus('${i.id}')">🔄</span>
+<td class="actionRow">
+  ${canEdit ? `
+    <span onclick="editInquiry('${i.id}')" class="icon">✏️</span>
+    <span onclick="deleteRow('${i.id}')" class="icon">🗑️</span>
+  ` : ''}
+  <span onclick="toggleStatus('${i.id}')" class="icon">🔄</span>
 </td>
+
 
 
 
