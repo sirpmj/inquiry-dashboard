@@ -69,6 +69,85 @@ th{
   font-size:13px;
 }
 
+
+
+.cleanBar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.cleanBar input,
+.cleanBar select,
+.cleanBar button{
+  height:38px;
+  border-radius:8px;
+  font-size:13px;
+}
+
+.ghostBtn{
+  background:#f1f5f9;
+  color:#111;
+  border:1px solid #cbd5e1;
+}
+
+.bulkBar{
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+}
+
+.warnBtn{
+  background:#facc15;
+  color:#111;
+}
+
+.dangerBtn{
+  background:#ef4444;
+}
+
+.compactBar{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  flex-wrap:nowrap;
+}
+
+.compactBar input{
+  width:180px;
+}
+
+.compactBar select{
+  width:120px;
+}
+
+.iconBtn{
+  width:38px;
+  height:38px;
+  padding:0;
+  font-size:16px;
+}
+
+
+
+
+.mobileCell{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  white-space:nowrap;
+}
+
+.mobileNo{
+  font-size:13px;
+}
+
+.mIcon{
+  cursor:pointer;
+  font-size:16px;
+}
+
 /* ================= MOBILE COMPACT MODE ================= */
 @media(max-width:700px){
 
@@ -224,59 +303,68 @@ td:before{
 
 
    <div class="card" id="tableCard">
-      <h3>📋 Live Inquiry Table</h3>
-      <div class="tableTopBar">
+  <h3>📋 Live Inquiry Table</h3>
 
-<div class="filterBar">
-  <input id="search" placeholder="🔍 Search Product">
+  <!-- 🔹 Filter & Actions Bar -->
+  <div class="tableTopBar compactBar">
+
+  <input id="search" placeholder="🔍 Search">
+
   <select id="categoryFilter">
-    <option value="">All Category</option>
+    <option value="">Category</option>
     <option>Sale</option>
     <option>Purchase</option>
   </select>
-  <select id="salesmanFilter"></select>
+
+  <select id="salesmanFilter">
+    <option value="">Salesman</option>
+  </select>
+
+  <select onchange="statusFilter=this.value;renderTable()">
+    <option value="">Status</option>
+    <option value="Open">Open</option>
+    <option value="Matched">Matched</option>
+    <option value="Closed">Closed</option>
+  </select>
+
+  <button onclick="showMine=!showMine;renderTable()" class="iconBtn" title="Only Mine">
+    👤
+  </button>
+
+  <button onclick="exportCSV()" class="iconBtn" title="Export CSV">
+    ⬇️
+  </button>
+
 </div>
 
-  <button onclick="bulkClose()">Selected Closed</button>
-  <button onclick="bulkDelete()">Selected Delete</button>
-  <button onclick="exportCSV()">Export CSV</button>
-
-
-  <button onclick="showMine=false;renderTable()">All</button>
-  <button onclick="showMine=true;renderTable()">Only Mine</button>
-
-  <button onclick="statusFilter='';renderTable()">All Status</button>
-  <button onclick="statusFilter='Open';renderTable()">Open</button>
-  <button onclick="statusFilter='Matched';renderTable()">Matched</button>
-  <button onclick="statusFilter='Closed';renderTable()">Closed</button>
-</div>
-
-      <div class="tableWrap">
-        <table>
-          <thead>
-            <tr>
-              <th><input type="checkbox" id="selectAll" class="checkbox" onclick="toggleSelectAll(this)"></th>
-              <th onclick="sortTable('date')">Date</th>
-              <th onclick="sortTable('product')">Product</th>
-              <th>Sale / Purchase</th>
-              <th onclick="sortTable('qty')">Qty</th>
-              <th>Party</th>
-<th>Mobile</th>
-              <th>Available</th>
-              <th>Salesman</th>
-              <th>Status / Action</th>
-            </tr>
-          </thead>
-          <tbody id="data"></tbody>
-        </table>
-      </div>
-    </div>
-
-   
-
+  <!-- 🔹 Bulk Actions -->
+  <div class="bulkBar">
+    <button onclick="bulkClose()" class="warnBtn">Selected Closed</button>
+    <button onclick="bulkDelete()" class="dangerBtn">Selected Delete</button>
   </div>
 
+  <!-- 🔹 Table -->
+  <div class="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="selectAll" class="checkbox" onclick="toggleSelectAll(this)"></th>
+          <th onclick="sortTable('date')">Date</th>
+          <th onclick="sortTable('product')">Product</th>
+          <th>Sale / Purchase</th>
+          <th onclick="sortTable('qty')">Qty</th>
+          <th>Party</th>
+          <th>Mobile</th>
+          <th>Available</th>
+          <th>Salesman</th>
+          <th>Status / Action</th>
+        </tr>
+      </thead>
+      <tbody id="data"></tbody>
+    </table>
+  </div>
 </div>
+
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -631,16 +719,19 @@ let filtered = window.inquiries.filter(i=>{
     <td data-label="Qty">${i.qty}</td>
     <td data-label="Party">${i.party}</td>
 
-   <td data-label="Mobile">
-  ${i.mobile || ''}
-  ${i.mobile ? `
-  <div style="display:flex;gap:10px;margin-top:2px;font-size:18px;">
-    <span onclick="callParty('${i.mobile}')">📞</span>
-    <span onclick="sendWhatsApp('${i.id}')">🟢</span>
-    <span onclick="showPartyHistory('${i.party}')">📜</span>
-    <span onclick="addFollowup('${i.party}','${i.mobile}')">⏰</span>
-  </div>`:''}
+<td data-label="Mobile">
+  <div class="mobileCell">
+    <span class="mobileNo">${i.mobile || ''}</span>
+
+    ${i.mobile ? `
+      <span class="mIcon" onclick="callParty('${i.mobile}')">📞</span>
+      <span class="mIcon" onclick="sendWhatsApp('${i.id}')">🟢</span>
+      <span class="mIcon" onclick="showPartyHistory('${i.party}')">📜</span>
+      <span class="mIcon" onclick="addFollowup('${i.party}','${i.mobile}')">⏰</span>
+    ` : ''}
+  </div>
 </td>
+
 
 <td data-label="Available">${i.availableWith}</td>
 
@@ -794,9 +885,11 @@ const partyMsg = `
 Hello ${i.party},
 
 Product: ${i.product}
-Qty: ${i.qty}
 Rate: ${i.rate}
+Qty: ${i.qty}
+Type:${i.salePurchase}
 Available: ${i.availableWith}
+Remark:${i.remark}
 
 Our salesman will contact you shortly.
 `;
@@ -808,7 +901,11 @@ Our salesman will contact you shortly.
 Party: ${i.party}
 Mobile: ${i.mobile}
 Product: ${i.product}
+Rate: ${i.rate}
 Qty: ${i.qty}
+Type:${i.salePurchase}
+Available: ${i.availableWith}
+Remark:${i.remark}
 Status: ${i.status}`;
 
   // Party WhatsApp
@@ -837,7 +934,9 @@ New Inquiry Assigned:
 Product: ${inquiry.product}
 Party: ${inquiry.party}
 Qty: ${inquiry.qty}
+Type:${inquiry.salePurchase}
 Available: ${inquiry.availableWith}
+Remark:${inquiry.remark}
 
 Please follow up.`;
 
