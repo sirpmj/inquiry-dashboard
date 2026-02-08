@@ -36,7 +36,10 @@ th{
 .status-Matched{background:#dbfce7;}
 .status-Closed{background:#ffe1e1;}
 .actionIcons span{cursor:pointer;margin-right:6px;font-size:16px;}
-.tableWrap{overflow:auto;max-height:420px;}
+.tableWrap{
+  -webkit-overflow-scrolling:touch;
+}
+
 @media(max-width:600px){header{font-size:18px;}}
 .checkbox{width:16px;height:16px;cursor:pointer;}
 #charts{display:flex;gap:12px;flex-wrap:wrap;}
@@ -148,8 +151,31 @@ th{
   font-size:16px;
 }
 
-/* ================= MOBILE COMPACT MODE ================= */
+
+/* 🔹 Mobile compact scroll bar */
 @media(max-width:700px){
+  .compactBar{
+    overflow-x:auto;
+    flex-wrap:nowrap;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:4px;
+  }
+
+  .compactBar::-webkit-scrollbar{
+    height:4px;
+  }
+
+  .compactBar input{
+    min-width:160px;
+  }
+
+  .compactBar select{
+    min-width:110px;
+  }
+}
+
+/* ================= MOBILE COMPACT MODE ================= */
+/*@media(max-width:700px){
 
 table, thead, tbody, th, td, tr{
   display:block;
@@ -181,7 +207,7 @@ td:before{
   display:block;
   margin-bottom:2px;
 }
-
+*/
 .actionIcons span{
   font-size:18px;
   margin-right:10px;
@@ -307,7 +333,6 @@ td:before{
 
   <!-- 🔹 Filter & Actions Bar -->
   <div class="tableTopBar compactBar">
-
   <input id="search" placeholder="🔍 Search">
 
   <select id="categoryFilter">
@@ -317,7 +342,7 @@ td:before{
   </select>
 
   <select id="salesmanFilter">
-    <option value="">Salesman</option>
+    <option value="">Salesmen</option>
   </select>
 
   <select onchange="statusFilter=this.value;renderTable()">
@@ -327,15 +352,10 @@ td:before{
     <option value="Closed">Closed</option>
   </select>
 
-  <button onclick="showMine=!showMine;renderTable()" class="iconBtn" title="Only Mine">
-    👤
-  </button>
-
-  <button onclick="exportCSV()" class="iconBtn" title="Export CSV">
-    ⬇️
-  </button>
-
+  <button class="iconBtn" onclick="showMine=!showMine;renderTable()">👤</button>
+  <button class="iconBtn" onclick="exportCSV()">⬇️</button>
 </div>
+
 
   <!-- 🔹 Bulk Actions -->
   <div class="bulkBar">
