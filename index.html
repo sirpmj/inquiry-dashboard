@@ -57,18 +57,62 @@ th{
 
 .filterBar{
   display:flex;
-  gap:10px;
+  gap:5px;
   flex-wrap:wrap;
   align-items:center;
 }
 .filterBar input,
 .filterBar select{
   width:auto;
-  min-width:180px;
+  min-width:50px;
   padding:8px 12px;
   font-size:13px;
 }
 
+/* ================= MOBILE COMPACT MODE ================= */
+@media(max-width:700px){
+
+table, thead, tbody, th, td, tr{
+  display:block;
+  width:100%;
+}
+
+thead{display:none;}
+
+tr{
+  background:#fff;
+  margin-bottom:10px;
+  padding:8px;
+  border-radius:8px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.08);
+  border:1px solid #eee;
+}
+
+td{
+  padding:4px 6px;
+  font-size:13px;
+  border:none;
+}
+
+td:before{
+  content:attr(data-label);
+  font-weight:600;
+  font-size:11px;
+  color:#666;
+  display:block;
+  margin-bottom:2px;
+}
+
+.actionIcons span{
+  font-size:18px;
+  margin-right:10px;
+}
+
+.checkbox{
+  transform:scale(1.2);
+}
+
+}
 
 
 </style>
@@ -118,15 +162,13 @@ th{
       Logged in as: <b id="userName"></b> (<span id="userRole"></span>)
       <span onclick="logout()" style="cursor:pointer;color:#6366f1;margin-left:10px;">Logout</span>
     </div>
-
-    <div class="card" id="totalsCard">
-      <h3>📊 Product Totals</h3>
-      <div id="totals" class="qtyBox"></div>
-      <div id="statusTotals"></div>
-    </div>
-
-   
-
+<!--
+<div class="card" id="totalsCard">
+  <h3>📊 Product Totals</h3>
+  <div id="totals" class="qtyBox"></div>
+  <div id="statusTotals"></div>
+</div>
+-->
 
     <div class="card" id="inquiryCard">
       <h3>Add / Update Inquiry</h3>
@@ -177,6 +219,14 @@ th{
       <button onclick="addInquiry()">Save Inquiry</button>
     </div>
 
+
+
+
+
+   <div class="card" id="tableCard">
+      <h3>📋 Live Inquiry Table</h3>
+      <div class="tableTopBar">
+
 <div class="filterBar">
   <input id="search" placeholder="🔍 Search Product">
   <select id="categoryFilter">
@@ -187,12 +237,18 @@ th{
   <select id="salesmanFilter"></select>
 </div>
 
-   <div class="card" id="tableCard">
-      <h3>📋 Live Inquiry Table</h3>
-      <div class="tableTopBar">
   <button onclick="bulkClose()">Selected Closed</button>
   <button onclick="bulkDelete()">Selected Delete</button>
   <button onclick="exportCSV()">Export CSV</button>
+
+
+  <button onclick="showMine=false;renderTable()">All</button>
+  <button onclick="showMine=true;renderTable()">Only Mine</button>
+
+  <button onclick="statusFilter='';renderTable()">All Status</button>
+  <button onclick="statusFilter='Open';renderTable()">Open</button>
+  <button onclick="statusFilter='Matched';renderTable()">Matched</button>
+  <button onclick="statusFilter='Closed';renderTable()">Closed</button>
 </div>
 
       <div class="tableWrap">
@@ -216,10 +272,7 @@ th{
       </div>
     </div>
 
-    <div id="charts" class="card">
-      <div class="chartCard"><canvas id="chartSalePurchase"></canvas></div>
-      <div class="chartCard"><canvas id="chartStatus"></canvas></div>
-    </div>
+   
 
   </div>
 
@@ -229,10 +282,14 @@ th{
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
 <script>
+
+let showMine = false;
+let statusFilter = '';
+let searchText = '';
+
 // 🔹 Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyCuPj2Zayn-b-USaCoC3d_eA0FALPrBqXg",
@@ -396,6 +453,16 @@ document.getElementById("signupMobile").style.display = "none";
   document.getElementById("toggleBtn").onclick = showSignup;
 }
 
+document.getElementById("party").addEventListener("blur", ()=>{
+  const name = document.getElementById("party").value.trim();
+  const last = [...window.inquiries].reverse().find(x=>x.party===name);
+  if(last){
+    document.getElementById("partyMobile").value = last.mobile || '';
+    document.getElementById("rate").value = last.rate || '';
+    document.getElementById("product").value = last.product || '';
+  }
+});
+
 
 // ==== Load Dashboard ====
 function loadUserRole(){
@@ -407,7 +474,7 @@ function loadUserRole(){
       const profile = {
         name: currentUser.displayName || currentUser.email,
         email: currentUser.email,
-        role: "admin" // 👈 first time admin (ya salesman)
+        role: "salesman" // 👈 first time admin (ya salesman)
       };
 
       db.collection('users').doc(uid).set(profile).then(()=>{
@@ -446,12 +513,10 @@ function setupRealtime(){
       window.inquiries.push(i);
     });
     renderTable();
-    renderCharts();
-  });
+    });
 }
 
 // ==== Filters ====
-document.getElementById("search").addEventListener("input", renderTable);
 document.getElementById("categoryFilter").addEventListener("change", renderTable);
 document.getElementById("salesmanFilter").addEventListener("change", renderTable);
 
@@ -496,19 +561,26 @@ mobile:document.getElementById("partyMobile").value,
     rate:document.getElementById("rate").value,
     availableWith:document.getElementById("availableWith").value,
     remark:document.getElementById("remark").value,
-    salesmanId: document.getElementById("assignSalesman").value,
+    salesmanId:
+  document.getElementById("assignSalesman").value || currentUser.uid,
+
 
     status:"Open",
     date:new Date()
   };
   if(editId){
-    db.collection('inquiries').doc(editId).set(obj);
+db.collection('inquiries').doc(editId).update(obj);
     editId=null;
   }else{
     db.collection('inquiries').add(obj);
   }
   clearInquiryForm();
 }
+
+document.getElementById("search").addEventListener("input",(e)=>{
+  searchText = e.target.value.toLowerCase();
+  renderTable();
+});
 
 // ==== Table Rendering ====
 let sortField=null, sortAsc=true;
@@ -523,12 +595,19 @@ function renderTable(){
   const catVal=document.getElementById("categoryFilter").value;
   const salesVal=document.getElementById("salesmanFilter").value;
 
-  let filtered = window.inquiries.filter(i=>{
-    if(searchVal && !i.product.toLowerCase().includes(searchVal)) return false;
-    if(catVal && i.salePurchase!==catVal) return false;
-    if(salesVal && i.salesmanId!==salesVal) return false;
-    return true;
-  });
+let filtered = window.inquiries.filter(i=>{
+  const text = (i.product + i.party + (i.mobile||'')).toLowerCase();
+
+  if(searchText && !text.includes(searchText)) return false;
+  if(statusFilter && i.status!==statusFilter) return false;
+  if(showMine && i.salesmanId!==currentUser.uid) return false;
+  if(catVal && i.salePurchase!==catVal) return false;
+  if(salesVal && i.salesmanId!==salesVal) return false;
+
+  return true;
+});
+
+
 
   if(sortField){
     filtered.sort((a,b)=>{
@@ -541,47 +620,51 @@ function renderTable(){
   }
 
   filtered.forEach(i=>{
-    const canEdit = (userRole==='admin'||i.salesmanId===currentUser.uid);
-    tbody.innerHTML+=`
-      <tr class="status-${i.status}">
-        <td><input type="checkbox" class="rowCheckbox checkbox"></td>
-        <td>${formatDate(i.date)}</td>
-        <td>${i.product}</td>
-        <td>${i.salePurchase}</td>
-        <td>${i.qty}</td>
-        <td>${i.party}</td>
+  const canEdit = (userRole==='admin'||i.salesmanId===currentUser.uid);
 
-<td>
+  tbody.innerHTML+=`
+  <tr class="status-${i.status}">
+    <td data-label="Select"><input type="checkbox" class="rowCheckbox checkbox" data-id="${i.id}"></td>
+    <td data-label="Date">${formatDate(i.date)}</td>
+    <td data-label="Product">${i.product}</td>
+    <td data-label="Type">${i.salePurchase}</td>
+    <td data-label="Qty">${i.qty}</td>
+    <td data-label="Party">${i.party}</td>
+
+   <td data-label="Mobile">
   ${i.mobile || ''}
   ${i.mobile ? `
-    <div style="display:flex;gap:6px;margin-top:4px;font-size:16px;">
-      <span onclick="callParty('${i.mobile}')" title="Call">📞</span>
-      <span onclick="sendWhatsApp('${i.id}')" style="cursor:pointer">🟢</span>
-      <span onclick="showPartyHistory('${i.party}')" title="History">📜</span>
-      <span onclick="addFollowup('${i.party}','${i.mobile}')" title="Follow Up">⏰</span>
-    </div>
-  ` : ``}
+  <div style="display:flex;gap:10px;margin-top:2px;font-size:18px;">
+    <span onclick="callParty('${i.mobile}')">📞</span>
+    <span onclick="sendWhatsApp('${i.id}')">🟢</span>
+    <span onclick="showPartyHistory('${i.party}')">📜</span>
+    <span onclick="addFollowup('${i.party}','${i.mobile}')">⏰</span>
+  </div>`:''}
 </td>
 
-        <td>${i.availableWith}</td>
-        <td>
+<td data-label="Available">${i.availableWith}</td>
+
+<td data-label="Salesman">
   ${getSalesmanName(i.salesmanId)}
-  <span style="cursor:pointer"
-        onclick='whatsappSalesman("${i.salesmanId}", ${JSON.stringify(i)})'>
-    🟢
-  </span>
+  <span onclick="whatsappSalesman('${i.salesmanId}','${i.id}')"
+        style="cursor:pointer;margin-left:6px;">🟢</span>
+</td>
+
+<td data-label="Action" class="actionIcons">
+  ${canEdit?`
+    <span onclick="editInquiry('${i.id}')">✏️</span>
+    <span onclick="deleteRow('${i.id}')">🗑️</span>
+  `:''}
+  <span onclick="toggleStatus('${i.id}')">🔄</span>
 </td>
 
 
-        <td class="actionIcons">
-          ${canEdit?`<span onclick="editInquiry('${i.id}')">✏️</span><span onclick="deleteRow('${i.id}')">🗑️</span>`:""}
-          <span onclick="toggleStatus('${i.id}')">🔄</span>
-        </td>
-      </tr>
-    `;
-  });
 
-  renderTotals();
+  </tr>`;
+});
+
+
+ // renderTotals();
 }
 
 // ==== Helper ====
@@ -632,29 +715,41 @@ function toggleStatus(id){
 
 // ==== Bulk Actions ====
 function toggleSelectAll(el){
-  document.querySelectorAll(".rowCheckbox").forEach(cb=>cb.checked=el.checked);
-}
-function bulkClose(){
-  document.querySelectorAll(".rowCheckbox").forEach((cb,i)=>{
-    if(cb.checked){
-      const id = window.inquiries[i].id;
-      db.collection('inquiries').doc(id).update({status:'Closed'});
-    }
-  });
-}
-function bulkDelete(){
-  document.querySelectorAll(".rowCheckbox").forEach((cb,i)=>{
-    if(cb.checked){
-      const id=window.inquiries[i].id;
-      db.collection('inquiries').doc(id).delete();
-    }
+  document.querySelectorAll(".rowCheckbox").forEach(cb=>{
+    cb.checked = el.checked;
   });
 }
 
+function bulkClose(){
+  document.querySelectorAll(".rowCheckbox:checked").forEach(cb=>{
+    const id = cb.getAttribute("data-id");
+    db.collection('inquiries').doc(id).update({status:'Closed'});
+  });
+}
+
+function bulkDelete(){
+  document.querySelectorAll(".rowCheckbox:checked").forEach(cb=>{
+    const id = cb.getAttribute("data-id");
+    db.collection('inquiries').doc(id).delete();
+  });
+}
+
+
+setInterval(()=>{
+  const data = {
+    product:product.value,
+    party:party.value,
+    qty:qty.value
+  };
+  localStorage.setItem("draftInquiry",JSON.stringify(data));
+},2000);
+
+
+
 // ==== Totals & Charts ====
-function renderTotals(){
+/*function renderTotals(){
   const totalsDiv=document.getElementById("totals");
-  totalsDiv.innerHTML="";
+  totalsDiv.innerHTML="";*/
   let totals={}, pending=0, closed=0;
   window.inquiries.forEach(i=>{
     totals[i.product]=(totals[i.product]||0)+i.qty;
@@ -665,54 +760,6 @@ function renderTotals(){
   document.getElementById("statusTotals").innerHTML=`<b>Open Qty:</b> ${pending} | <b>Closed Qty:</b> ${closed}`;
 }
 
-let chartSP=null, chartStatus=null;
-
-function renderCharts(){
-  const spLabels=[], spData=[];
-  const statusLabels=['Open','Matched','Closed'];
-  const statusData=[0,0,0];
-  const spMap={};
-
-  window.inquiries.forEach(i=>{
-    spMap[i.salePurchase]=(spMap[i.salePurchase]||0)+i.qty;
-
-    if(i.status==="Open") statusData[0]+=i.qty;
-    if(i.status==="Matched") statusData[1]+=i.qty;
-    if(i.status==="Closed") statusData[2]+=i.qty;
-  });
-
-  for(let k in spMap){
-    spLabels.push(k);
-    spData.push(spMap[k]);
-  }
-
-  if(chartSP) chartSP.destroy();
-  chartSP = new Chart(document.getElementById("chartSalePurchase"),{
-    type:'bar',
-    data:{
-      labels:spLabels,
-      datasets:[{
-        label:'Total Qty',
-        data:spData,
-        backgroundColor:'#6366f1'
-      }]
-    },
-    options:{responsive:true}
-  });
-
-  if(chartStatus) chartStatus.destroy();
-  chartStatus = new Chart(document.getElementById("chartStatus"),{
-    type:'pie',
-    data:{
-      labels:statusLabels,
-      datasets:[{
-        data:statusData,
-        backgroundColor:['#fde68a','#86efac','#fca5a5']
-      }]
-    },
-    options:{responsive:true}
-  });
-}
 
 function callParty(mobile){
   window.open(`tel:${mobile}`);
@@ -725,12 +772,15 @@ function whatsappParty(mobile, party, product){
 
 function showPartyHistory(party){
   const rows = window.inquiries.filter(i=>i.party===party);
-  let text = `History for ${party}:\n\n`;
-  rows.forEach(r=>{
-    text += `${r.product} | Qty:${r.qty} | ${r.salePurchase} | ${r.status}\n`;
+  let html = `<h3>${party} History</h3>`;
+  rows.slice(-5).forEach(r=>{
+    html+=`<div>${r.product} | Qty:${r.qty} | ${r.status}</div>`;
   });
-  alert(text);
+  const w = window.open("","_blank","width=320,height=420");
+  w.document.write(html);
 }
+
+
 
 function sendWhatsApp(id){
   const i = window.inquiries.find(x=>x.id===id);
@@ -740,13 +790,17 @@ function sendWhatsApp(id){
   const salesmanMobile = salesman?.mobile || "";
 
   // ✅ Party Message
-  const partyMsg = `Hello ${i.party},
+const partyMsg = `
+Hello ${i.party},
 
-We have inquiry for:
 Product: ${i.product}
 Qty: ${i.qty}
+Rate: ${i.rate}
+Available: ${i.availableWith}
 
-We will contact you shortly.`;
+Our salesman will contact you shortly.
+`;
+
 
   // ✅ Salesman Message
   const salesmanMsg = `New Inquiry Assigned
@@ -770,12 +824,10 @@ Status: ${i.status}`;
   }
 }
 
-function whatsappSalesman(uid, inquiry){
+function whatsappSalesman(uid, id){
+  const inquiry = window.inquiries.find(x=>x.id===id);
   const user = usersMap[uid];
-  if(!user || !user.mobile){
-    alert("Salesman mobile not found");
-    return;
-  }
+  if(!user || !user.mobile) return;
 
   const msg =
 `Hello ${user.name},
@@ -785,13 +837,31 @@ New Inquiry Assigned:
 Product: ${inquiry.product}
 Party: ${inquiry.party}
 Qty: ${inquiry.qty}
-Type: ${inquiry.type}
-Date: ${inquiry.date}
+Available: ${inquiry.availableWith}
 
 Please follow up.`;
 
-  const url = "https://wa.me/91" + user.mobile + "?text=" + encodeURIComponent(msg);
-  window.open(url, "_blank");
+  window.open("https://wa.me/91"+user.mobile+"?text="+encodeURIComponent(msg));
+}
+
+const draft = JSON.parse(localStorage.getItem("draftInquiry") || "{}");
+
+if(draft.product) product.value = draft.product;
+if(draft.party) party.value = draft.party;
+if(draft.qty) qty.value = draft.qty;
+
+function exportCSV(){
+  let csv = "Date,Product,Type,Qty,Party,Mobile,Salesman,Status\n";
+
+  window.inquiries.forEach(i=>{
+    csv += `"${formatDate(i.date)}","${i.product}","${i.salePurchase}",${i.qty},"${i.party}","${i.mobile||''}","${getSalesmanName(i.salesmanId)}","${i.status}"\n`;
+  });
+
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "inquiries.csv";
+  a.click();
 }
 
 
