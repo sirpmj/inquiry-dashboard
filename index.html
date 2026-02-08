@@ -749,7 +749,7 @@ setInterval(()=>{
 // ==== Totals & Charts ====
 /*function renderTotals(){
   const totalsDiv=document.getElementById("totals");
-  totalsDiv.innerHTML="";*/
+  totalsDiv.innerHTML="";
   let totals={}, pending=0, closed=0;
   window.inquiries.forEach(i=>{
     totals[i.product]=(totals[i.product]||0)+i.qty;
@@ -759,7 +759,7 @@ setInterval(()=>{
   for(let p in totals) totalsDiv.innerHTML+=`<div class="qtyItem">${p}: <b>${totals[p]}</b></div>`;
   document.getElementById("statusTotals").innerHTML=`<b>Open Qty:</b> ${pending} | <b>Closed Qty:</b> ${closed}`;
 }
-
+*/
 
 function callParty(mobile){
   window.open(`tel:${mobile}`);
