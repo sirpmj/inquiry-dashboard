@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;}body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333;}
-header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
-header span{font-size:16px;cursor:pointer;background:#6366f1;padding:6px 10px;border-radius:6px;}
+header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:400;display:flex;justify-content:space-between;align-items:center;}
+
 .container{max-width:1200px;margin:auto;padding:12px;}
 .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.06);}
 h3{margin:0 0 8px 0;font-size:16px;}
-label{display:block;font-weight:500;margin-top:6px;}
+label{display:block;font-weight:500;margin-top:4px;}
 input,select,button{width:100%;padding:10px 12px;margin:4px 0;border-radius:8px;border:1px solid #dcdcdc;font-size:14px;font-family:'Poppins';}
 input:focus,select:focus{outline:none;border-color:#6366f1;}
 button{background:#6366f1;color:#fff;border:none;font-weight:500;cursor:pointer;transition:.2s;}
@@ -232,6 +232,102 @@ td:before{
 }
 
 
+#topBar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:nowrap;
+  gap:12px;
+  padding:10px 14px;
+  margin-bottom:14px;
+
+  background:#0f172a;           /* dark slate */
+  border:1px solid #1e293b;
+  border-radius:8px;
+}
+
+#leftInfo{
+  font-size:14px;
+  color:#cbd5e1;                /* light slate text */
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#centerTitle{
+  font-weight:600;
+  font-size:18px;
+  color:#f1f5f9;                /* bright title */
+  letter-spacing:0.3px;
+}
+
+#rightAction{
+  flex-shrink:0;
+}
+
+#logoutBtn{
+  cursor:pointer;
+  background:#7f1d1d;           /* dark red chip */
+  color:#fecaca;
+  font-weight:600;
+  padding:5px 10px;
+  border-radius:6px;
+  border:1px solid #991b1b;
+  transition:0.2s ease;
+}
+
+#logoutBtn:hover{
+  background:#991b1b;
+}
+
+
+
+
+#topStatsBar{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:8px 12px;
+  margin-bottom:12px;
+
+  background:#0f172a;
+  border:1px solid #1e293b;
+  border-radius:8px;
+
+  white-space:nowrap;
+  overflow-x:auto;
+}
+
+#followupTitle{
+  font-weight:600;
+  color:#f1f5f9;
+  font-size:15px;
+}
+
+#todayFollowupsInline{
+  display:flex;
+  gap:10px;
+  color:#cbd5e1;
+  font-size:13px;
+}
+
+#summaryChipsTop{
+  display:flex;
+  gap:8px;
+}
+
+#summaryChipsTop .qtyItem{
+  background:#1e293b;
+  color:#cbd5e1;
+  padding:4px 10px;
+  border-radius:6px;
+  font-size:13px;
+  border:1px solid #334155;
+}
+
+
+
+
+
 </style>
 </head>
 
@@ -249,12 +345,29 @@ td:before{
   </div>
 </div>
 
-<header>
-  📦 Inquiry Pool Dashboard
-  <span onclick="logout()">Logout</span>
+<header id="topBar">
+  <div id="leftInfo">
+    Logged in as: <b id="userName"></b> (<span id="userRole"></span>)
+  </div>
+
+  <div id="centerTitle">
+    📦 Inquiry Pool Dashboard
+  </div>
+
+  <div id="rightAction">
+    <span id="logoutBtn" onclick="logout()">Logout</span>
+  </div>
 </header>
 
+
 <div class="container">
+
+<div id="topStatsBar">
+  <div id="followupTitle">🔔 Today Follow-ups</div>
+  <div id="todayFollowupsInline"></div>
+  <div id="summaryChipsTop"></div>
+</div>
+
 
   <!-- Login / Signup -->
   <div class="card" id="loginBox">
@@ -276,9 +389,10 @@ td:before{
   <div id="dashboard" style="display:none">
 
     <div class="card" id="userBox">
-      Logged in as: <b id="userName"></b> (<span id="userRole"></span>)
-      <span onclick="logout()" style="cursor:pointer;color:#6366f1;margin-left:10px;">Logout</span>
-    </div>
+
+
+
+     
 <!--
 <div class="card" id="totalsCard">
   <h3>📊 Product Totals</h3>
@@ -342,6 +456,7 @@ td:before{
 
    <div class="card" id="tableCard">
   <h3>📋 Live Inquiry Table</h3>
+<div id="summaryChips" style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;"></div>
 
   <!-- 🔹 Filter & Actions Bar -->
   <div class="tableTopBar compactBar">
@@ -486,6 +601,25 @@ let userRole = null; // 'admin' or 'salesman'
 let usersMap = {};
 
 
+function loadTodayFollowups(){
+  const box = document.getElementById("todayFollowups");
+  const today = new Date().toISOString().slice(0,10);
+
+  db.collection('followups')
+    .where('date','==',today)
+    .onSnapshot(snap=>{
+      box.innerHTML="";
+      snap.forEach(doc=>{
+        const f = doc.data();
+        box.innerHTML += `
+          <div class="qtyItem">
+            ${f.party} — ${f.note}
+            <span onclick="callParty('${f.mobile}')">📞</span>
+          </div>`;
+      });
+    });
+}
+
 // ==== Login/Signup ====
 async function login(){
   try{
@@ -584,6 +718,33 @@ document.getElementById("party").addEventListener("blur", ()=>{
 });
 
 
+
+function renderSummaryChips(list){
+  const el = document.getElementById("summaryChipsTop");
+  if(!el) return;
+
+  const todayStr = new Date().toDateString();
+
+  let total=list.length, open=0, matched=0, closed=0, today=0;
+
+  list.forEach(i=>{
+    if(i.status==="Open") open++;
+    if(i.status==="Matched") matched++;
+    if(i.status==="Closed") closed++;
+
+    const d = new Date(i.date.seconds?i.date.seconds*1000:i.date);
+    if(d.toDateString()===todayStr) today++;
+  });
+
+  el.innerHTML = `
+    <div class="qtyItem">Total: <b>${total}</b></div>
+    <div class="qtyItem">Open: <b>${open}</b></div>
+    <div class="qtyItem">Matched: <b>${matched}</b></div>
+    <div class="qtyItem">Closed: <b>${closed}</b></div>
+    <div class="qtyItem">Today: <b>${today}</b></div>
+  `;
+}
+
 // ==== Load Dashboard ====
 function loadUserRole(){
   const uid = currentUser.uid;
@@ -620,9 +781,35 @@ function applyUserProfile(data){
 
 updateFilters().then(()=>{
   setupRealtime();
+loadTodayFollowups();
+
 });
 }
 
+
+
+function autoMatchStatus(){
+  const map = {};
+
+  window.inquiries.forEach(i=>{
+    const key = i.product + "_" + i.qty;
+    if(!map[key]) map[key]=[];
+    map[key].push(i);
+  });
+
+  Object.values(map).forEach(group=>{
+    const hasSale = group.find(x=>x.salePurchase==="Sale");
+    const hasPurchase = group.find(x=>x.salePurchase==="Purchase");
+
+    if(hasSale && hasPurchase){
+      group.forEach(x=>{
+        if(x.status==="Open"){
+          db.collection('inquiries').doc(x.id).update({status:"Matched"});
+        }
+      });
+    }
+  });
+}
 
 // ==== Realtime Listener ====
 function setupRealtime(){
@@ -633,6 +820,8 @@ function setupRealtime(){
       window.inquiries.push(i);
     });
     renderTable();
+autoMatchStatus();
+
     });
 }
 
@@ -727,6 +916,7 @@ let filtered = window.inquiries.filter(i=>{
   return true;
 });
 
+renderSummaryChips(filtered);
 
 
   if(sortField){
@@ -996,6 +1186,34 @@ function exportCSV(){
   a.download = "inquiries.csv";
   a.click();
 }
+
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="/"){
+    e.preventDefault();
+    document.getElementById("search").focus();
+  }
+
+  if(e.key==="F2"){
+    e.preventDefault();
+    document.getElementById("product").focus();
+  }
+
+  if(e.ctrlKey && e.key==="Enter"){
+    e.preventDefault();
+    addInquiry();
+  }
+});
+
+document.querySelectorAll("#inquiryCard input, #inquiryCard select")
+.forEach((el,idx,arr)=>{
+  el.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){
+      e.preventDefault();
+      if(arr[idx+1]) arr[idx+1].focus();
+    }
+  });
+});
 
 
 </script>
