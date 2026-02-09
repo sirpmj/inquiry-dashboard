@@ -3,22 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inquiry Pool Dashboard</title>
+<title>Inquiry Pool</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;}body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333;}
-header{background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:16px;text-align:center;font-size:20px;font-weight:400;display:flex;justify-content:space-between;align-items:center;}
+header{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  border-radius:0;
+  background:#0f172a;
+  border:1px solid #1e293b;
+  border-radius:8px;
+
+  padding:8px 12px;
+  margin-bottom:0px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  font-size:16px;
+  font-weight:500;
+  color:#fff;
+}
+
+#mainHeader{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  width:calc(100% - 180px);
+  margin:0 auto;
+}
+#topStatsBar{
+  width:calc(100% - 180px);
+  margin:0 auto;
+}
+
+
 
 .container{max-width:1200px;margin:auto;padding:12px;}
-.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.06);}
+.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:4px;box-shadow:0 4px 14px rgba(0,0,0,.06);}
 h3{margin:0 0 8px 0;font-size:16px;}
 label{display:block;font-weight:500;margin-top:4px;}
 input,select,button{width:100%;padding:10px 12px;margin:4px 0;border-radius:8px;border:1px solid #dcdcdc;font-size:14px;font-family:'Poppins';}
 input:focus,select:focus{outline:none;border-color:#6366f1;}
 button{background:#6366f1;color:#fff;border:none;font-weight:500;cursor:pointer;transition:.2s;}
 button:hover{opacity:.9;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;}
-.qtyBox{display:flex;gap:10px;overflow:auto;margin-bottom:6px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px;}
+.qtyBox{display:flex;gap:10px;overflow:auto;margin-bottom:4px;}
 .qtyItem{min-width:120px;background:#eef2ff;border:1px solid #c7d2fe;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;text-align:center;}
 .qtyItem:hover{background:#dbeafe;border-color:#6366f1;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
@@ -46,7 +79,7 @@ th{
   display:flex;
   gap:10px;
   flex-wrap:wrap;
-  margin-bottom:8px;
+  margin-bottom:0px;
 }
 .tableTopBar button{
   width:auto;
@@ -95,7 +128,7 @@ th{
 .bulkBar{
   display:flex;
   gap:8px;
-  margin-top:8px;
+  margin-top:4px;
 }
 
 .warnBtn{
@@ -247,17 +280,17 @@ td:before{
 }
 
 #leftInfo{
-  font-size:14px;
-  color:#cbd5e1;                /* light slate text */
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-#centerTitle{
-  font-weight:600;
+    font-weight:600;
   font-size:18px;
   color:#f1f5f9;                /* bright title */
   letter-spacing:0.3px;
+}
+
+#centerTitle{
+font-size:14px;
+  color:#cbd5e1;                /* light slate text */
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 #rightAction{
@@ -283,11 +316,13 @@ td:before{
 
 
 #topStatsBar{
+position: sticky;
+top: 45px;
   display:flex;
   align-items:center;
   gap:16px;
   padding:8px 12px;
-  margin-bottom:12px;
+  margin-bottom:2px;
 
   background:#0f172a;
   border:1px solid #1e293b;
@@ -336,22 +371,23 @@ td:before{
 <div id="followupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);align-items:center;justify-content:center;z-index:9999;">
   <div style="background:#fff;width:320px;padding:16px;border-radius:10px;">
     <h3 style="margin-top:0">Add Follow-up</h3>
-    <input type="date" id="fuDate" style="width:100%;margin-bottom:8px;">
+    <input type="date" id="fuDate" style="width:100%;margin-bottom:4px;">
     <textarea id="fuNote" placeholder="Note" style="width:100%;height:60px;"></textarea>
-    <div style="display:flex;gap:8px;margin-top:10px;">
+    <div style="display:flex;gap:8px;margin-top:4px;">
       <button onclick="saveFollowup()">Save</button>
       <button onclick="closeFollowup()" style="background:#e5e7eb;color:#111;">Cancel</button>
     </div>
   </div>
 </div>
 
-<header id="topBar">
+<header id="mainHeader" style="display:none;">
+
   <div id="leftInfo">
-    Logged in as: <b id="userName"></b> (<span id="userRole"></span>)
-  </div>
+📦 Inquiry Pool Dashboard
+      </div>
 
   <div id="centerTitle">
-    📦 Inquiry Pool Dashboard
+    Logged in as: <b id="userName"></b> (<span id="userRole"></span>)
   </div>
 
   <div id="rightAction">
@@ -362,7 +398,8 @@ td:before{
 
 <div class="container">
 
-<div id="topStatsBar">
+<div id="topStatsBar" style="display:none;">
+
   <div id="followupTitle">🔔 Today Follow-ups</div>
   <div id="todayFollowupsInline"></div>
   <div id="summaryChipsTop"></div>
@@ -541,12 +578,17 @@ const db = firebase.firestore();
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     currentUser = user;
-    loadUserRole();   // direct dashboard
+    loadUserRole();
   } else {
-    document.getElementById("loginBox").style.display="block";
+    // 🔥 Proper login screen state
+    document.title = "🔐 Inquiry Pool Login";
+    document.getElementById("mainHeader").style.display="none";
+    document.getElementById("topStatsBar").style.display="none";
     document.getElementById("dashboard").style.display="none";
+    document.getElementById("loginBox").style.display="block";
   }
 });
+
 
 
 function showMsg(msg, ok=true){
@@ -602,7 +644,9 @@ let usersMap = {};
 
 
 function loadTodayFollowups(){
-  const box = document.getElementById("todayFollowups");
+  const box = document.getElementById("todayFollowupsInline");
+  if(!box) return;
+
   const today = new Date().toISOString().slice(0,10);
 
   db.collection('followups')
@@ -677,9 +721,15 @@ async function signup(){
 }
 
 
-function logout(){ 
-  auth.signOut().then(()=>location.reload()); 
+function logout(){
+  auth.signOut().then(()=>{
+    document.getElementById("mainHeader").style.display="none";
+    document.getElementById("topStatsBar").style.display="none";
+    document.getElementById("dashboard").style.display="none";
+    document.getElementById("loginBox").style.display="block";
+  });
 }
+
 
 let isSignup = false;
 
@@ -687,6 +737,8 @@ function showSignup(){
   isSignup = true;
   document.getElementById("name").style.display = "block";
 document.getElementById("signupMobile").style.display = "block";
+document.getElementById("mainHeader").style.display="none";
+document.getElementById("topStatsBar").style.display="none";
 
   document.getElementById("formTitle").innerText = "Sign Up";
   document.getElementById("mainBtn").innerText = "Sign Up";
@@ -696,6 +748,7 @@ document.getElementById("signupMobile").style.display = "block";
 }
 
 function showLogin(){
+  document.title = "🔐 Inquiry Pool Login";
   isSignup = false;
   document.getElementById("name").style.display = "none";
 document.getElementById("signupMobile").style.display = "none";
@@ -708,12 +761,15 @@ document.getElementById("signupMobile").style.display = "none";
 }
 
 document.getElementById("party").addEventListener("blur", ()=>{
+  if(!window.inquiries) return;
+
   const name = document.getElementById("party").value.trim();
   const last = [...window.inquiries].reverse().find(x=>x.party===name);
+
   if(last){
-    document.getElementById("partyMobile").value = last.mobile || '';
-    document.getElementById("rate").value = last.rate || '';
-    document.getElementById("product").value = last.product || '';
+    partyMobile.value = last.mobile || '';
+    rate.value = last.rate || '';
+    product.value = last.product || '';
   }
 });
 
@@ -769,12 +825,15 @@ function loadUserRole(){
 }
 
 function applyUserProfile(data){
+document.title = "📦 Inquiry Pool Dashboard";
   userRole = data.role || "salesman";
 
   document.getElementById("userName").innerText =
     data.name || currentUser.email;
 
   document.getElementById("userRole").innerText = userRole;
+document.getElementById("mainHeader").style.display="flex";
+document.getElementById("topStatsBar").style.display="flex";
 
   document.getElementById("loginBox").style.display="none";
   document.getElementById("dashboard").style.display="block";
@@ -922,7 +981,11 @@ renderSummaryChips(filtered);
   if(sortField){
     filtered.sort((a,b)=>{
       let va = a[sortField], vb=b[sortField];
-      if(sortField==="date"){ va=new Date(va); vb=new Date(vb);}
+      if(sortField==="date"){
+  va = new Date(va.seconds ? va.seconds*1000 : va);
+  vb = new Date(vb.seconds ? vb.seconds*1000 : vb);
+}
+
       if(va<vb) return sortAsc?-1:1;
       if(va>vb) return sortAsc?1:-1;
       return 0;
@@ -1052,12 +1115,13 @@ function bulkDelete(){
 
 setInterval(()=>{
   const data = {
-    product:product.value,
-    party:party.value,
-    qty:qty.value
+    product: document.getElementById("product").value,
+    party: document.getElementById("party").value,
+    qty: document.getElementById("qty").value
   };
   localStorage.setItem("draftInquiry",JSON.stringify(data));
 },2000);
+
 
 
 
@@ -1214,6 +1278,15 @@ document.querySelectorAll("#inquiryCard input, #inquiryCard select")
     }
   });
 });
+
+
+document.getElementById("topStatsBar").addEventListener("click", ()=>{
+  const card = document.getElementById("inquiryCard");
+  card.scrollIntoView({behavior:"smooth"});
+  card.style.boxShadow="0 0 0 3px #6366f1";
+  setTimeout(()=>card.style.boxShadow="",1200);
+});
+
 
 
 </script>
