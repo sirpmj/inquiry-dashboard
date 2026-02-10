@@ -420,22 +420,23 @@ top: 45px;
   background:#1e293b;
   color:#fff;
 
-  padding:6px 8px;
+  padding:10px 8px;
   border-radius:8px;
- align-items:center;      /* horizontal center */
-  justify-content:center;  /* vertical center */
+
   display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
- text-align:center;       /* text bhi center */
+  flex-direction:column;   /* label upar, number niche */
+  align-items:center;      /* horizontal center */
+  justify-content:center;  /* vertical center */
+
+  gap:4px;
   box-shadow:0 2px 4px rgba(0,0,0,.15);
   font-size:13px;
-  line-height:1;
+  line-height:1.2;
+  text-align:center;       /* text bhi center */
 }
 
 .followStatCard b{
-  font-size:15px;
+  font-size:18px;
   font-weight:600;
 }
 
@@ -444,7 +445,7 @@ top: 45px;
 
   .followStatsGrid{
     display:grid !important;              /* 🔥 flex ko tod raha hai */
-    grid-template-columns:repeat(3,1fr);  /* 3 per row */
+    grid-template-columns:repeat(5,1fr);  /* 3 per row */
     gap:8px;
   }
 
@@ -459,7 +460,7 @@ top: 45px;
 
 
   .followStatCard b{
-    font-size:20px;
+    font-size:14px;
   }
 }
 
