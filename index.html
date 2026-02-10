@@ -390,6 +390,15 @@ top: 45px;
   flex-wrap:nowrap;      /* ek hi line */
 }
 
+/* ===== Desktop: single line ===== */
+.followStatsGrid{
+  display:flex;
+  gap:8px;
+  margin-top:6px;
+  flex-wrap:nowrap;
+}
+
+/* Card style */
 .followStatCard{
   flex:1;
   background:#1e293b;
@@ -398,10 +407,10 @@ top: 45px;
   padding:6px 8px;
   border-radius:8px;
 
-  display:flex;                 /* 🔥 */
+  display:flex;
   align-items:center;
   justify-content:center;
-  gap:6px;                     /* 👈 yahi control gap */
+  gap:6px;
 
   box-shadow:0 2px 4px rgba(0,0,0,.15);
   font-size:13px;
@@ -413,14 +422,26 @@ top: 45px;
   font-weight:600;
 }
 
-
+/* ===== MOBILE: proper cards 3–3 ===== */
 @media(max-width:700px){
-  .followStatCard{
-    padding:2px 3px;
-    font-size:10px;
+
+  .followStatsGrid{
+    display:grid !important;              /* 🔥 flex ko tod raha hai */
+    grid-template-columns:repeat(3,1fr);  /* 3 per row */
+    gap:8px;
   }
+
+  .followStatCard{
+    padding:8px 6px;
+    font-size:12px;
+  }
+.todayCard{
+  background:#334155;
+}
+
+
   .followStatCard b{
-    font-size:11px;
+    font-size:14px;
   }
 }
 
@@ -871,14 +892,11 @@ function renderSummaryChips(list){
 
   el.innerHTML = `
     <div class="followStatsGrid">
-      <div class="followStatCard">Total<b>${total}</b></div>
-      <div class="followStatCard">Open<b>${open}</b></div>
-      <div class="followStatCard">Matched<b>${matched}</b></div>
-      <div class="followStatCard">Closed<b>${closed}</b></div>
-     <div class="followStatCard" style="background:#334155;">
-
-        Today<b>${today}</b>
-      </div>
+      <div class="followStatCard">Total <b>${total}</b></div>
+      <div class="followStatCard">Open <b>${open}</b></div>
+      <div class="followStatCard">Matched <b>${matched}</b></div>
+      <div class="followStatCard">Closed <b>${closed}</b></div>
+      <div class="followStatCard todayCard">Today <b>${today}</b></div>
     </div>
   `;
 }
