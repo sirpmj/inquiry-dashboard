@@ -11,24 +11,25 @@ header{
   position:sticky;
   top:0;
   z-index:1000;
-margin-left:90px;
-  margin-right:90px;
-  border-radius:0;
-  background:#0f172a;
-  border:1px solid #1e293b;
-  border-radius:8px;
 
-  padding:8px 12px;
-  margin-bottom:0px;
+  margin:0;                 /* ❌ 90px hatao */
+  border-radius:0;
+
+  background:#0f172a;
+  border-bottom:1px solid #1e293b;
+
+  padding:10px 12px;
 
   display:flex;
   justify-content:space-between;
   align-items:center;
 
-  font-size:16px;
+  font-size:15px;
   font-weight:500;
   color:#fff;
 }
+
+
 
 
 
@@ -352,6 +353,32 @@ top: 45px;
 
 
 
+.followCardWrap{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.followCard{
+  background:#1e293b;
+  color:#fff;
+  padding:8px 10px;
+  border-radius:8px;
+  font-size:12px;
+  min-width:120px;
+}
+
+
+#loginBox{
+  max-width:340px;
+  margin:60px auto;
+  padding:18px;
+}
+#loginBox h3{
+  text-align:center;
+  font-size:18px;
+  margin-bottom:12px;
+}
 
 
 </style>
@@ -399,7 +426,7 @@ top: 45px;
 
   <!-- Login / Signup -->
   <div class="card" id="loginBox">
-  <h3 id="formTitle">Login</h3>
+  <h3 id="formTitle">🔐Suvidhi Inquiry Login</h3>
 
   <input id="name" type="text" placeholder="Full Name" style="display:none;">
 <input id="signupMobile" type="text" placeholder="Mobile Number" style="display:none;">
@@ -643,17 +670,26 @@ function loadTodayFollowups(){
   db.collection('followups')
     .where('date','==',today)
     .onSnapshot(snap=>{
-      box.innerHTML="";
+      let total=0, open=0, matched=0, closed=0;
+
+      box.innerHTML = `<div class="followCardWrap">`;
+
       snap.forEach(doc=>{
+        total++;
         const f = doc.data();
+
         box.innerHTML += `
-          <div class="qtyItem">
-            ${f.party} — ${f.note}
-            <span onclick="callParty('${f.mobile}')">📞</span>
+          <div class="followCard">
+            <b>${f.party}</b><br>
+            ${f.note}<br>
+            <span onclick="callParty('${f.mobile}')">📞 Call</span>
           </div>`;
       });
+
+      box.innerHTML += `</div>`;
     });
 }
+
 
 // ==== Login/Signup ====
 async function login(){
@@ -739,17 +775,22 @@ document.getElementById("topStatsBar").style.display="none";
 }
 
 function showLogin(){
-  document.title = "🔐 Inquiry Pool Login";
-  isSignup = false;
-  document.getElementById("name").style.display = "none";
-document.getElementById("signupMobile").style.display = "none";
+  document.title = "Inquiry Pool";
 
-  document.getElementById("formTitle").innerText = "Login";
+  isSignup = false;
+
+  document.getElementById("name").style.display = "none";
+  document.getElementById("signupMobile").style.display = "none";
+
+  document.getElementById("formTitle").innerText = "🔐Suvidhi Inquiry Login";
+
   document.getElementById("mainBtn").innerText = "Login";
   document.getElementById("mainBtn").onclick = login;
+
   document.getElementById("toggleBtn").innerText = "Create Account";
   document.getElementById("toggleBtn").onclick = showSignup;
 }
+
 
 document.getElementById("party").addEventListener("blur", ()=>{
   if(!window.inquiries) return;
