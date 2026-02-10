@@ -381,6 +381,51 @@ top: 45px;
 }
 
 
+
+/* ===== Desktop: single line ===== */
+.followStatsGrid{
+  display:flex;
+  gap:8px;
+  margin-top:6px;
+  flex-wrap:nowrap;      /* ek hi line */
+}
+
+.followStatCard{
+  flex:1;
+  background:#1e293b;
+  color:#fff;
+
+  padding:6px 8px;
+  border-radius:8px;
+
+  display:flex;                 /* 🔥 */
+  align-items:center;
+  justify-content:center;
+  gap:6px;                     /* 👈 yahi control gap */
+
+  box-shadow:0 2px 4px rgba(0,0,0,.15);
+  font-size:13px;
+  line-height:1;
+}
+
+.followStatCard b{
+  font-size:15px;
+  font-weight:600;
+}
+
+
+@media(max-width:700px){
+  .followStatCard{
+    padding:5px 6px;
+    font-size:12px;
+  }
+  .followStatCard b{
+    font-size:14px;
+  }
+}
+
+
+
 </style>
 </head>
 
@@ -401,7 +446,7 @@ top: 45px;
 <header id="mainHeader" style="display:none;">
 
   <div id="leftInfo">
-📦 Inquiry Pool Dashboard
+📦 Suvidhi Inquiry Dashboard
       </div>
 
   <div id="centerTitle">
@@ -599,7 +644,7 @@ auth.onAuthStateChanged(async (user) => {
     loadUserRole();
   } else {
     // 🔥 Proper login screen state
-    document.title = "🔐 Inquiry Pool Login";
+    document.title = "🔐 Inquiry Login";
     document.getElementById("mainHeader").style.display="none";
     document.getElementById("topStatsBar").style.display="none";
     document.getElementById("dashboard").style.display="none";
@@ -808,7 +853,7 @@ document.getElementById("party").addEventListener("blur", ()=>{
 
 
 function renderSummaryChips(list){
-  const el = document.getElementById("summaryChipsTop");
+  const el = document.getElementById("todayFollowupsInline");
   if(!el) return;
 
   const todayStr = new Date().toDateString();
@@ -825,13 +870,19 @@ function renderSummaryChips(list){
   });
 
   el.innerHTML = `
-    <div class="qtyItem">Total: <b>${total}</b></div>
-    <div class="qtyItem">Open: <b>${open}</b></div>
-    <div class="qtyItem">Matched: <b>${matched}</b></div>
-    <div class="qtyItem">Closed: <b>${closed}</b></div>
-    <div class="qtyItem">Today: <b>${today}</b></div>
+    <div class="followStatsGrid">
+      <div class="followStatCard">Total<b>${total}</b></div>
+      <div class="followStatCard">Open<b>${open}</b></div>
+      <div class="followStatCard">Matched<b>${matched}</b></div>
+      <div class="followStatCard">Closed<b>${closed}</b></div>
+     <div class="followStatCard" style="background:#334155;">
+
+        Today<b>${today}</b>
+      </div>
+    </div>
   `;
 }
+
 
 // ==== Load Dashboard ====
 function loadUserRole(){
@@ -857,7 +908,7 @@ function loadUserRole(){
 }
 
 function applyUserProfile(data){
-document.title = "📦 Inquiry Pool Dashboard";
+document.title = "📦 Suvidhi Inquiry Dashboard";
   userRole = data.role || "salesman";
 
   document.getElementById("userName").innerText =
@@ -872,7 +923,6 @@ document.getElementById("topStatsBar").style.display="flex";
 
 updateFilters().then(()=>{
   setupRealtime();
-loadTodayFollowups();
 
 });
 }
