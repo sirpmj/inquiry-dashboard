@@ -671,6 +671,51 @@ align-items:flex-start;
   </div>
 </div>
 
+<div id="installPopup" style="
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+">
+
+  <div style="
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    width:90%;
+    max-width:320px;
+    text-align:center;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3);
+  ">
+
+    <h3>🎉 Welcome</h3>
+
+    <p style="font-size:14px; margin:10px 0;">
+      📲 Install this app for better experience
+    </p>
+
+    <button id="installBtn" style="
+      background:#4e73df;
+      color:#fff;
+      padding:8px 14px;
+      border:none;
+      border-radius:6px;
+      margin-right:6px;
+    ">Install</button>
+
+    <button onclick="closeInstallPopup()" style="
+      background:#ccc;
+      padding:8px 14px;
+      border:none;
+      border-radius:6px;
+    ">Later</button>
+
+  </div>
+</div>
+
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -701,6 +746,7 @@ auth.onAuthStateChanged(async (user) => {
   if (user) {
     currentUser = user;
     loadUserRole();
+showFirstTimePopup();   // 👈 ADD HERE
   } else {
     // 🔥 Proper login screen state
     document.title = "🔐 Inquiry Login";
@@ -793,6 +839,62 @@ function loadTodayFollowups(){
       box.innerHTML += `</div>`;
     });
 }
+
+
+let deferredPrompt = null;
+
+// Install event capture
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+// Install button click
+document.addEventListener("click", async (e) => {
+
+  if (e.target.id === "installBtn") {
+
+    if (!deferredPrompt) {
+      alert("Install option not available yet");
+      return;
+    }
+
+    deferredPrompt.prompt();
+
+    const { outcome } = await deferredPrompt.userChoice;
+
+    console.log("Install result:", outcome);
+
+    deferredPrompt = null;
+
+    closeInstallPopup();
+  }
+
+});
+
+// Close popup
+function closeInstallPopup(){
+  document.getElementById("installPopup").style.display = "none";
+}
+
+
+
+
+function showFirstTimePopup() {
+
+  const lastShown = localStorage.getItem("popupTime");
+  const now = Date.now();
+
+  // 🔥 Show only if 24 hrs passed
+  if (!lastShown || (now - lastShown) > 24*60*60*1000) {
+
+    // 👇 popup show
+    document.getElementById("installPopup").style.display = "flex";
+
+    localStorage.setItem("popupTime", now);
+  }
+}
+
 
 
 // ==== Login/Signup ====
