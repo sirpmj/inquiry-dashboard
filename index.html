@@ -145,6 +145,30 @@ th{
   width:120px;
 }
 
+
+/* ===== Multi-product inquiry + icon tooltips ===== */
+.productHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:2px}.productHeader label{margin:0}.productRows{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.productRow{display:grid;grid-template-columns:minmax(180px,2fr) minmax(90px,1fr) minmax(100px,1fr) minmax(150px,1.4fr) 38px 38px;gap:6px;align-items:center;padding:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
+.productRow input{margin:0}
+.productRow .removeProduct,.productRow .addProductInline{width:38px;height:38px;padding:0;margin:0;display:flex;align-items:center;justify-content:center} 
+.productRow .removeProduct{background:#ef4444}
+.productRow .addProductInline{background:#0f766e}
+.addProductBtn{width:auto!important;height:34px!important;padding:6px 12px!important;margin:0!important;display:inline-flex;align-items:center;justify-content:center;gap:5px;background:#0f766e;white-space:nowrap;line-height:1}
+.productHint{font-size:11px;color:#64748b;margin-top:3px}
+.followupCell{min-width:125px;text-align:center}
+.followupDate{font-weight:700;color:#0f766e;font-size:12px}
+.followupNote{font-size:11px;color:#64748b;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:2px auto}
+.followupNone{font-size:11px;color:#94a3b8;margin-right:4px}
+.followupCell .mIcon{cursor:pointer}
+@media(max-width:700px){
+  .followupCell{min-width:110px}
+  .followupNote{max-width:110px}
+}
+.iconTip{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.iconTip::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(3px);background:#111827;color:#fff;padding:5px 8px;border-radius:6px;font-size:11px;line-height:1.2;white-space:nowrap;opacity:0;visibility:hidden;pointer-events:none;z-index:10000;transition:.15s ease;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+.iconTip:hover::after,.iconTip:focus-visible::after{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+@media(max-width:700px){.productRow{grid-template-columns:1fr 85px 95px 1fr 38px 38px;overflow-x:auto}.productRow input{min-width:0}.iconTip::after{display:none}}
+
 .iconBtn{
   width:38px;
   height:38px;
@@ -514,7 +538,7 @@ align-items:flex-start;
   </div>
 
   <div id="rightAction">
-    <span id="logoutBtn" onclick="logout()">Logout</span>
+    <span id="logoutBtn" class="iconTip" data-tip="Logout from account" onclick="logout()">Logout</span>
   </div>
 </header>
 
@@ -563,9 +587,13 @@ align-items:flex-start;
     <div class="card" id="inquiryCard">
       <h3>Add / Update Inquiry</h3>
       <div class="grid">
-        <div>
-          <label>Product</label>
-          <input id="product" placeholder="Product Name">
+        <div style="grid-column:1/-1;">
+          <div class="productHeader">
+            
+          </div>
+          <datalist id="productList"></datalist>
+          <div id="productRows" class="productRows"></div>
+          <div class="productHint">Product type karte hi save hoga aur next inquiry mein dropdown suggestion mein dikhega.</div>
         </div>
         <div>
           <label>Sale / Purchase</label>
@@ -574,11 +602,7 @@ align-items:flex-start;
             <option>Purchase</option>
           </select>
         </div>
-        <div>
-          <label>Qty</label>
-          <input id="qty" type="number" placeholder="Quantity">
-        </div>
-        <div>
+               <div>
           <label>Party</label>
           <input id="party" placeholder="Party Name">
         </div>
@@ -588,14 +612,8 @@ align-items:flex-start;
 
 </div>
 
-        <div>
-          <label>Rate</label>
-          <input id="rate" placeholder="Rate">
-        </div>
-        <div>
-          <label>Available With</label>
-          <input id="availableWith" placeholder="Available With">
-        </div>
+       
+        
 <div>
   <label>Allot To Salesman</label>
   <select id="assignSalesman"></select>
@@ -606,7 +624,7 @@ align-items:flex-start;
           <input id="remark" placeholder="Remark">
         </div>
       </div>
-      <button onclick="addInquiry()">Save Inquiry</button>
+      <button onclick="addInquiry()" class="iconTip" data-tip="Save all added products">💾 Save Inquiry</button>
     </div>
 
 
@@ -638,8 +656,8 @@ align-items:flex-start;
     <option value="Closed">Closed</option>
   </select>
 
-  <button class="iconBtn" onclick="showMine=!showMine;renderTable()">🙋‍♂️</button>
-  <button class="iconBtn" onclick="exportCSV()">⬇️</button>
+  <button class="iconBtn iconTip" data-tip="Show only my inquiries" onclick="showMine=!showMine;renderTable()">🙋‍♂️</button>
+  <button class="iconBtn iconTip" data-tip="Export inquiries to CSV" onclick="exportCSV()">⬇️</button>
 </div>
 
 
@@ -661,6 +679,7 @@ align-items:flex-start;
           <th onclick="sortTable('qty')">Qty</th>
           <th>Party</th>
           <th>Party Action</th>
+          <th onclick="sortTable('followUpDate')">Follow-up</th>
           <th>Available</th>
           <th>Salesman</th>
           <th>Status / Action</th>
@@ -774,34 +793,60 @@ function showMsg(msg, ok=true){
   setTimeout(()=>d.remove(),3000);
 }
 
-let fuParty="", fuMobile="";
+let fuParty="", fuMobile="", fuEditId=null, fuInquiryId=null;
 
-function addFollowup(party, mobile){
-  fuParty = party;
-  fuMobile = mobile;
-  document.getElementById("followupModal").style.display="flex";
+async function addFollowup(party, mobile, inquiryId=""){
+  fuParty=party;
+  fuMobile=mobile;
+  fuInquiryId=inquiryId||null;
+
+  const modal=document.getElementById("followupModal");
+  const dateEl=document.getElementById("fuDate");
+  const noteEl=document.getElementById("fuNote");
+
+  // New follow-up ke liye automatically today's date
+  const today = new Date().toISOString().split("T")[0];
+
+  if(dateEl) dateEl.value=today;
+  if(noteEl) noteEl.value="";
+
+  try{
+    if(fuInquiryId){
+      const doc=await db.collection("inquiries").doc(fuInquiryId).get();
+
+      if(doc.exists){
+        const i=doc.data();
+
+        // Existing follow-up hai to saved date show hogi
+        if(dateEl) dateEl.value=i.followUpDate || today;
+        if(noteEl) noteEl.value=i.followUpNote || "";
+      }
+    }
+  }catch(e){
+    console.warn("Follow-up lookup failed",e);
+  }
+
+  if(modal) modal.style.display="flex";
 }
-
 function closeFollowup(){
-  document.getElementById("followupModal").style.display="none";
+  const modal=document.getElementById("followupModal"); if(modal) modal.style.display="none";
+  fuEditId=null; fuInquiryId=null;
 }
-
-function saveFollowup(){
-  const date = document.getElementById("fuDate").value;
-  const note = document.getElementById("fuNote").value;
-
-  if(!date){ alert("Select date"); return; }
-
-  db.collection('followups').add({
-    party: fuParty,
-    mobile: fuMobile,
-    date,
-    note,
-    createdBy: currentUser.uid,
-    createdAt: new Date()
-  });
-
-  closeFollowup();
+async function saveFollowup(){
+  const date=(document.getElementById("fuDate")||{}).value||"";
+  const note=(document.getElementById("fuNote")||{}).value||"";
+  if(!date){alert("Select date");return;}
+  if(!fuInquiryId){showMsg("Inquiry reference missing. Please use Follow-up icon from the inquiry row.",false);return;}
+  try{
+    await db.collection("inquiries").doc(fuInquiryId).update({
+      followUpDate:date, followUpNote:note, followUpStatus:"Open",
+      followUpUpdatedBy:currentUser.uid,
+      followUpUpdatedByName:getSalesmanName(currentUser.uid), followUpUpdatedAt:new Date()
+    });
+    closeFollowup();
+    loadTodayFollowups();
+    showMsg("Follow-up updated");
+  }catch(e){console.error(e);showMsg(e.message||"Follow-up save failed",false);}
 }
 
 // ==== Globals ====
@@ -812,34 +857,14 @@ let usersMap = {};
 
 
 function loadTodayFollowups(){
-  const box = document.getElementById("todayFollowupsInline");
+  const box=document.getElementById("todayFollowupsInline");
   if(!box) return;
-
-  const today = new Date().toISOString().slice(0,10);
-
-  db.collection('followups')
-    .where('date','==',today)
-    .onSnapshot(snap=>{
-      let total=0, open=0, matched=0, closed=0;
-
-      box.innerHTML = `<div class="followCardWrap">`;
-
-      snap.forEach(doc=>{
-        total++;
-        const f = doc.data();
-
-        box.innerHTML += `
-          <div class="followCard">
-            <b>${f.party}</b><br>
-            ${f.note}<br>
-            <span onclick="callParty('${f.mobile}')">📞 Call</span>
-          </div>`;
-      });
-
-      box.innerHTML += `</div>`;
-    });
+  db.collection("inquiries").where("followUpDate","==",new Date().toISOString().slice(0,10)).onSnapshot(snap=>{
+    box.innerHTML=`<div class="followCardWrap">`;
+    snap.forEach(doc=>{const i=doc.data(); box.innerHTML+=`<div class="followCard"><b>${i.party||""}</b><br>${i.product||""}<br>${i.followUpNote||""}<br><span class="iconTip" data-tip="Call party" onclick="callParty('${i.mobile||""}')">📞 Call</span> <span class="iconTip" data-tip="Edit follow-up" onclick="addFollowup('${String(i.party||"").replace(/'/g,"\\'")}','${i.mobile||""}','${doc.id}')">✏️ Edit</span></div>`;});
+    box.innerHTML+=`</div>`;
+  },e=>console.error("Today followups load failed",e));
 }
-
 
 let deferredPrompt = null;
 
@@ -998,17 +1023,11 @@ function showLogin(){
 }
 
 
-document.getElementById("party").addEventListener("blur", ()=>{
-  if(!window.inquiries) return;
-
-  const name = document.getElementById("party").value.trim();
-  const last = [...window.inquiries].reverse().find(x=>x.party===name);
-
-  if(last){
-    partyMobile.value = last.mobile || '';
-    rate.value = last.rate || '';
-    product.value = last.product || '';
-  }
+document.getElementById("party").addEventListener("blur",()=>{
+  if(!window.inquiries)return;
+  const name=document.getElementById("party").value.trim();
+  const last=[...window.inquiries].reverse().find(x=>x.party===name);
+  if(last)document.getElementById("partyMobile").value=last.mobile||"";
 });
 
 
@@ -1079,9 +1098,10 @@ document.getElementById("topStatsBar").style.display="flex";
   document.getElementById("loginBox").style.display="none";
   document.getElementById("dashboard").style.display="block";
 
-updateFilters().then(()=>{
+updateFilters().then(async()=>{
+  await loadProductMaster();
+  if(!document.querySelector(".productRow"))addProductRow();
   setupRealtime();
-
 });
 }
 
@@ -1154,41 +1174,92 @@ async function updateFilters(){
 
 
 
-// ==== Add / Update Inquiry ====
-function addInquiry(){
-  const p=document.getElementById("product").value.trim();
-  const qty=Number(document.getElementById("qty").value);
-  if(!p||!qty){alert("Product & Qty required"); return;}
-  const obj={
-    product:p,
-    salePurchase:document.getElementById("salePurchase").value,
-    qty:qty,
-    party:document.getElementById("party").value,
-mobile:document.getElementById("partyMobile").value,
+// ==== Product Master + Add / Update Inquiry ====
+let productNames=new Set();
 
-    rate:document.getElementById("rate").value,
-    availableWith:document.getElementById("availableWith").value,
-    remark:document.getElementById("remark").value,
-    salesmanId:
-  document.getElementById("assignSalesman").value || currentUser.uid,
-
-
-    status:"Open",
-    date:new Date()
-  };
-  if(editId){
-db.collection('inquiries').doc(editId).update(obj);
-    editId=null;
-  }else{
-    db.collection('inquiries').add(obj);
-  }
-  clearInquiryForm();
+function normalizeProductName(name){
+  return String(name||"").trim().replace(/\s+/g," ");
 }
-
-document.getElementById("search").addEventListener("input",(e)=>{
-  searchText = e.target.value.toLowerCase();
-  renderTable();
-});
+function escapeHtml(v){
+  return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+async function saveProductToMaster(name){
+  const p=normalizeProductName(name);
+  if(!p)return;
+  productNames.add(p);
+  try{
+    const id=p.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,100);
+    if(id)await db.collection("products").doc(id).set({name:p,updatedAt:new Date(),updatedBy:currentUser?currentUser.uid:""},{merge:true});
+  }catch(e){console.warn("Product master save failed:",e)}
+  localStorage.setItem("inquiryProducts",JSON.stringify([...productNames].sort()));
+  renderProductOptions();
+}
+async function loadProductMaster(){
+  productNames=new Set(JSON.parse(localStorage.getItem("inquiryProducts")||"[]").map(normalizeProductName).filter(Boolean));
+  try{
+    const snap=await db.collection("products").orderBy("name").get();
+    snap.forEach(doc=>{const d=doc.data();if(d.name)productNames.add(normalizeProductName(d.name))});
+  }catch(e){console.warn("Product master load failed:",e)}
+  localStorage.setItem("inquiryProducts",JSON.stringify([...productNames].sort()));
+  renderProductOptions();
+}
+function renderProductOptions(){
+  const list=document.getElementById("productList");
+  if(!list)return;
+  list.innerHTML=[...productNames].sort((a,b)=>a.localeCompare(b)).map(p=>`<option value="${escapeHtml(p)}"></option>`).join("");
+  document.querySelectorAll(".productInput").forEach(x=>x.setAttribute("list","productList"));
+}
+function addProductRow(data={}){
+  const wrap=document.getElementById("productRows");
+  if(!wrap)return;
+  const row=document.createElement("div");
+  row.className="productRow";
+  row.innerHTML=`
+    <input class="productInput" list="productList" placeholder="Product Name" value="${escapeHtml(data.product||"")}">
+    <input class="productQty" type="number" min="0" step="any" placeholder="Qty" value="${data.qty??""}">
+    <input class="productRate" placeholder="Rate" value="${escapeHtml(data.rate||"")}">
+    <input class="productAvailable" placeholder="Product Remark" value="${escapeHtml(data.availableWith||"")}">
+    <button type="button" class="addProductInline iconTip" data-tip="Add another product" onclick="addProductRow()">➕</button>
+    <button type="button" class="removeProduct iconTip" data-tip="Remove product" onclick="this.closest('.productRow').remove()">🗑️</button>`;
+  wrap.appendChild(row);
+  const input=row.querySelector(".productInput");
+  input.addEventListener("change",()=>saveProductToMaster(input.value));
+  input.addEventListener("blur",()=>saveProductToMaster(input.value));
+  renderProductOptions();
+}
+function getProductRows(){
+  return [...document.querySelectorAll(".productRow")].map(row=>({
+    product:normalizeProductName(row.querySelector(".productInput").value),
+    qty:Number(row.querySelector(".productQty").value),
+    rate:row.querySelector(".productRate").value.trim(),
+    availableWith:row.querySelector(".productAvailable").value.trim()
+  })).filter(x=>x.product||x.qty||x.rate||x.availableWith);
+}
+async function addInquiry(){
+  const rows=getProductRows();
+  if(!rows.length){showMsg("At least one product add karein",false);return}
+  if(rows.some(x=>!x.product||!x.qty)){showMsg("Har product ke liye Product & Qty required hai",false);return}
+  const common={
+    salePurchase:document.getElementById("salePurchase").value,
+    party:document.getElementById("party").value.trim(),
+    mobile:document.getElementById("partyMobile").value.trim(),
+    remark:document.getElementById("remark").value.trim(),
+    salesmanId:document.getElementById("assignSalesman").value||currentUser.uid,
+    salesmanName:getSalesmanName(document.getElementById("assignSalesman").value||currentUser.uid)
+  };
+  try{
+    for(const row of rows)await saveProductToMaster(row.product);
+    if(editId){
+      await db.collection("inquiries").doc(editId).update({...rows[0],...common});
+      for(let n=1;n<rows.length;n++)await db.collection("inquiries").add({...rows[n],...common,status:"Open",date:new Date()});
+      editId=null;
+    }else{
+      for(const row of rows)await db.collection("inquiries").add({...row,...common,status:"Open",date:new Date()});
+    }
+    clearInquiryForm();
+    showMsg(`${rows.length} product${rows.length>1?"s":""} inquiry saved`);
+  }catch(e){console.error(e);showMsg(e.message||"Save failed",false)}
+}
 
 // ==== Table Rendering ====
 let sortField=null, sortAsc=true;
@@ -1225,6 +1296,10 @@ renderSummaryChips(filtered);
   va = new Date(va.seconds ? va.seconds*1000 : va);
   vb = new Date(vb.seconds ? vb.seconds*1000 : vb);
 }
+      if(sortField==="followUpDate"){
+        va = va ? new Date(String(va)+"T00:00:00") : new Date("9999-12-31");
+        vb = vb ? new Date(String(vb)+"T00:00:00") : new Date("9999-12-31");
+      }
 
       if(va<vb) return sortAsc?-1:1;
       if(va>vb) return sortAsc?1:-1;
@@ -1248,16 +1323,26 @@ renderSummaryChips(filtered);
   <div class="mobileCell">
 
     ${i.mobile ? `
-      <span class="mIcon" onclick="callParty('${i.mobile}')">📞</span>
-      <span class="mIcon" onclick="sendWhatsApp('${i.id}')">🟢</span>
-      <span class="mIcon" onclick="showPartyHistory('${i.party}')">📜</span>
-      <span class="mIcon" onclick="addFollowup('${i.party}','${i.mobile}')">⏰</span>
+      <span class="mIcon iconTip" data-tip="Call party" onclick="callParty('${i.mobile}')">📞</span>
+      <span class="mIcon iconTip" data-tip="WhatsApp party & salesman" onclick="sendWhatsApp('${i.id}')">🟢</span>
+      <span class="mIcon iconTip" data-tip="Party history" onclick="showPartyHistory('${i.party}')">📜</span>
     ` : ''}
 
   </div>
 </td>
 
-
+<td data-label="Follow-up">
+  <div class="followupCell">
+    ${i.followUpDate ? `
+      <div class="followupDate">${formatFollowupDate(i.followUpDate)}</div>
+      ${i.followUpNote ? `<div class="followupNote">${escapeHtml(i.followUpNote)}</div>` : ''}
+      <span class="mIcon iconTip" data-tip="Edit follow-up" onclick="addFollowup('${String(i.party||"").replace(/'/g,"\\'")}','${i.mobile||""}','${i.id}')">✏️</span>
+    ` : `
+      <span class="followupNone">No follow-up</span>
+      <span class="mIcon iconTip" data-tip="Add follow-up" onclick="addFollowup('${String(i.party||"").replace(/'/g,"\\'")}','${i.mobile||""}','${i.id}')">➕</span>
+    `}
+  </div>
+</td>
 
 <td data-label="Available">${i.availableWith}</td>
 
@@ -1269,10 +1354,10 @@ renderSummaryChips(filtered);
 
 <td class="actionRow">
   ${canEdit ? `
-    <span onclick="editInquiry('${i.id}')" class="icon">✏️</span>
-    <span onclick="deleteRow('${i.id}')" class="icon">🗑️</span>
+    <span onclick="editInquiry('${i.id}')" class="icon iconTip" data-tip="Edit inquiry">✏️</span>
+    <span onclick="deleteRow('${i.id}')" class="icon iconTip" data-tip="Delete inquiry">🗑️</span>
   ` : ''}
-  <span onclick="toggleStatus('${i.id}')" class="icon">🔄</span>
+  <span onclick="toggleStatus('${i.id}')" class="icon iconTip" data-tip="Change status">🔄</span>
 </td>
 
 
@@ -1295,9 +1380,11 @@ function getSalesmanName(uid){
 
 
 function clearInquiryForm(){
- ["product","qty","party","partyMobile","rate","availableWith","remark"]
-
- .forEach(id=>document.getElementById(id).value="");
+  ["party","partyMobile","remark"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("salePurchase").value="Sale";
+  editId=null;
+  document.getElementById("productRows").innerHTML="";
+  addProductRow();
 }
 
 function formatDate(d){
@@ -1312,17 +1399,16 @@ function formatDate(d){
 // ==== Edit/Delete/Toggle ====
 function editInquiry(id){
   editId=id;
-  const i = window.inquiries.find(x=>x.id===id);
-  document.getElementById("product").value=i.product;
-  document.getElementById("salePurchase").value=i.salePurchase;
-  document.getElementById("qty").value=i.qty;
-  document.getElementById("party").value=i.party;
-document.getElementById("partyMobile").value=i.mobile || '';
-
-  document.getElementById("rate").value=i.rate;
-  document.getElementById("availableWith").value=i.availableWith;
-document.getElementById("assignSalesman").value = i.salesmanId;
-  document.getElementById("remark").value=i.remark;
+  const i=window.inquiries.find(x=>x.id===id);
+  if(!i)return;
+  document.getElementById("salePurchase").value=i.salePurchase||"Sale";
+  document.getElementById("party").value=i.party||"";
+  document.getElementById("partyMobile").value=i.mobile||"";
+  document.getElementById("assignSalesman").value=i.salesmanId||currentUser.uid;
+  document.getElementById("remark").value=i.remark||"";
+  document.getElementById("productRows").innerHTML="";
+  addProductRow({product:i.product,qty:i.qty,rate:i.rate,availableWith:i.availableWith});
+  document.getElementById("inquiryCard").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function deleteRow(id){ if(confirm("Delete?")) db.collection('inquiries').doc(id).delete(); }
 function toggleStatus(id){
@@ -1354,12 +1440,11 @@ function bulkDelete(){
 
 
 setInterval(()=>{
-  const data = {
-    product: document.getElementById("product").value,
-    party: document.getElementById("party").value,
-    qty: document.getElementById("qty").value
-  };
-  localStorage.setItem("draftInquiry",JSON.stringify(data));
+  localStorage.setItem("draftInquiry",JSON.stringify({
+    products:getProductRows(),
+    party:document.getElementById("party").value,
+    mobile:document.getElementById("partyMobile").value
+  }));
 },2000);
 
 
@@ -1381,7 +1466,15 @@ setInterval(()=>{
 */
 
 function callParty(mobile){
-  window.open(`tel:${mobile}`);
+  const number = String(mobile || "").trim();
+  if(!number){
+    showMsg("Mobile No available nahi hai", false);
+    return;
+  }
+
+  const safe = escapeHtml(number);
+  const ok = confirm(`Party Mobile No: ${number}\n\nCall karna hai?`);
+  if(ok) window.open(`tel:${encodeURIComponent(number)}`);
 }
 
 function whatsappParty(mobile, party, product){
@@ -1389,17 +1482,54 @@ function whatsappParty(mobile, party, product){
   window.open(`https://wa.me/91${mobile}?text=${encodeURIComponent(msg)}`);
 }
 
-function showPartyHistory(party){
-  const rows = window.inquiries.filter(i=>i.party===party);
-  let html = `<h3>${party} History</h3>`;
-  rows.slice(-5).forEach(r=>{
-    html+=`<div>${r.product} | Qty:${r.qty} | ${r.status}</div>`;
-  });
-  const w = window.open("","_blank","width=320,height=420");
-  w.document.write(html);
+function formatFollowupDate(value){
+  if(!value) return "";
+  const s=String(value);
+  const d=new Date(/\\d{4}-\\d{2}-\\d{2}/.test(s) ? s+"T00:00:00" : s);
+  if(isNaN(d.getTime())) return s;
+  return d.toLocaleDateString("en-GB",{day:"2-digit",month:"2-digit",year:"numeric"});
 }
 
+function escapeHtml(value){
+  return String(value??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
 
+function showPartyHistory(party){
+  const inquiryRows=(window.inquiries||[]).filter(i=>i.party===party);
+  const historyRows=[];
+  inquiryRows.forEach(r=>{
+    historyRows.push({
+      type:"Inquiry",
+      date:r.date?.toDate?r.date.toDate():r.date,
+      product:r.product||"",
+      qty:r.qty||"",
+      status:r.status||"",
+      note:r.remark||"",
+      salesman:r.salesmanName||getSalesmanName(r.salesmanId)||"",
+      id:r.id,
+      mobile:r.mobile||""
+    });
+    if(r.followUpDate){
+      historyRows.push({
+        type:"Follow-up",
+        date:r.followUpDate,
+        product:r.product||"",
+        qty:r.qty||"",
+        status:r.followUpStatus||"Open",
+        note:r.followUpNote||"",
+        salesman:r.followUpUpdatedByName||r.salesmanName||getSalesmanName(r.salesmanId)||"",
+        id:r.id,
+        mobile:r.mobile||""
+      });
+    }
+  });
+  historyRows.sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+  let html=`<html><head><title>${party} History</title><style>body{font-family:Arial;padding:15px;background:#f8fafc}h3{margin-top:0}.item{background:#fff;border:1px solid #ddd;border-radius:8px;padding:10px;margin:8px 0}.tag{font-size:11px;font-weight:bold;color:#2563eb}.date{font-size:12px;color:#64748b}.edit{margin-top:6px;padding:5px 9px;border:0;border-radius:5px;cursor:pointer}</style></head><body><h3>${party} History</h3>`;
+  if(!historyRows.length) html+="<p>No history found.</p>";
+  historyRows.slice(0,50).forEach(r=>{html+=`<div class="item"><span class="tag">${r.type}</span><br><b>${r.product||"Follow-up"}</b>${r.qty?` | Qty: ${r.qty}`:""}<br><span class="date">Date: ${r.date||""}</span><br>Status: ${r.status||""}${r.salesman?`<br>Salesman: <b>${escapeHtml(r.salesman)}</b>`:""}${r.note?`<br>Note: ${escapeHtml(r.note)}`:""}`; if(r.type==="Follow-up"&&r.id) html+=`<br><button class="edit" onclick="window.opener.addFollowup(${JSON.stringify(party)},${JSON.stringify(r.mobile||"")},${JSON.stringify(r.id)});window.close()">✏️ Edit Follow-up</button>`; html+=`</div>`;});
+  html+='</body></html>';
+  const w=window.open("","_blank","width=420,height=650"); if(!w){showMsg("Please allow popup for History",false);return;} w.document.write(html); w.document.close();
+}
 
 function sendWhatsApp(id){
   const i = window.inquiries.find(x=>x.id===id);
@@ -1471,24 +1601,43 @@ Please follow up.`;
   window.open("https://wa.me/91"+user.mobile+"?text="+encodeURIComponent(msg));
 }
 
-const draft = JSON.parse(localStorage.getItem("draftInquiry") || "{}");
-
-if(draft.product) product.value = draft.product;
-if(draft.party) party.value = draft.party;
-if(draft.qty) qty.value = draft.qty;
+const draft=JSON.parse(localStorage.getItem("draftInquiry")||"{}");
+if(draft.party)party.value=draft.party;
+if(draft.mobile)partyMobile.value=draft.mobile;
+if(Array.isArray(draft.products)&&draft.products.length){
+  document.getElementById("productRows").innerHTML="";
+  draft.products.forEach(p=>addProductRow(p));
+}else if(!document.querySelector(".productRow"))addProductRow();
 
 function exportCSV(){
-  let csv = "Date,Product,Type,Qty,Party,Mobile,Salesman,Status\n";
-
-  window.inquiries.forEach(i=>{
-    csv += `"${formatDate(i.date)}","${i.product}","${i.salePurchase}",${i.qty},"${i.party}","${i.mobile||''}","${getSalesmanName(i.salesmanId)}","${i.status}"\n`;
-  });
-
-  const blob = new Blob([csv], {type:"text/csv"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "inquiries.csv";
-  a.click();
+  const rows=(window.inquiries||[]).map(i=>({
+    Date:i.date?.toDate?i.date.toDate().toLocaleString():(i.date||""),
+    "Sale / Purchase":i.salePurchase||"",
+    Product:i.product||"",
+    Qty:i.qty??"",
+    Rate:i.rate||"",
+    "Available With":i.availableWith||"",
+    Party:i.party||"",
+    "Mobile No":i.mobile||"",
+    "Allot To Salesman":getSalesmanName(i.salesmanId)||"",
+    "Follow-up Date":i.followUpDate||"",
+    "Follow-up Note":i.followUpNote||"",
+    "Follow-up Status":i.followUpStatus||"",
+    Remark:i.remark||"",
+    Status:i.status||""
+  }));
+  if(!rows.length){showMsg("No inquiry data to export",false);return;}
+  const headers=Object.keys(rows[0]);
+  const csv=[
+    headers.join(","),
+    ...rows.map(row=>headers.map(h=>`"${String(row[h]??"").replace(/"/g,'""')}"`).join(","))
+  ].join("\\r\\n");
+  const blob=new Blob(["\\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=`Inquiry_Export_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
 }
 
 
