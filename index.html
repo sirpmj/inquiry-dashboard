@@ -151,8 +151,9 @@ th{
 .productRow{display:grid;grid-template-columns:minmax(180px,2fr) minmax(90px,1fr) minmax(100px,1fr) minmax(150px,1.4fr) 38px 38px;gap:6px;align-items:center;padding:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
 .productRow input{margin:0}
 .productRow .removeProduct,.productRow .addProductInline{width:38px;height:38px;padding:0;margin:0;display:flex;align-items:center;justify-content:center} 
-.productRow .removeProduct{background:#ef4444}
-.productRow .addProductInline{background:#0f766e}
+.productRow .removeProduct{background:#fef2f2!important;border:1px solid #fca5a5!important;color:#991b1b!important}
+.productRow .addProductInline{background:#ecfdf5!important;border:1px solid #86efac!important;color:#166534!important}
+.productRow .removeProduct,.productRow .addProductInline{opacity:1!important;visibility:visible!important;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .addProductBtn{width:auto!important;height:34px!important;padding:6px 12px!important;margin:0!important;display:inline-flex;align-items:center;justify-content:center;gap:5px;background:#0f766e;white-space:nowrap;line-height:1}
 .productHint{font-size:11px;color:#64748b;margin-top:3px}
 .followupCell{min-width:125px;text-align:center}
@@ -165,7 +166,7 @@ th{
 .iconTip::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(3px);background:#111827;color:#fff;padding:5px 8px;border-radius:6px;font-size:11px;line-height:1.2;white-space:nowrap;opacity:0;visibility:hidden;pointer-events:none;z-index:10000;transition:.15s ease;box-shadow:0 3px 10px rgba(0,0,0,.18)}
 .iconTip:hover::after,.iconTip:focus-visible::after{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
 @media(max-width:700px){
-.productRows{gap:8px}.productRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;padding:8px;overflow:visible}.productRow input{width:100%;min-width:0;box-sizing:border-box}.productRow .productInput,.productRow .productAvailable{grid-column:1/-1}.productRow .addProductInline,.productRow .removeProduct{width:100%;height:36px}.iconTip::after{display:none}
+.productRows{gap:8px}.productRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;padding:8px;overflow:visible}.productRow input{width:100%;min-width:0;box-sizing:border-box}.productRow .productInput,.productRow .productAvailable{grid-column:1/-1}.productRow .addProductInline,.productRow .removeProduct{width:38px!important;height:38px!important;min-width:38px!important;justify-self:center}.iconTip::after{display:none}
 }
 
 .iconBtn{
@@ -510,20 +511,10 @@ align-items:flex-start;
 }
 
 #partyHistoryModal{display:none;position:fixed;inset:0;z-index:10050;background:rgba(15,23,42,.58);padding:12px;align-items:center;justify-content:center}.partyHistoryBox{width:min(620px,100%);max-height:92vh;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 15px 50px rgba(0,0,0,.25);display:flex;flex-direction:column}.partyHistoryHead{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #e5e7eb;background:#fff}.partyHistoryHead h3{margin:0;font-size:17px}.partyHistoryClose{width:34px!important;height:34px!important;padding:0!important;margin:0!important}.#partyHistoryContent{overflow:auto}.partyHistoryBox #partyHistoryContent{overflow:auto;padding:10px}.historyItem{border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:8px;background:#f8fafc}.historyTag{display:inline-block;font-size:10px;font-weight:700;padding:3px 7px;border-radius:12px;background:#e0e7ff;color:#3730a3;margin-bottom:5px}.historyFollowup{border-left:4px solid #0f766e;background:#f0fdfa}.historyProduct{font-weight:700;font-size:14px}.historyLine{font-size:12px;margin-top:3px;color:#334155}.historyNote{font-size:12px;margin-top:6px;padding:7px;background:#fff;border-radius:6px;color:#475569}.historyEditBtn{width:auto!important;margin-top:8px!important;padding:6px 9px!important;font-size:12px!important}.historyEmpty{padding:25px;text-align:center;color:#64748b}@media(max-width:700px){#partyHistoryModal{padding:0;align-items:stretch}.partyHistoryBox{width:100%;height:100vh;max-height:100vh;border-radius:0}}
-
-/* Multiline remarks - layout unchanged */
-#remark,
-.productRow .productAvailable,
-#fuNote {
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 42px;
-  padding: 7px 9px;
-  line-height: 1.4;
-  font-family: inherit;
-  resize: vertical;
-}
-
+/* Clean single-box product fields */
+.productRow input,.productRow textarea{border:1px solid #cbd5e1!important;outline:none;box-shadow:none!important;background:#fff;border-radius:6px;box-sizing:border-box}
+.productRow .productAvailable{min-height:38px;resize:vertical;padding:7px 9px;line-height:1.35;font-family:inherit}
+#remark{min-height:42px;resize:vertical;box-sizing:border-box;width:100%}
 </style>
 </head>
 
@@ -618,11 +609,11 @@ align-items:flex-start;
         </div>
                <div>
           <label>Party</label>
-          <input id="party" placeholder="Party Name">
+          <datalist id="partyList"></datalist><input id="party" list="partyList" placeholder="Party Name" autocomplete="off" oninput="autoFillPartyMobile()" onchange="savePartyToMaster(this.value,document.getElementById('partyMobile').value)">
         </div>
 <div>
   <label>Mobile No</label>
-  <input id="partyMobile" placeholder="Mobile Number">
+  <datalist id="mobileList"></datalist><input id="partyMobile" list="mobileList" placeholder="Mobile Number" autocomplete="off" oninput="autoFillPartyFromMobile()" onchange="savePartyToMaster(document.getElementById('party').value,this.value)">
 
 </div>
 
@@ -1188,6 +1179,60 @@ async function updateFilters(){
 
 
 
+
+// ==== Party + Mobile Master (Firebase) ====
+let partyMaster = new Map();
+function normalizePartyName(name){ return String(name||"").trim().replace(/\s+/g," "); }
+function normalizeMobile(mobile){ return String(mobile||"").trim(); }
+
+async function savePartyToMaster(party,mobile){
+  const p=normalizePartyName(party), m=normalizeMobile(mobile);
+  if(!p)return;
+  const id=p.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,100);
+  if(!id)return;
+  partyMaster.set(p.toLowerCase(),{name:p,mobile:m});
+  try{
+    await db.collection("parties").doc(id).set({
+      name:p,mobile:m,updatedAt:new Date(),
+      updatedBy:currentUser?currentUser.uid:""
+    },{merge:true});
+  }catch(e){ console.warn("Party master save failed:",e); }
+  renderPartyOptions();
+}
+async function loadPartyMaster(){
+  partyMaster=new Map();
+  (window.inquiries||[]).forEach(i=>{
+    const p=normalizePartyName(i.party);
+    if(p){
+      const key=p.toLowerCase(), old=partyMaster.get(key)||{};
+      partyMaster.set(key,{name:p,mobile:normalizeMobile(i.mobile)||old.mobile||""});
+    }
+  });
+  try{
+    const snap=await db.collection("parties").orderBy("name").get();
+    snap.forEach(doc=>{
+      const d=doc.data(), p=normalizePartyName(d.name);
+      if(p)partyMaster.set(p.toLowerCase(),{name:p,mobile:normalizeMobile(d.mobile)});
+    });
+  }catch(e){ console.warn("Party master load failed:",e); }
+  renderPartyOptions();
+}
+function renderPartyOptions(){
+  const list=document.getElementById("partyList"), ml=document.getElementById("mobileList");
+  if(list)list.innerHTML=[...partyMaster.values()].sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${escapeHtml(x.name)}"></option>`).join("");
+  if(ml)ml.innerHTML=[...partyMaster.values()].filter(x=>x.mobile).map(x=>`<option value="${escapeHtml(x.mobile)}"></option>`).join("");
+}
+function autoFillPartyMobile(){
+  const p=normalizePartyName(document.getElementById("party")?.value), e=partyMaster.get(p.toLowerCase());
+  const m=document.getElementById("partyMobile");
+  if(e&&m&&!m.value.trim())m.value=e.mobile||"";
+}
+function autoFillPartyFromMobile(){
+  const m=normalizeMobile(document.getElementById("partyMobile")?.value), e=[...partyMaster.values()].find(x=>x.mobile===m);
+  const p=document.getElementById("party");
+  if(e&&p&&!p.value.trim())p.value=e.name;
+}
+
 // ==== Product Master + Add / Update Inquiry ====
 let productNames=new Set();
 
@@ -1261,6 +1306,7 @@ async function addInquiry(){
     salesmanId:document.getElementById("assignSalesman").value||currentUser.uid,
     salesmanName:getSalesmanName(document.getElementById("assignSalesman").value||currentUser.uid)
   };
+  await savePartyToMaster(common.party,common.mobile);
   try{
     for(const row of rows)await saveProductToMaster(row.product);
     if(editId){
