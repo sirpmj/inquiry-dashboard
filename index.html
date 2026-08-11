@@ -674,7 +674,6 @@ align-items:flex-start;
           </div>
           <datalist id="productList"></datalist>
           <div id="productRows" class="productRows"></div>
-          <div class="productHint">Product type karte hi save hoga aur next inquiry mein dropdown suggestion mein dikhega.</div>
         </div>
         <div>
           <label>Sale / Purchase</label>
@@ -702,7 +701,7 @@ align-items:flex-start;
 
         <div>
           <label>Remark</label>
-          <textarea id="remark" placeholder="Remark" rows="2"></textarea>
+          <textarea id="remark" placeholder="Remark" rows="1"></textarea>
         </div>
       </div>
       <button onclick="addInquiry()" class="iconTip" data-tip="Save all added products">💾 Save Inquiry</button>
@@ -1466,7 +1465,7 @@ function addProductRow(data={}){
     <input class="productInput" list="productList" placeholder="Product Name" value="${escapeHtml(data.product||"")}">
     <input class="productQty" type="number" min="0" step="any" placeholder="Qty" value="${data.qty??""}">
     <input class="productRate" placeholder="Rate" value="${escapeHtml(data.rate||"")}">
-    <textarea class="productAvailable" placeholder="Product Remark" rows="2">${escapeHtml(data.availableWith||"")}</textarea>
+    <textarea class="productAvailable" placeholder="Product Remark" rows="1">${escapeHtml(data.availableWith||"")}</textarea>
     <button type="button" class="addProductInline iconTip" data-tip="Add another product" onclick="addProductRow()">➕</button>
     <button type="button" class="removeProduct iconTip" data-tip="Remove product" onclick="this.closest('.productRow').remove()">🗑️</button>`;
   wrap.appendChild(row);
