@@ -151,9 +151,8 @@ th{
 .productRow{display:grid;grid-template-columns:minmax(180px,2fr) minmax(90px,1fr) minmax(100px,1fr) minmax(150px,1.4fr) 38px 38px;gap:6px;align-items:center;padding:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px}
 .productRow input{margin:0}
 .productRow .removeProduct,.productRow .addProductInline{width:38px;height:38px;padding:0;margin:0;display:flex;align-items:center;justify-content:center} 
-.productRow .removeProduct{background:#fef2f2!important;border:1px solid #fca5a5!important;color:#991b1b!important}
-.productRow .addProductInline{background:#ecfdf5!important;border:1px solid #86efac!important;color:#166534!important}
-.productRow .removeProduct,.productRow .addProductInline{opacity:1!important;visibility:visible!important;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.productRow .removeProduct{background:#ef4444}
+.productRow .addProductInline{background:#0f766e}
 .addProductBtn{width:auto!important;height:34px!important;padding:6px 12px!important;margin:0!important;display:inline-flex;align-items:center;justify-content:center;gap:5px;background:#0f766e;white-space:nowrap;line-height:1}
 .productHint{font-size:11px;color:#64748b;margin-top:3px}
 .followupCell{min-width:125px;text-align:center}
@@ -166,7 +165,7 @@ th{
 .iconTip::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%) translateY(3px);background:#111827;color:#fff;padding:5px 8px;border-radius:6px;font-size:11px;line-height:1.2;white-space:nowrap;opacity:0;visibility:hidden;pointer-events:none;z-index:10000;transition:.15s ease;box-shadow:0 3px 10px rgba(0,0,0,.18)}
 .iconTip:hover::after,.iconTip:focus-visible::after{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
 @media(max-width:700px){
-.productRows{gap:8px}.productRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;padding:8px;overflow:visible}.productRow input{width:100%;min-width:0;box-sizing:border-box}.productRow .productInput,.productRow .productAvailable{grid-column:1/-1}.productRow .addProductInline,.productRow .removeProduct{width:38px!important;height:38px!important;min-width:38px!important;justify-self:center}.iconTip::after{display:none}
+.productRows{gap:8px}.productRow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;padding:8px;overflow:visible}.productRow input{width:100%;min-width:0;box-sizing:border-box}.productRow .productInput,.productRow .productAvailable{grid-column:1/-1}.productRow .addProductInline,.productRow .removeProduct{width:100%;height:36px}.iconTip::after{display:none}
 }
 
 .iconBtn{
@@ -419,6 +418,7 @@ align-items:flex-start;
 
 
 #loginBox{
+  display:none;
   max-width:340px;
   margin:60px auto;
   padding:18px;
@@ -511,10 +511,74 @@ align-items:flex-start;
 }
 
 #partyHistoryModal{display:none;position:fixed;inset:0;z-index:10050;background:rgba(15,23,42,.58);padding:12px;align-items:center;justify-content:center}.partyHistoryBox{width:min(620px,100%);max-height:92vh;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 15px 50px rgba(0,0,0,.25);display:flex;flex-direction:column}.partyHistoryHead{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #e5e7eb;background:#fff}.partyHistoryHead h3{margin:0;font-size:17px}.partyHistoryClose{width:34px!important;height:34px!important;padding:0!important;margin:0!important}.#partyHistoryContent{overflow:auto}.partyHistoryBox #partyHistoryContent{overflow:auto;padding:10px}.historyItem{border:1px solid #e2e8f0;border-radius:10px;padding:10px;margin-bottom:8px;background:#f8fafc}.historyTag{display:inline-block;font-size:10px;font-weight:700;padding:3px 7px;border-radius:12px;background:#e0e7ff;color:#3730a3;margin-bottom:5px}.historyFollowup{border-left:4px solid #0f766e;background:#f0fdfa}.historyProduct{font-weight:700;font-size:14px}.historyLine{font-size:12px;margin-top:3px;color:#334155}.historyNote{font-size:12px;margin-top:6px;padding:7px;background:#fff;border-radius:6px;color:#475569}.historyEditBtn{width:auto!important;margin-top:8px!important;padding:6px 9px!important;font-size:12px!important}.historyEmpty{padding:25px;text-align:center;color:#64748b}@media(max-width:700px){#partyHistoryModal{padding:0;align-items:stretch}.partyHistoryBox{width:100%;height:100vh;max-height:100vh;border-radius:0}}
-/* Clean single-box product fields */
-.productRow input,.productRow textarea{border:1px solid #cbd5e1!important;outline:none;box-shadow:none!important;background:#fff;border-radius:6px;box-sizing:border-box}
-.productRow .productAvailable{min-height:38px;resize:vertical;padding:7px 9px;line-height:1.35;font-family:inherit}
-#remark{min-height:42px;resize:vertical;box-sizing:border-box;width:100%}
+
+/* Clean single field boxes */
+#remark,.productRow input,.productRow textarea{width:100%;box-sizing:border-box;margin:0;border:1px solid #d1d5db;background:#fff;border-radius:8px;box-shadow:none;font-family:'Poppins',sans-serif}
+#remark{min-height:42px;padding:9px 11px;line-height:1.4;resize:vertical}
+.productRow{background:transparent!important;border:0!important;padding:0!important;box-shadow:none!important}
+.productRow input,.productRow textarea{padding:9px 10px}
+.productRow .productAvailable{min-height:42px;resize:vertical}
+.productRow .addProductInline,.productRow .removeProduct{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;padding:0!important;margin:0!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:8px!important;font-size:18px!important;opacity:1!important;visibility:visible!important;box-shadow:0 1px 3px rgba(0,0,0,.12)!important}
+.productRow .addProductInline{background:#ecfdf5!important;border:1px solid #86efac!important;color:#166534!important}
+.productRow .removeProduct{background:#fef2f2!important;border:1px solid #fca5a5!important;color:#991b1b!important}
+.followupTopLine{display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+@media(max-width:700px){
+ .productRow{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:7px!important;overflow:visible!important}
+ .productRow .productInput,.productRow .productAvailable{grid-column:1/-1!important}
+ .productRow .addProductInline{grid-column:1!important;justify-self:end!important}
+ .productRow .removeProduct{grid-column:2!important;justify-self:start!important}
+ .productRow .addProductInline,.productRow .removeProduct{width:42px!important;height:40px!important}
+ .followupTopLine{justify-content:flex-start}
+}
+.followStatsGrid{display:flex;gap:8px;flex-wrap:wrap}.followStatCard{border:1px solid #e2e8f0;background:#fff;border-radius:9px;padding:7px 10px;cursor:pointer;font:inherit;color:#334155}.followStatCard b{margin-left:4px}.followupTopLine{display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+.followStatCard{transition:.15s ease}
+.followStatCard.active{outline:2px solid #0f766e;background:#ecfdf5}
+#topStatsBar{position:sticky;top:0;z-index:50}
+/* ===== Startup Today Follow-ups popup ===== */
+#todayFollowupsPopup{
+  display:none;position:fixed;top:58px;left:50%;transform:translateX(-50%);
+  width:min(760px,calc(100vw - 24px));max-height:min(58vh,520px);overflow:hidden;
+  background:#fff;border:1px solid #cbd5e1;border-radius:12px;
+  box-shadow:0 12px 35px rgba(15,23,42,.22);z-index:10020;
+}
+.todayPopupHead{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 14px;background:#0f172a;color:#fff;font-size:14px}
+.todayPopupClose{width:30px!important;height:30px!important;min-width:30px;padding:0!important;
+  margin:0!important;background:#1e293b!important;color:#fff!important;
+  border:1px solid #475569!important;border-radius:7px!important}
+.todayPopupList{padding:10px;overflow:auto;max-height:calc(min(58vh,520px) - 52px)}
+.todayPopupRow{display:grid;grid-template-columns:minmax(120px,1fr) minmax(120px,1fr) auto auto;
+  gap:8px;align-items:center;padding:8px 10px;border:1px solid #e2e8f0;border-radius:9px;
+  background:#f8fafc;margin-bottom:7px;font-size:12px}
+.todayPopupParty,.todayPopupProduct{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.todayPopupParty b,.todayPopupProduct b{font-size:12px}
+.todayPopupAction{width:34px!important;height:34px!important;min-width:34px!important;padding:0!important;
+  margin:0!important;border-radius:7px!important;display:inline-flex!important;align-items:center;justify-content:center}
+.todayPopupCall{background:#ecfdf5!important;color:#166534!important;border:1px solid #86efac!important}
+.todayPopupEdit{background:#eff6ff!important;color:#1d4ed8!important;border:1px solid #93c5fd!important}
+.todayPopupEmpty{padding:20px 12px;text-align:center;color:#64748b;font-size:13px}
+@media(max-width:700px){
+  #todayFollowupsPopup{
+    top:64px;left:8px;transform:none;width:calc(100vw - 16px);
+    max-height:70vh;border-radius:12px;
+  }
+  .todayPopupHead{padding:9px 11px;font-size:13px}
+  .todayPopupList{padding:8px;max-height:calc(70vh - 48px)}
+  .todayPopupRow{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 38px 38px;
+    grid-template-areas:"party call edit" "product call edit";
+    gap:4px 7px;padding:8px;margin-bottom:6px;
+  }
+  .todayPopupParty{grid-area:party;white-space:normal;overflow:visible;text-overflow:clip}
+  .todayPopupProduct{grid-area:product;white-space:normal;overflow:visible;text-overflow:clip}
+  .todayPopupCall{grid-area:call;align-self:center}
+  .todayPopupEdit{grid-area:edit;align-self:center}
+  .todayPopupAction{
+    width:38px!important;height:38px!important;min-width:38px!important;font-size:17px!important;
+  }
+}
+
 </style>
 </head>
 
@@ -552,9 +616,21 @@ align-items:flex-start;
 <div id="topStatsBar" style="display:none;">
 
   <div id="followupTitle">🔔 Today Follow-ups</div>
-  <div id="todayFollowupsInline"></div>
+  
+
+
+<div id="todayFollowupsInline"></div>
   <div id="summaryChipsTop"></div>
 </div>
+<!-- 🔔 Today Follow-ups startup panel: auto-hides after 15 seconds -->
+<div id="todayFollowupsPopup" aria-live="polite">
+  <div class="todayPopupHead">
+    <div><b>🔔 Today Follow-ups</b></div>
+    <button type="button" class="todayPopupClose" onclick="hideTodayFollowupsPopup()" aria-label="Close">✕</button>
+  </div>
+  <div id="todayFollowupsPopupList" class="todayPopupList"></div>
+</div>
+
 
 
   <!-- Login / Signup -->
@@ -609,7 +685,7 @@ align-items:flex-start;
         </div>
                <div>
           <label>Party</label>
-          <datalist id="partyList"></datalist><input id="party" list="partyList" placeholder="Party Name" autocomplete="off" oninput="autoFillPartyMobile()" onchange="savePartyToMaster(this.value,document.getElementById('partyMobile').value)">
+          <datalist id="partyList"></datalist><input id="party" list="partyList" placeholder="Party Name" autocomplete="off" oninput="autoFillMobileFromParty()" onchange="savePartyToMaster(this.value,document.getElementById('partyMobile').value)">
         </div>
 <div>
   <label>Mobile No</label>
@@ -742,7 +818,13 @@ align-items:flex-start;
 
 
 <!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js">document.addEventListener("keydown", function(e){
+  if(e.key === "Escape"){
+    const popup=document.getElementById("todayFollowupsPopup");
+    if(popup && popup.style.display==="block") hideTodayFollowupsPopup();
+  }
+});
+</script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -765,6 +847,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e=>console.warn("Auth persistence failed",e));
+document.getElementById("loginBox").style.display="none";
 
 auth.onAuthStateChanged(async (user) => {
   if (user) {
@@ -862,13 +946,9 @@ let usersMap = {};
 
 
 function loadTodayFollowups(){
-  const box=document.getElementById("todayFollowupsInline");
-  if(!box) return;
-  db.collection("inquiries").where("followUpDate","==",new Date().toISOString().slice(0,10)).onSnapshot(snap=>{
-    box.innerHTML=`<div class="followCardWrap">`;
-    snap.forEach(doc=>{const i=doc.data(); box.innerHTML+=`<div class="followCard"><b>${i.party||""}</b><br>${i.product||""}<br>${i.followUpNote||""}<br><span class="iconTip" data-tip="Call party" onclick="callParty('${i.mobile||""}')">📞 Call</span> <span class="iconTip" data-tip="Edit follow-up" onclick="addFollowup('${String(i.party||"").replace(/'/g,"\\'")}','${i.mobile||""}','${doc.id}')">✏️ Edit</span></div>`;});
-    box.innerHTML+=`</div>`;
-  },e=>console.error("Today followups load failed",e));
+  // The top bar is maintained by renderSummaryChips().
+  // Keep this function for compatibility with saveFollowup().
+  renderSummaryChips(window.inquiries||[]);
 }
 
 let deferredPrompt = null;
@@ -910,19 +990,84 @@ function closeInstallPopup(){
 
 
 
-function showFirstTimePopup() {
+let todayFollowupsPopupTimer = null;
 
-  const lastShown = localStorage.getItem("popupTime");
-  const now = Date.now();
+function followupPartyProductKey(i){
+  return [
+    String(i.party||"").trim().replace(/\s+/g," ").toLowerCase(),
+    String(i.product||"").trim().replace(/\s+/g," ").toLowerCase()
+  ].join("||");
+}
 
-  // 🔥 Show only if 24 hrs passed
-  if (!lastShown || (now - lastShown) > 24*60*60*1000) {
+function getTodayFollowupItems(){
+  const today = getLocalISODate();
+  const source = (window.inquiries||[]).filter(i => String(i.followUpDate||"") === today);
+  const unique = new Map();
 
-    // 👇 popup show
-    document.getElementById("installPopup").style.display = "flex";
+  source.forEach(i => {
+    const key = followupPartyProductKey(i);
+    if(!key || key === "||") return;
+    const previous = unique.get(key);
+    if(!previous){ unique.set(key,i); return; }
 
-    localStorage.setItem("popupTime", now);
+    const toMillis = value => {
+      if(!value) return 0;
+      if(value.seconds) return value.seconds * 1000;
+      const t = new Date(value).getTime();
+      return Number.isNaN(t) ? 0 : t;
+    };
+
+    if(toMillis(i.followUpUpdatedAt) >= toMillis(previous.followUpUpdatedAt)){
+      unique.set(key,i);
+    }
+  });
+
+  return [...unique.values()];
+}
+
+function hideTodayFollowupsPopup(){
+  const popup = document.getElementById("todayFollowupsPopup");
+  if(popup) popup.style.display = "none";
+  if(todayFollowupsPopupTimer){
+    clearTimeout(todayFollowupsPopupTimer);
+    todayFollowupsPopupTimer = null;
   }
+}
+
+function showTodayFollowupsPopup(){
+  const popup = document.getElementById("todayFollowupsPopup");
+  const list = document.getElementById("todayFollowupsPopupList");
+  if(!popup || !list) return;
+
+  const items = getTodayFollowupItems();
+
+  if(!items.length){
+    list.innerHTML = `<div class="todayPopupEmpty">Today koi follow-up nahi hai.</div>`;
+  }else{
+    list.innerHTML = items.map(i => {
+      const party = escapeHtml(i.party || "—");
+      const product = escapeHtml(i.product || "—");
+      const mobile = String(i.mobile || "").replace(/[^\d+]/g,"");
+      const id = String(i.id || "");
+
+      const callHtml = mobile
+        ? `<button type="button" class="todayPopupAction todayPopupCall iconTip" data-tip="Call party" onclick="callParty(${JSON.stringify(mobile)})">📞</button>`
+        : `<button type="button" class="todayPopupAction todayPopupCall" disabled title="Mobile not available">📞</button>`;
+
+      const editHtml = `<button type="button" class="todayPopupAction todayPopupEdit iconTip" data-tip="Edit follow-up"
+        onclick="addFollowup(${JSON.stringify(i.party||"")},${JSON.stringify(i.mobile||"")},${JSON.stringify(id)})">✏️</button>`;
+
+      return `<div class="todayPopupRow">
+        <div class="todayPopupParty"><b>Party</b><br>${party}</div>
+        <div class="todayPopupProduct"><b>Product</b><br>${product}</div>
+        ${callHtml}${editHtml}
+      </div>`;
+    }).join("");
+  }
+
+  popup.style.display = "block";
+  if(todayFollowupsPopupTimer) clearTimeout(todayFollowupsPopupTimer);
+  todayFollowupsPopupTimer = setTimeout(hideTodayFollowupsPopup, 15000);
 }
 
 
@@ -1037,33 +1182,51 @@ document.getElementById("party").addEventListener("blur",()=>{
 
 
 
-function renderSummaryChips(list){
-  const el = document.getElementById("todayFollowupsInline");
-  if(!el) return;
 
-  const todayStr = new Date().toDateString();
-
-  let total=list.length, open=0, matched=0, closed=0, today=0;
-
-  list.forEach(i=>{
-    if(i.status==="Open") open++;
-    if(i.status==="Matched") matched++;
-    if(i.status==="Closed") closed++;
-
-    const d = new Date(i.date.seconds?i.date.seconds*1000:i.date);
-    if(d.toDateString()===todayStr) today++;
-  });
-
-  el.innerHTML = `
-    <div class="followStatsGrid">
-      <div class="followStatCard">Total <b>${total}</b></div>
-      <div class="followStatCard">Open <b>${open}</b></div>
-      <div class="followStatCard">Matched <b>${matched}</b></div>
-      <div class="followStatCard">Closed <b>${closed}</b></div>
-      <div class="followStatCard todayCard">Today <b>${today}</b></div>
-    </div>
-  `;
+function getLocalISODate(){
+  const d=new Date();
+  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), day=String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
 }
+let followupJumpFilter="";
+
+function renderSummaryChips(list){
+  const el=document.getElementById("todayFollowupsInline");
+  if(!el)return;
+
+  // Always show counts from the complete inquiry set.
+  const all=window.inquiries||[];
+  const todayStr=getLocalISODate();
+  const total=all.length;
+  const open=all.filter(i=>i.status==="Open").length;
+  const matched=all.filter(i=>i.status==="Matched").length;
+  const closed=all.filter(i=>i.status==="Closed").length;
+  const today=all.filter(i=>String(i.followUpDate||"")===todayStr).length;
+
+  el.innerHTML=`<div class="followStatsGrid">
+    <button type="button" class="followStatCard" onclick="jumpToFollowups('all')">Total <b>${total}</b></button>
+    <button type="button" class="followStatCard" onclick="jumpToFollowups('Open')">Open <b>${open}</b></button>
+    <button type="button" class="followStatCard" onclick="jumpToFollowups('Matched')">Matched <b>${matched}</b></button>
+    <button type="button" class="followStatCard" onclick="jumpToFollowups('Closed')">Closed <b>${closed}</b></button>
+    <button type="button" class="followStatCard todayCard" onclick="jumpToFollowups('Today')">Today <b>${today}</b></button>
+  </div>`;
+  const activeMap={all:"",Open:"Open",Matched:"Matched",Closed:"Closed",Today:"Today"};
+  el.querySelectorAll(".followStatCard").forEach(btn=>{
+    const txt=btn.textContent.trim();
+    const key=txt.startsWith("Total")?"all":txt.startsWith("Open")?"Open":txt.startsWith("Matched")?"Matched":txt.startsWith("Closed")?"Closed":"Today";
+    btn.classList.toggle("active",activeMap[key]===followupJumpFilter);
+  });
+}
+
+function jumpToFollowups(filter){
+  followupJumpFilter = filter==="all" ? "" : filter;
+  renderTable();
+  setTimeout(()=>{
+    const table=document.getElementById("data");
+    if(table) table.scrollIntoView({behavior:"smooth",block:"start"});
+  },50);
+}
+
 
 
 // ==== Load Dashboard ====
@@ -1112,23 +1275,53 @@ updateFilters().then(async()=>{
 
 
 
+function normalizeMatchProduct(name){
+  return String(name||"")
+    .trim()
+    .replace(/\s+/g," ")
+    .toLowerCase();
+}
+
+function normalizeMatchType(type){
+  return String(type||"").trim().toLowerCase();
+}
+
 function autoMatchStatus(){
   const map = {};
 
   window.inquiries.forEach(i=>{
-    const key = i.product + "_" + i.qty;
+    // Product-only matching, CASE-INSENSITIVE:
+    // "flakes", "FLAKES", "Flakes" => same product.
+    // Qty is NOT part of the matching key.
+    // Example:
+    // Sale     Flakes   Qty 5000
+    // Purchase FLAKES   Qty 10
+    // => MATCHED
+    const key = normalizeMatchProduct(i.product);
+
+    if(!key) return;
     if(!map[key]) map[key]=[];
     map[key].push(i);
   });
 
   Object.values(map).forEach(group=>{
-    const hasSale = group.find(x=>x.salePurchase==="Sale");
-    const hasPurchase = group.find(x=>x.salePurchase==="Purchase");
+    const hasSale = group.find(
+      x => normalizeMatchType(x.salePurchase) === "sale"
+    );
+    const hasPurchase = group.find(
+      x => normalizeMatchType(x.salePurchase) === "purchase"
+    );
 
+    // Example:
+    // Sale     -> flakes
+    // Purchase -> FLAKES
+    // Same qty -> MATCHED
     if(hasSale && hasPurchase){
       group.forEach(x=>{
-        if(x.status==="Open"){
-          db.collection('inquiries').doc(x.id).update({status:"Matched"});
+        if(String(x.status||"").trim().toLowerCase()==="open"){
+          db.collection('inquiries').doc(x.id).update({
+            status:"Matched"
+          });
         }
       });
     }
@@ -1145,6 +1338,10 @@ function setupRealtime(){
     });
     renderTable();
 autoMatchStatus();
+    if(!window.todayFollowupsPopupShown){
+      window.todayFollowupsPopupShown = true;
+      setTimeout(showTodayFollowupsPopup, 150);
+    }
 
     });
 }
@@ -1152,6 +1349,8 @@ autoMatchStatus();
 // ==== Filters ====
 document.getElementById("categoryFilter").addEventListener("change", renderTable);
 document.getElementById("salesmanFilter").addEventListener("change", renderTable);
+const searchInput=document.getElementById("search");
+if(searchInput) searchInput.addEventListener("input",()=>{searchText=searchInput.value.trim().toLowerCase();renderTable();});
 
 async function updateFilters(){
   const snap = await db.collection('users').get();
@@ -1180,57 +1379,47 @@ async function updateFilters(){
 
 
 
-// ==== Party + Mobile Master (Firebase) ====
-let partyMaster = new Map();
-function normalizePartyName(name){ return String(name||"").trim().replace(/\s+/g," "); }
-function normalizeMobile(mobile){ return String(mobile||"").trim(); }
-
+// ==== Firebase Party + Mobile Master ====
+let partyMaster=new Map(), partySaveTimer=null;
+function normalizePartyName(n){return String(n||"").trim().replace(/\s+/g," ")}
+function normalizeMobile(n){return String(n||"").trim()}
+function partyDocId(n){return normalizePartyName(n).toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,100)}
 async function savePartyToMaster(party,mobile){
-  const p=normalizePartyName(party), m=normalizeMobile(mobile);
-  if(!p)return;
-  const id=p.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,100);
-  if(!id)return;
-  partyMaster.set(p.toLowerCase(),{name:p,mobile:m});
-  try{
-    await db.collection("parties").doc(id).set({
-      name:p,mobile:m,updatedAt:new Date(),
-      updatedBy:currentUser?currentUser.uid:""
-    },{merge:true});
-  }catch(e){ console.warn("Party master save failed:",e); }
-  renderPartyOptions();
+  const p=normalizePartyName(party),m=normalizeMobile(mobile); if(!p)return;
+  const key=p.toLowerCase(),old=partyMaster.get(key)||{};
+  partyMaster.set(key,{name:p,mobile:m||old.mobile||""}); renderPartyOptions();
+  const id=partyDocId(p); if(!id)return;
+  try{await db.collection("parties").doc(id).set({name:p,mobile:m||old.mobile||"",updatedAt:new Date(),updatedBy:currentUser?currentUser.uid:""},{merge:true})}
+  catch(e){console.warn("Party master save failed",e)}
+}
+function queuePartyMasterSave(){
+  clearTimeout(partySaveTimer); partySaveTimer=setTimeout(()=>{
+    savePartyToMaster(document.getElementById("party")?.value||"",document.getElementById("partyMobile")?.value||"");
+  },700);
 }
 async function loadPartyMaster(){
   partyMaster=new Map();
   (window.inquiries||[]).forEach(i=>{
-    const p=normalizePartyName(i.party);
-    if(p){
-      const key=p.toLowerCase(), old=partyMaster.get(key)||{};
-      partyMaster.set(key,{name:p,mobile:normalizeMobile(i.mobile)||old.mobile||""});
-    }
+    const p=normalizePartyName(i.party); if(!p)return;
+    const k=p.toLowerCase(),o=partyMaster.get(k)||{};
+    partyMaster.set(k,{name:p,mobile:normalizeMobile(i.mobile)||o.mobile||""});
   });
-  try{
-    const snap=await db.collection("parties").orderBy("name").get();
-    snap.forEach(doc=>{
-      const d=doc.data(), p=normalizePartyName(d.name);
-      if(p)partyMaster.set(p.toLowerCase(),{name:p,mobile:normalizeMobile(d.mobile)});
-    });
-  }catch(e){ console.warn("Party master load failed:",e); }
+  try{const s=await db.collection("parties").get();s.forEach(d=>{const x=d.data()||{},p=normalizePartyName(x.name);if(p)partyMaster.set(p.toLowerCase(),{name:p,mobile:normalizeMobile(x.mobile)})})}
+  catch(e){console.warn("Party master load failed",e)}
   renderPartyOptions();
 }
 function renderPartyOptions(){
-  const list=document.getElementById("partyList"), ml=document.getElementById("mobileList");
-  if(list)list.innerHTML=[...partyMaster.values()].sort((a,b)=>a.name.localeCompare(b.name)).map(x=>`<option value="${escapeHtml(x.name)}"></option>`).join("");
-  if(ml)ml.innerHTML=[...partyMaster.values()].filter(x=>x.mobile).map(x=>`<option value="${escapeHtml(x.mobile)}"></option>`).join("");
+  const a=document.getElementById("partyList"),b=document.getElementById("mobileList");
+  if(a)a.innerHTML=[...partyMaster.values()].sort((x,y)=>x.name.localeCompare(y.name)).map(x=>`<option value="${escapeHtml(x.name)}"></option>`).join("");
+  if(b)b.innerHTML=[...partyMaster.values()].filter(x=>x.mobile).map(x=>`<option value="${escapeHtml(x.mobile)}"></option>`).join("");
 }
-function autoFillPartyMobile(){
-  const p=normalizePartyName(document.getElementById("party")?.value), e=partyMaster.get(p.toLowerCase());
-  const m=document.getElementById("partyMobile");
-  if(e&&m&&!m.value.trim())m.value=e.mobile||"";
+function autoFillMobileFromParty(){
+  const p=normalizePartyName(document.getElementById("party")?.value),x=partyMaster.get(p.toLowerCase()),m=document.getElementById("partyMobile");
+  if(x&&m)m.value=x.mobile||""; queuePartyMasterSave();
 }
 function autoFillPartyFromMobile(){
-  const m=normalizeMobile(document.getElementById("partyMobile")?.value), e=[...partyMaster.values()].find(x=>x.mobile===m);
-  const p=document.getElementById("party");
-  if(e&&p&&!p.value.trim())p.value=e.name;
+  const m=normalizeMobile(document.getElementById("partyMobile")?.value),x=[...partyMaster.values()].find(v=>v.mobile===m),p=document.getElementById("party");
+  if(x&&p)p.value=x.name; queuePartyMasterSave();
 }
 
 // ==== Product Master + Add / Update Inquiry ====
@@ -1282,6 +1471,11 @@ function addProductRow(data={}){
     <button type="button" class="removeProduct iconTip" data-tip="Remove product" onclick="this.closest('.productRow').remove()">🗑️</button>`;
   wrap.appendChild(row);
   const input=row.querySelector(".productInput");
+  let productSaveTimer=null;
+  input.addEventListener("input",()=>{
+    clearTimeout(productSaveTimer);
+    productSaveTimer=setTimeout(()=>saveProductToMaster(input.value),700);
+  });
   input.addEventListener("change",()=>saveProductToMaster(input.value));
   input.addEventListener("blur",()=>saveProductToMaster(input.value));
   renderProductOptions();
@@ -1306,8 +1500,8 @@ async function addInquiry(){
     salesmanId:document.getElementById("assignSalesman").value||currentUser.uid,
     salesmanName:getSalesmanName(document.getElementById("assignSalesman").value||currentUser.uid)
   };
-  await savePartyToMaster(common.party,common.mobile);
   try{
+    await savePartyToMaster(common.party,common.mobile);
     for(const row of rows)await saveProductToMaster(row.product);
     if(editId){
       await db.collection("inquiries").doc(editId).update({...rows[0],...common});
@@ -1330,7 +1524,6 @@ function sortTable(field){
 function renderTable(){
   const tbody=document.getElementById("data");
   tbody.innerHTML="";
-  const searchVal=document.getElementById("search").value.toLowerCase();
   const catVal=document.getElementById("categoryFilter").value;
   const salesVal=document.getElementById("salesmanFilter").value;
 
@@ -1342,6 +1535,13 @@ let filtered = window.inquiries.filter(i=>{
   if(showMine && i.salesmanId!==currentUser.uid) return false;
   if(catVal && i.salePurchase!==catVal) return false;
   if(salesVal && i.salesmanId!==salesVal) return false;
+
+  // 🔔 Follow-up summary card filter
+  if(followupJumpFilter==="Today"){
+    if(String(i.followUpDate||"") !== getLocalISODate()) return false;
+  }else if(followupJumpFilter){
+    if(String(i.status||"").trim().toLowerCase() !== followupJumpFilter.toLowerCase()) return false;
+  }
 
   return true;
 });
@@ -1394,9 +1594,8 @@ renderSummaryChips(filtered);
 <td data-label="Follow-up">
   <div class="followupCell">
     ${i.followUpDate ? `
-      <div class="followupDate">${formatFollowupDate(i.followUpDate)}</div>
+      <div class="followupTopLine"><span class="followupDate">${formatFollowupDate(i.followUpDate)}</span><span class="mIcon iconTip" data-tip="Edit follow-up" onclick="addFollowup('${String(i.party||"").replace(/'/g,"\\'")}','${i.mobile||""}','${i.id}')">✏️</span></div>
       ${i.followUpNote ? `<div class="followupNote">${escapeHtml(i.followUpNote)}</div>` : ''}
-      <span class="mIcon iconTip" data-tip="Edit follow-up" onclick="addFollowup('${String(i.party||"").replace(/'/g,"\\'")}','${i.mobile||""}','${i.id}')">✏️</span>
     ` : `
       <span class="followupNone">No follow-up</span>
       <span class="mIcon iconTip" data-tip="Add follow-up" onclick="addFollowup('${String(i.party||"").replace(/'/g,"\\'")}','${i.mobile||""}','${i.id}')">➕</span>
