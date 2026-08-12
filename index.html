@@ -618,6 +618,117 @@ align-items:flex-start;
   }
 }
 
+
+/* ===== FINAL MOBILE: Today Follow-ups single-line compact ===== */
+@media (max-width:700px){
+  #topStatsBar{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    flex-wrap:nowrap !important;
+    gap:3px !important;
+    width:100% !important;
+    max-width:100vw !important;
+    box-sizing:border-box !important;
+    padding:3px 4px !important;
+    margin:0 !important;
+    overflow-x:hidden !important;
+    white-space:nowrap !important;
+  }
+
+  #followupTitle{
+    flex:0 0 auto !important;
+    font-size:9px !important;
+    line-height:1 !important;
+    margin:0 1px 0 0 !important;
+  }
+
+  #todayFollowupsInline{
+    display:flex !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    width:auto !important;
+    gap:2px !important;
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    font-size:8px !important;
+    line-height:1 !important;
+  }
+
+  #summaryChipsTop{
+    display:flex !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    gap:2px !important;
+    flex-wrap:nowrap !important;
+    justify-content:space-between !important;
+  }
+
+  #summaryChipsTop .qtyItem{
+    flex:1 1 0 !important;
+    min-width:0 !important;
+    padding:2px 2px !important;
+    margin:0 !important;
+    font-size:8px !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+    text-align:center !important;
+  }
+
+  #summaryChipsTop .qtyItem b{
+    font-size:9px !important;
+    margin-left:1px !important;
+  }
+
+  #todayFollowupsInline > *{
+    white-space:nowrap !important;
+  }
+}
+
+
+/* ===== Inquiry sections: no card, full width ===== */
+#inquiryCard,
+#tableCard{
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  box-sizing:border-box !important;
+}
+
+#inquiryCard > h3,
+#tableCard > h3{
+  padding:8px 0 !important;
+  margin:0 !important;
+}
+
+#inquiryCardBody{
+  padding:0 !important;
+}
+
+@media(max-width:700px){
+  #inquiryCard,
+  #tableCard{
+    width:100vw !important;
+    max-width:100vw !important;
+    margin-left:calc(50% - 50vw) !important;
+    margin-right:calc(50% - 50vw) !important;
+    padding-left:6px !important;
+    padding-right:6px !important;
+  }
+
+  #inquiryCard > h3,
+  #tableCard > h3{
+    padding-left:2px !important;
+    padding-right:2px !important;
+  }
+}
+
 </style>
 </head>
 
@@ -638,7 +749,7 @@ align-items:flex-start;
 <header id="mainHeader" style="display:none;">
 
   <div id="leftInfo">
-📦 Inquiry Dashboard
+📦 Suvidhi Inquiry Dashboard
       </div>
 
   <div id="centerTitle">
@@ -1192,7 +1303,7 @@ document.getElementById("topStatsBar").style.display="none";
 }
 
 function showLogin(){
-  document.title = "Suvidhi Inquiry";
+  document.title = "Inquiry Pool";
 
   isSignup = false;
 
