@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inquiry Pool</title>
+<title>Suvidhi Inquiry</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;}body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333;}
@@ -51,6 +51,7 @@ th{
   color:#fff;
   position:sticky;
   top:0;
+  z-index:20;
   cursor:pointer;
   white-space:nowrap;
 }
@@ -59,7 +60,23 @@ th{
 .status-Matched{background:#dbfce7;}
 .status-Closed{background:#ffe1e1;}
 .actionIcons span{cursor:pointer;margin-right:6px;font-size:16px;}
-.tableWrap{overflow:auto;max-height:420px;}
+.tableWrap{
+  position:relative;
+  overflow:auto;
+  max-height:420px;
+  background:#fff;
+}
+.tableWrap table{
+  position:relative;
+}
+.tableWrap thead th{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:#111827 !important;
+  color:#fff;
+  box-shadow:0 1px 0 #111827;
+}
 @media(max-width:600px){header{font-size:18px;}}
 .checkbox{width:16px;height:16px;cursor:pointer;}
 #charts{display:flex;gap:12px;flex-wrap:wrap;}
@@ -532,7 +549,7 @@ align-items:flex-start;
 }
 .followStatsGrid{display:flex;gap:8px;flex-wrap:wrap}.followStatCard{border:1px solid #e2e8f0;background:#fff;border-radius:9px;padding:7px 10px;cursor:pointer;font:inherit;color:#334155}.followStatCard b{margin-left:4px}.followupTopLine{display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
 .followStatCard{transition:.15s ease}
-.followStatCard.active{outline:2px solid #0f766e;background:#ecfdf5}
+.followStatCard.active{outline:2px solid #0f766e;background:#ecfdf5}.overdueCard{border-color:#fca5a5!important}
 #topStatsBar{position:sticky;top:0;z-index:50}
 /* ===== Startup Today Follow-ups popup ===== */
 #todayFollowupsPopup{
@@ -666,7 +683,8 @@ align-items:flex-start;
 -->
 
     <div class="card" id="inquiryCard">
-      <h3>Add / Update Inquiry</h3>
+      <h3 id="inquiryCardTitle" onclick="toggleInquiryCard()" role="button" tabindex="0" aria-expanded="false" style="cursor:pointer;user-select:none;">Add / Update Inquiry</h3>
+      <div id="inquiryCardBody" style="display:none;">
       <div class="grid">
         <div style="grid-column:1/-1;">
           <div class="productHeader">
@@ -705,11 +723,8 @@ align-items:flex-start;
         </div>
       </div>
       <button onclick="addInquiry()" class="iconTip" data-tip="Save all added products">💾 Save Inquiry</button>
+      </div>
     </div>
-
-
-
-
 
    <div class="card" id="tableCard">
   <h3>📋 Live Inquiry Table</h3>
@@ -1201,6 +1216,10 @@ function renderSummaryChips(list){
   const matched=all.filter(i=>i.status==="Matched").length;
   const closed=all.filter(i=>i.status==="Closed").length;
   const today=all.filter(i=>String(i.followUpDate||"")===todayStr).length;
+  const overdue=all.filter(i=>{
+    const d=String(i.followUpDate||"").trim();
+    return d && d < todayStr && String(i.status||"").trim().toLowerCase() !== "closed";
+  }).length;
 
   el.innerHTML=`<div class="followStatsGrid">
     <button type="button" class="followStatCard" onclick="jumpToFollowups('all')">Total <b>${total}</b></button>
@@ -1208,11 +1227,12 @@ function renderSummaryChips(list){
     <button type="button" class="followStatCard" onclick="jumpToFollowups('Matched')">Matched <b>${matched}</b></button>
     <button type="button" class="followStatCard" onclick="jumpToFollowups('Closed')">Closed <b>${closed}</b></button>
     <button type="button" class="followStatCard todayCard" onclick="jumpToFollowups('Today')">Today <b>${today}</b></button>
+    <button type="button" class="followStatCard overdueCard" onclick="jumpToFollowups('Overdue')">Overdue <b>${overdue}</b></button>
   </div>`;
-  const activeMap={all:"",Open:"Open",Matched:"Matched",Closed:"Closed",Today:"Today"};
+  const activeMap={all:"",Open:"Open",Matched:"Matched",Closed:"Closed",Today:"Today",Overdue:"Overdue"};
   el.querySelectorAll(".followStatCard").forEach(btn=>{
     const txt=btn.textContent.trim();
-    const key=txt.startsWith("Total")?"all":txt.startsWith("Open")?"Open":txt.startsWith("Matched")?"Matched":txt.startsWith("Closed")?"Closed":"Today";
+    const key=txt.startsWith("Total")?"all":txt.startsWith("Open")?"Open":txt.startsWith("Matched")?"Matched":txt.startsWith("Closed")?"Closed":txt.startsWith("Today")?"Today":"Overdue";
     btn.classList.toggle("active",activeMap[key]===followupJumpFilter);
   });
 }
@@ -1538,6 +1558,9 @@ let filtered = window.inquiries.filter(i=>{
   // 🔔 Follow-up summary card filter
   if(followupJumpFilter==="Today"){
     if(String(i.followUpDate||"") !== getLocalISODate()) return false;
+  }else if(followupJumpFilter==="Overdue"){
+    const d=String(i.followUpDate||"").trim();
+    if(!d || d >= getLocalISODate() || String(i.status||"").trim().toLowerCase()==="closed") return false;
   }else if(followupJumpFilter){
     if(String(i.status||"").trim().toLowerCase() !== followupJumpFilter.toLowerCase()) return false;
   }
@@ -1656,6 +1679,7 @@ function formatDate(d){
 
 // ==== Edit/Delete/Toggle ====
 function editInquiry(id){
+  toggleInquiryCard(true);
   editId=id;
   const i=window.inquiries.find(x=>x.id===id);
   if(!i)return;
@@ -1902,6 +1926,24 @@ document.querySelectorAll("#inquiryCard input, #inquiryCard select")
   });
 });
 
+
+// ==== Add / Update Inquiry collapsible panel ====
+function toggleInquiryCard(forceOpen = null){
+  const body = document.getElementById("inquiryCardBody");
+  const title = document.getElementById("inquiryCardTitle");
+  if(!body || !title) return;
+  const isOpen = body.style.display !== "none";
+  const shouldOpen = forceOpen === null ? !isOpen : !!forceOpen;
+  body.style.display = shouldOpen ? "block" : "none";
+  title.setAttribute("aria-expanded", String(shouldOpen));
+}
+document.getElementById("inquiryCardTitle")?.addEventListener("keydown", e=>{
+  if(e.key === "Enter" || e.key === " "){
+    e.preventDefault();
+    toggleInquiryCard();
+  }
+});
+toggleInquiryCard(false);
 
 document.getElementById("topStatsBar").addEventListener("click", ()=>{
   const card = document.getElementById("inquiryCard");
