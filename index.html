@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Suvidhi Inquiry</title>
+<title>Inquiry Pool</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;}body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333;}
@@ -365,11 +365,7 @@ font-size:14px;
 }
 
 /* 📱 Mobile fix */
-@media(max-width:700px){
-  #topStatsBar{
-    top: 95px;           /* mobile header height zyada */
-  }
-}
+
 
 
 #followupTitle{
@@ -550,7 +546,33 @@ align-items:flex-start;
 .followStatsGrid{display:flex;gap:8px;flex-wrap:wrap}.followStatCard{border:1px solid #e2e8f0;background:#fff;border-radius:9px;padding:7px 10px;cursor:pointer;font:inherit;color:#334155}.followStatCard b{margin-left:4px}.followupTopLine{display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
 .followStatCard{transition:.15s ease}
 .followStatCard.active{outline:2px solid #0f766e;background:#ecfdf5}.overdueCard{border-color:#fca5a5!important}
-#topStatsBar{position:sticky;top:0;z-index:50}
+#topStatsBar{position:sticky;z-index:900}
+/* ===== Inquiry cards: full available width ===== */
+#dashboard{
+  width:100%;
+  max-width:none;
+  box-sizing:border-box;
+}
+#inquiryCard,#tableCard{
+  width:100%;
+  max-width:none;
+  box-sizing:border-box;
+  margin-left:0;
+  margin-right:0;
+}
+@media(max-width:700px){
+  #dashboard{
+    width:100%;
+    padding-left:0;
+    padding-right:0;
+  }
+  #inquiryCard,#tableCard{
+    width:100%;
+    margin:0 0 8px 0;
+    border-radius:8px;
+  }
+}
+
 /* ===== Startup Today Follow-ups popup ===== */
 #todayFollowupsPopup{
   display:none;position:fixed;top:58px;left:50%;transform:translateX(-50%);
@@ -616,7 +638,7 @@ align-items:flex-start;
 <header id="mainHeader" style="display:none;">
 
   <div id="leftInfo">
-📦 Suvidhi Inquiry Dashboard
+📦 Inquiry Dashboard
       </div>
 
   <div id="centerTitle">
@@ -1170,7 +1192,7 @@ document.getElementById("topStatsBar").style.display="none";
 }
 
 function showLogin(){
-  document.title = "Inquiry Pool";
+  document.title = "Suvidhi Inquiry";
 
   isSignup = false;
 
