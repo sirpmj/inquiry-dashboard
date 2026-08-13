@@ -730,6 +730,31 @@ align-items:flex-start;
 }
 
 </style>
+
+<style>
+/* v13: mobile header + follow-up + inquiry form alignment */
+@media(max-width:700px){
+  #mainHeader{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:"title title" "user logout"!important;align-items:center!important;gap:3px 8px!important;width:100%!important;box-sizing:border-box!important}
+  #leftInfo{grid-area:title!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:14px!important}
+  #centerTitle{grid-area:user!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:11px!important}
+  #rightAction{grid-area:logout!important;justify-self:end!important;white-space:nowrap!important;font-size:11px!important}
+
+  #topStatsBar{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:3px!important;padding:4px 5px!important;top:0!important;overflow:hidden!important;white-space:normal!important}
+  #followupTitle{width:100%!important;font-size:11px!important;line-height:1.1!important;margin:0!important}
+  #todayFollowupsInline{display:none!important}
+  #summaryChipsTop{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;width:100%!important;min-width:0!important;gap:4px!important}
+  #summaryChipsTop .qtyItem{width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:4px 2px!important;margin:0!important;font-size:10px!important;line-height:1.15!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  #summaryChipsTop .qtyItem b{font-size:11px!important;margin-left:2px!important}
+
+  #inquiryCard{width:100%!important;max-width:100%!important;margin:0!important;padding:5px!important;box-sizing:border-box!important}
+  #inquiryCardBody .grid{width:100%!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;box-sizing:border-box!important}
+}
+#inquiryCard,#inquiryCardBody,#inquiryCardBody .grid,#inquiryCardBody .grid>div,#inquiryCardBody .productRows,#inquiryCardBody .productRow{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+#inquiryCardBody .grid>div{overflow:hidden!important}
+#inquiryCardBody label{display:block!important;max-width:100%!important;box-sizing:border-box!important;overflow-wrap:anywhere!important;word-break:break-word!important;white-space:normal!important}
+#inquiryCardBody input,#inquiryCardBody select,#inquiryCardBody textarea{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+#inquiryCardBody .productRow>*{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+</style>
 </head>
 
 <body>
@@ -765,6 +790,8 @@ align-items:flex-start;
 
 <div id="topStatsBar" style="display:none;">
 
+  <div id="followupTitle">🔔 Today Follow-ups</div>
+  
 
 
 <div id="todayFollowupsInline"></div>
