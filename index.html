@@ -944,6 +944,130 @@ align-items:flex-start;
 }
 </style>
 
+
+<style>
+/* ===== v18: ONLY requested alignment + clickable Add/Update heading ===== */
+
+/* Add / Update Inquiry should look like a separate clickable section */
+#inquiryCardTitle{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+  padding:9px 11px !important;
+  margin:0 0 8px 0 !important;
+  border:1px solid #cbd5e1 !important;
+  border-radius:8px !important;
+  background:#f8fafc !important;
+  color:#0f172a !important;
+  font-weight:700 !important;
+  cursor:pointer !important;
+}
+#inquiryCardTitle::after{
+  content:"▼ Click to Add / Update";
+  font-size:11px;
+  font-weight:600;
+  color:#64748b;
+  margin-left:auto;
+  padding-left:8px;
+  white-space:nowrap;
+}
+#inquiryCardTitle[aria-expanded="true"]::after{
+  content:"▲ Click to Close";
+}
+
+@media(max-width:700px){
+  /* Full-width sections, no extra side space */
+  #inquiryCard,
+  #tableCard{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:0 4px !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+
+  #inquiryCardBody{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Form fields stay inside their labels/boxes */
+  #inquiryCardBody .grid,
+  #inquiryCardBody .grid > div{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+  #inquiryCardBody .grid{
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+  #inquiryCardBody label{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow-wrap:anywhere !important;
+    word-break:break-word !important;
+  }
+  #inquiryCardBody input,
+  #inquiryCardBody select,
+  #inquiryCardBody textarea{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Live table search/filter bar gets the same full width as the table */
+  #tableCard .tableTopBar{
+    display:flex !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+    gap:5px !important;
+    flex-wrap:nowrap !important;
+    margin:0 0 5px 0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+  }
+
+  #tableCard .tableTopBar #search{
+    flex:1 1 0 !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  #tableCard .tableTopBar select{
+    flex:0 1 32% !important;
+    min-width:72px !important;
+    max-width:32% !important;
+    box-sizing:border-box !important;
+  }
+
+  #tableCard .tableTopBar button{
+    flex:0 0 auto !important;
+    box-sizing:border-box !important;
+  }
+
+  #tableCard > h3{
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+    overflow-wrap:anywhere !important;
+    white-space:normal !important;
+  }
+}
+</style>
 </head>
 
 <body>
