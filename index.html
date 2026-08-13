@@ -769,77 +769,25 @@ align-items:flex-start;
 </style>
 
 <style>
-/* ===== v15: MOBILE FIX ===== */
-
-/* Follow-up bar stays visible while page scrolls */
+/* ===== v16: ONLY the two requested mobile fixes ===== */
 @media(max-width:700px){
+
+  /* Keep the existing Today Follow-ups layout, only make the bar sticky */
   #topStatsBar{
     position:sticky !important;
     top:0 !important;
     z-index:9999 !important;
-    width:100% !important;
-    box-sizing:border-box !important;
-    background:#0f172a !important;
   }
 
-  /* The actual generated counters are inside todayFollowupsInline */
-  #todayFollowupsInline{
-    display:block !important;
-    width:100% !important;
-    min-width:0 !important;
-    overflow:visible !important;
-  }
-
-  #todayFollowupsInline .followStatsGrid{
-    display:grid !important;
-    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-    width:100% !important;
-    min-width:0 !important;
-    gap:4px !important;
-    margin:3px 0 0 !important;
-  }
-
-  #todayFollowupsInline .followStatCard{
-    display:block !important;
-    width:100% !important;
-    min-width:0 !important;
-    box-sizing:border-box !important;
-    padding:4px 2px !important;
-    font-size:10px !important;
-    line-height:1.15 !important;
-    white-space:nowrap !important;
-    overflow:hidden !important;
-    text-overflow:ellipsis !important;
-    text-align:center !important;
-  }
-
-  #todayFollowupsInline .followStatCard b{
-    font-size:11px !important;
-    margin-left:2px !important;
-  }
-
-  /* Prevent the Live Inquiry Table heading from overflowing */
-  #tableCard{
-    width:100% !important;
-    max-width:100% !important;
-    min-width:0 !important;
-    box-sizing:border-box !important;
-    overflow:hidden !important;
-  }
-
+  /* Only fix Live Inquiry Table heading overflow */
   #tableCard > h3{
-    display:block !important;
     width:100% !important;
     max-width:100% !important;
-    min-width:0 !important;
     box-sizing:border-box !important;
-    margin:0 !important;
-    padding:8px 4px !important;
-    font-size:14px !important;
-    line-height:1.25 !important;
     white-space:normal !important;
     overflow-wrap:anywhere !important;
     word-break:break-word !important;
+    line-height:1.25 !important;
   }
 }
 </style>
