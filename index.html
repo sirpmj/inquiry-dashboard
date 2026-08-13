@@ -755,6 +755,18 @@ align-items:flex-start;
 #inquiryCardBody input,#inquiryCardBody select,#inquiryCardBody textarea{display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
 #inquiryCardBody .productRow>*{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
 </style>
+
+<style>
+@media(max-width:700px){
+  #topStatsBar{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:3px!important;padding:4px 5px!important;overflow:visible!important;white-space:normal!important;}
+  #followupTitle{display:block!important;width:100%!important;font-size:11px!important;line-height:1.1!important;margin:0!important;}
+  #todayFollowupsInline{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;width:100%!important;min-width:0!important;gap:4px!important;flex:none!important;}
+  #todayFollowupsInline .followStatsGrid{display:contents!important;}
+  #todayFollowupsInline .followStatCard{width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:4px 2px!important;margin:0!important;font-size:10px!important;line-height:1.15!important;white-space:nowrap!important;text-align:center!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+  #todayFollowupsInline .followStatCard b{font-size:11px!important;margin-left:2px!important;}
+  #summaryChipsTop{display:none!important;}
+}
+</style>
 </head>
 
 <body>
