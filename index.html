@@ -1068,6 +1068,110 @@ align-items:flex-start;
   }
 }
 </style>
+
+<style>
+/* ===== v19: restore full-width table + horizontal table scroll ===== */
+@media(max-width:700px){
+  html,body{
+    width:100% !important;
+    max-width:100% !important;
+    overflow-x:hidden !important;
+  }
+
+  #dashboard{
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  #tableCard{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    box-sizing:border-box !important;
+    overflow:visible !important;
+  }
+
+  #tableCard > h3{
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding:7px 5px !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Search/filter row = full table width */
+  #tableCard .tableTopBar{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    gap:4px !important;
+    margin:0 !important;
+    padding:0 2px 5px 2px !important;
+    overflow:visible !important;
+  }
+
+  #tableCard .tableTopBar #search{
+    flex:1 1 auto !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+  }
+
+  #tableCard .tableTopBar select{
+    flex:0 0 auto !important;
+    width:105px !important;
+    min-width:75px !important;
+    max-width:105px !important;
+    box-sizing:border-box !important;
+  }
+
+  #tableCard .tableTopBar button{
+    flex:0 0 auto !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Restore table horizontal scrolling */
+  #tableCard .tableWrap{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    overflow-x:auto !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+    box-sizing:border-box !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  #tableCard .tableWrap table{
+    width:max-content !important;
+    min-width:100% !important;
+    max-width:none !important;
+  }
+
+  #tableCard .tableWrap th,
+  #tableCard .tableWrap td{
+    white-space:nowrap !important;
+  }
+
+  /* Add/Update section also uses complete available width */
+  #inquiryCard{
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    box-sizing:border-box !important;
+  }
+}
+</style>
 </head>
 
 <body>
