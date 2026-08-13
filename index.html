@@ -794,69 +794,57 @@ align-items:flex-start;
 
 
 <style>
-/* ===== v17: Mobile alignment only ===== */
+/* ===== FINAL MOBILE: full-width compact layout ===== */
 @media(max-width:700px){
 
-  /* Keep both sections inside viewport */
-  #inquiryCard,
-  #tableCard{
+  html,body{
+    width:100% !important;
+    max-width:100% !important;
+    overflow-x:hidden !important;
+  }
+
+  body{
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  #mainHeader,
+  #topStatsBar,
+  #dashboard{
+    width:100% !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
+  }
+
+  #dashboard{
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  /* Add / Update section: full width, compact */
+  #inquiryCard{
     width:100% !important;
     max-width:100% !important;
     min-width:0 !important;
-    margin-left:0 !important;
-    margin-right:0 !important;
-    padding-left:6px !important;
-    padding-right:6px !important;
+    margin:0 !important;
+    padding:0 5px !important;
     box-sizing:border-box !important;
     overflow:hidden !important;
-  }
-
-  /* Add / Update Inquiry heading clearly looks clickable */
-  #inquiryCardTitle{
-    display:flex !important;
-    align-items:center !important;
-    justify-content:space-between !important;
-    width:100% !important;
-    min-height:38px !important;
-    box-sizing:border-box !important;
-    padding:8px 10px !important;
-    margin:0 0 8px 0 !important;
-    border:1px solid #cbd5e1 !important;
-    border-radius:8px !important;
-    background:#f8fafc !important;
-    color:#0f172a !important;
-    font-size:14px !important;
-    font-weight:700 !important;
-    white-space:normal !important;
-    overflow-wrap:anywhere !important;
-  }
-
-  #inquiryCardTitle::after{
-    content:"▼ Click to Add / Update" !important;
-    font-size:9px !important;
-    font-weight:600 !important;
-    color:#64748b !important;
-    margin-left:6px !important;
-    white-space:nowrap !important;
-  }
-
-  #inquiryCardTitle[aria-expanded="true"]::after{
-    content:"▲ Click to Close" !important;
   }
 
   #inquiryCardBody{
     width:100% !important;
     max-width:100% !important;
     min-width:0 !important;
+    padding:0 !important;
     box-sizing:border-box !important;
   }
 
   #inquiryCardBody .grid{
     width:100% !important;
     max-width:100% !important;
-    min-width:0 !important;
     grid-template-columns:minmax(0,1fr) !important;
-    box-sizing:border-box !important;
+    gap:6px !important;
   }
 
   #inquiryCardBody .grid > div{
@@ -871,9 +859,10 @@ align-items:flex-start;
     display:block !important;
     width:100% !important;
     max-width:100% !important;
-    box-sizing:border-box !important;
+    margin-bottom:2px !important;
+    font-size:11px !important;
+    line-height:1.2 !important;
     overflow-wrap:anywhere !important;
-    word-break:break-word !important;
   }
 
   #inquiryCardBody input,
@@ -883,42 +872,78 @@ align-items:flex-start;
     max-width:100% !important;
     min-width:0 !important;
     box-sizing:border-box !important;
-  }
-
-  /* Live table heading + search/filter bar stay inside viewport */
-  #tableCard > h3{
-    width:100% !important;
-    max-width:100% !important;
-    min-width:0 !important;
-    box-sizing:border-box !important;
-    padding:8px 4px !important;
     margin:0 !important;
-    white-space:normal !important;
-    overflow-wrap:anywhere !important;
-    word-break:break-word !important;
   }
 
-  #tableCard .tableTopBar{
+  /* Live table: restore full screen width and don't shrink search */
+  #tableCard{
     width:100% !important;
     max-width:100% !important;
     min-width:0 !important;
+    margin:0 !important;
+    padding:0 5px !important;
     box-sizing:border-box !important;
     overflow:hidden !important;
   }
 
-  #tableCard .tableTopBar input,
-  #tableCard .tableTopBar select,
-  #tableCard .tableTopBar button{
+  #tableCard > h3{
+    width:100% !important;
     max-width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:7px 3px !important;
+    box-sizing:border-box !important;
+    font-size:14px !important;
+    line-height:1.2 !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+  }
+
+  /* Search/filter row uses full available width */
+  #tableCard .tableTopBar{
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    gap:5px !important;
+    margin:0 0 5px 0 !important;
+    padding:0 !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+
+  #tableCard .tableTopBar input{
+    flex:1 1 auto !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    font-size:12px !important;
+    padding:7px 8px !important;
+  }
+
+  #tableCard .tableTopBar select{
+    flex:0 1 auto !important;
+    min-width:80px !important;
+    max-width:42% !important;
     box-sizing:border-box !important;
   }
 
-  #tableCard #search{
+  #tableCard .tableTopBar button{
+    flex:0 0 auto !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Keep table itself full width */
+  #tableCard .tableWrap{
     width:100% !important;
-    min-width:0 !important;
+    max-width:100% !important;
+    box-sizing:border-box !important;
   }
 }
 </style>
+
 </head>
 
 <body>
