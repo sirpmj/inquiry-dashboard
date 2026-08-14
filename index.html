@@ -1237,6 +1237,21 @@ align-items:flex-start;
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="icon-192.png">
 
+
+<style id="loggedOutHardHide">
+body.logged-out #mainHeader,
+body.logged-out #topStatsBar,
+body.logged-out #dashboard,
+body.logged-out #installPopup,
+body.logged-out #todayFollowupsPopup,
+body.logged-out #followupModal,
+body.logged-out #partyHistoryModal{
+  display:none !important;
+}
+body.logged-out #loginBox{
+  display:block !important;
+}
+</style>
 </head>
 
 <body>
@@ -1500,11 +1515,13 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e=>console.warn("Auth persistence failed",e));
+document.body.classList.add("logged-out");
 document.getElementById("loginBox").style.display="none";
 
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     currentUser = user;
+    document.body.classList.remove("logged-out");
     loadUserRole();
 showFirstTimePopup();   // 👈 ADD HERE
   } else {
@@ -1815,6 +1832,7 @@ function forceLoginScreen(){
   // Clear current session reference first so async dashboard callbacks
   // cannot rebuild the dashboard after logout.
   currentUser = null;
+  document.body.classList.add("logged-out");
 
   const hideIds = [
     "mainHeader",
@@ -1836,6 +1854,16 @@ function forceLoginScreen(){
     login.style.display="block";
     login.hidden=false;
   }
+  // Remove any stale modal/popup visibility left by mobile browser rendering.
+  document.querySelectorAll("body > div").forEach(el=>{
+    if(el.id !== "loginBox" &&
+       el.id !== "mainHeader" &&
+       el.id !== "topStatsBar" &&
+       el.id !== "dashboard"){
+      // Only hide known application overlays, never login.
+      if(/popup|modal/i.test(el.id || "")) el.style.display="none";
+    }
+  });
 
   document.title="🔐 Inquiry Login";
   window.scrollTo(0,0);
