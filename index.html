@@ -1446,6 +1446,69 @@ html,body{width:100%!important;max-width:100%!important;margin:0!important;paddi
 #todayFollowupsInline .followStatCard b{font-size:14px!important;font-weight:800!important;margin-left:2px!important}
 }
 </style>
+
+<style>
+/* ===== v27: ONLY mobile user name + logout fit ===== */
+@media(max-width:700px){
+  #mainHeader{
+    grid-template-columns:minmax(0,1fr) auto !important;
+    grid-template-areas:"title tools" "user logout" !important;
+    width:100% !important;
+    max-width:100% !important;
+    overflow:hidden !important;
+    padding:6px !important;
+    box-sizing:border-box !important;
+  }
+
+  #centerTitle{
+    grid-area:user !important;
+    display:block !important;
+    width:auto !important;
+    max-width:calc(100vw - 75px) !important;
+    min-width:0 !important;
+    padding:0 !important;
+    margin:0 !important;
+    font-size:13px !important;
+    line-height:1.25 !important;
+    font-weight:700 !important;
+    white-space:nowrap !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+  }
+
+  /* Keep emoji + complete name + (admin) visible */
+  #centerTitle::before{
+    content:"👤 " !important;
+  }
+
+  #rightAction #logoutBtn{
+    grid-area:logout !important;
+    position:static !important;
+    display:inline-flex !important;
+    width:auto !important;
+    min-width:58px !important;
+    max-width:70px !important;
+    height:28px !important;
+    padding:4px 7px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+    align-items:center !important;
+    justify-content:center !important;
+    font-size:11px !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+    overflow:visible !important;
+    flex:none !important;
+    justify-self:end !important;
+  }
+
+  /* Make second row itself wide enough for name + logout */
+  #centerTitle{
+    padding-right:4px !important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -1580,7 +1643,6 @@ html,body{width:100%!important;max-width:100%!important;margin:0!important;paddi
     </div>
 
    <div class="card" id="tableCard">
-  <h3>📋 Live Inquiry Table</h3>
 <div id="summaryChips" style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;"></div>
 
   <!-- 🔹 Filter & Actions Bar -->
