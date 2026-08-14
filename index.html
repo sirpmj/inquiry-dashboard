@@ -1812,20 +1812,39 @@ async function signup(){
 
 
 function forceLoginScreen(){
-  const ids = ["mainHeader","topStatsBar","dashboard","installPopup","todayFollowupsPopup",
-               "followupModal","partyHistoryModal"];
-  ids.forEach(id=>{
+  // Clear current session reference first so async dashboard callbacks
+  // cannot rebuild the dashboard after logout.
+  currentUser = null;
+
+  const hideIds = [
+    "mainHeader",
+    "topStatsBar",
+    "dashboard",
+    "installPopup",
+    "todayFollowupsPopup",
+    "followupModal",
+    "partyHistoryModal"
+  ];
+
+  hideIds.forEach(id=>{
     const el=document.getElementById(id);
     if(el) el.style.display="none";
   });
+
   const login=document.getElementById("loginBox");
-  if(login) login.style.display="block";
+  if(login){
+    login.style.display="block";
+    login.hidden=false;
+  }
+
   document.title="🔐 Inquiry Login";
   window.scrollTo(0,0);
 }
 
 function logout(){
+  // Immediately switch UI to login screen.
   forceLoginScreen();
+
   auth.signOut().catch(e=>{
     console.warn("Logout failed:",e);
     showMsg(e.message || "Logout failed", false);
@@ -1946,12 +1965,28 @@ function loadUserRole(){
       });
 
     } else {
+      if(!auth.currentUser || !currentUser || currentUser.uid !== auth.currentUser.uid){
+        forceLoginScreen();
+        return;
+      }
       applyUserProfile(doc.data());
     }
+  }).catch(e=>{
+    if(!auth.currentUser){
+      forceLoginScreen();
+      return;
+    }
+    console.warn("User profile load failed:", e);
   });
 }
 
 function applyUserProfile(data){
+  // Never rebuild the dashboard after the user has logged out.
+  if(!auth.currentUser || !currentUser || currentUser.uid !== auth.currentUser.uid){
+    forceLoginScreen();
+    return;
+  }
+
 document.title = "📦 Suvidhi Inquiry Dashboard";
   userRole = data.role || "salesman";
 
