@@ -1524,6 +1524,238 @@ input,select,textarea,button{max-width:100%!important;box-sizing:border-box!impo
 .tableWrap{max-width:100%!important}
 }
 </style>
+
+<style id="FINAL_MOBILE_LAYOUT_FIX">
+/* FINAL MOBILE LAYOUT FIX */
+@media (max-width:700px){
+
+  html, body {
+    width:100% !important;
+    max-width:100% !important;
+    min-height:100% !important;
+    height:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+  }
+
+  #app, #dashboard {
+    width:100% !important;
+    max-width:100% !important;
+    min-height:0 !important;
+    height:auto !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:visible !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Header: title/tools first row, username/logout second row */
+  #mainHeader {
+    position:sticky !important;
+    top:0 !important;
+    z-index:10000 !important;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto !important;
+    grid-template-areas:
+      "title tools"
+      "user logout" !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-height:0 !important;
+    height:auto !important;
+    padding:6px 7px !important;
+    margin:0 !important;
+    gap:4px 7px !important;
+    overflow:visible !important;
+    box-sizing:border-box !important;
+  }
+
+  #leftInfo {
+    grid-area:title !important;
+    width:100% !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+    font-size:15px !important;
+    line-height:1.2 !important;
+  }
+
+  #rightAction {
+    grid-area:tools !important;
+    width:auto !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:3px !important;
+    overflow:visible !important;
+    white-space:nowrap !important;
+  }
+
+  #rightAction .topToolBtn {
+    flex:0 0 auto !important;
+    width:auto !important;
+    min-width:0 !important;
+    padding:4px 5px !important;
+    margin:0 !important;
+    font-size:9px !important;
+  }
+
+  /* Move logout out visually into second row */
+  #rightAction #logoutBtn {
+    grid-area:logout !important;
+    position:absolute !important;
+    right:7px !important;
+    bottom:6px !important;
+    width:auto !important;
+    min-width:58px !important;
+    max-width:76px !important;
+    height:27px !important;
+    padding:4px 8px !important;
+    margin:0 !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    font-size:10px !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
+    overflow:visible !important;
+    z-index:2 !important;
+  }
+
+  #centerTitle {
+    grid-area:user !important;
+    width:calc(100% - 68px) !important;
+    max-width:calc(100% - 68px) !important;
+    min-width:0 !important;
+    margin:0 !important;
+    padding:0 !important;
+    display:block !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+    font-size:12px !important;
+    line-height:27px !important;
+    font-weight:700 !important;
+  }
+
+  #centerTitle::before {
+    content:"👤 " !important;
+  }
+
+  /* Make header reserve the second row */
+  #mainHeader {
+    padding-bottom:35px !important;
+  }
+
+  /* Follow-up/card area: no artificial height and no clipping */
+  #topStatsBar {
+    position:relative !important;
+    top:auto !important;
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:6px !important;
+    overflow:visible !important;
+    box-sizing:border-box !important;
+  }
+
+  #todayFollowupsInline,
+  #todayFollowupsInline .followStatsGrid {
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    overflow:visible !important;
+  }
+
+  /* Main sections use every available width */
+  #inquiryCard,
+  #tableCard {
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    padding:0 5px !important;
+    overflow:visible !important;
+    box-sizing:border-box !important;
+  }
+
+  #inquiryCardBody {
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    overflow:visible !important;
+  }
+
+  #inquiryCardBody .grid {
+    width:100% !important;
+    max-width:100% !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    gap:6px !important;
+  }
+
+  #inquiryCardBody input,
+  #inquiryCardBody select,
+  #inquiryCardBody textarea,
+  #remark {
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+
+  /* Table gets full screen width; only table itself scrolls horizontally */
+  #tableCard .tableTopBar {
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    box-sizing:border-box !important;
+  }
+
+  #tableCard .tableWrap {
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    max-height:65vh !important;
+    min-height:180px !important;
+    overflow-x:auto !important;
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+    box-sizing:border-box !important;
+  }
+
+  #tableCard .tableWrap table {
+    width:max-content !important;
+    min-width:100% !important;
+    max-width:none !important;
+  }
+
+  #tableCard .tableWrap th,
+  #tableCard .tableWrap td {
+    white-space:nowrap !important;
+  }
+
+  /* Prevent any old component from creating horizontal page overflow */
+  .card, .container, .grid, .cleanBar, .filterBar,
+  .compactBar, .productRows, .productRow, .tableTopBar {
+    max-width:100% !important;
+    box-sizing:border-box !important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -1558,6 +1790,21 @@ input,select,textarea,button{max-width:100%!important;box-sizing:border-box!impo
     <span id="logoutBtn" class="iconTip" data-tip="Logout from account" onclick="logout()">Logout</span>
   </div>
 </header>
+<style>
+@media(max-width:700px){
+#mainHeader{display:grid!important;grid-template-columns:minmax(0,1fr) 72px!important;grid-template-areas:"title title" "user logout"!important;gap:4px 8px!important;padding:7px 8px!important;width:100%!important;overflow:hidden!important}
+#leftInfo{grid-area:title!important;min-width:0!important}
+#rightAction{grid-area:title!important;justify-self:end!important;display:flex!important;gap:3px!important;max-width:60%!important;overflow:hidden!important}
+#rightAction #logoutBtn{display:none!important}
+#centerTitle{grid-area:user!important;display:block!important;width:100%!important;min-width:0!important;max-width:none!important;font-size:13px!important;line-height:28px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#mobileLogoutBtn{grid-area:logout!important;display:flex!important;width:68px!important;height:28px!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:4px 7px!important;background:#7f1d1d!important;color:#fecaca!important;border:1px solid #991b1b!important;border-radius:6px!important;font-size:11px!important;font-weight:600!important;white-space:nowrap!important;box-sizing:border-box!important}
+}
+@media(min-width:701px){#mobileLogoutBtn{display:none!important}}
+</style>
+<script>
+(function(){var h=document.getElementById('mainHeader'),o=document.getElementById('logoutBtn');if(h&&o&&!document.getElementById('mobileLogoutBtn')){var m=document.createElement('span');m.id='mobileLogoutBtn';m.textContent='Logout';m.onclick=function(){o.click()};h.appendChild(m)}})();
+</script>
+
 
 
 
