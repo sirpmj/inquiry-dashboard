@@ -32,7 +32,7 @@ border-radius:0 0 8px 8px;
 
 
 
-.container{max-width:1400px;margin:auto;padding:12px;}
+.container{max-width:1200px;margin:auto;padding:12px;}
 .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:4px;box-shadow:0 4px 14px rgba(0,0,0,.06);}
 h3{margin:0 0 8px 0;font-size:16px;}
 label{display:block;font-weight:500;margin-top:4px;}
@@ -1230,28 +1230,71 @@ align-items:flex-start;
 </style>
 
 
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0f172a">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon-192.png">
-
-
-<style id="loggedOutHardHide">
-body.logged-out #mainHeader,
-body.logged-out #topStatsBar,
-body.logged-out #dashboard,
-body.logged-out #installPopup,
-body.logged-out #todayFollowupsPopup,
-body.logged-out #followupModal,
-body.logged-out #partyHistoryModal{
-  display:none !important;
-}
-body.logged-out #loginBox{
+<style>
+/* ===== v21: ONLY requested changes ===== */
+#tableCard{
   display:block !important;
 }
+
+/* After logout, only the login screen remains visible. */
+body.loggedOut #app,
+body.loggedOut #dashboard,
+body.loggedOut #mainHeader,
+body.loggedOut #topStatsBar{
+  display:none !important;
+}
+
+body.loggedOut #loginScreen{
+  display:flex !important;
+}
 </style>
+
+
+<style>
+/* ===== v22: Excel + Backup + Restore in top header ===== */
+#rightAction{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:5px !important;
+  flex-wrap:nowrap !important;
+  white-space:nowrap !important;
+}
+.topToolBtn{
+  width:auto !important;
+  min-width:auto !important;
+  margin:0 !important;
+  padding:5px 8px !important;
+  border-radius:6px !important;
+  font-size:11px !important;
+  line-height:1.2 !important;
+  background:#334155 !important;
+  color:#fff !important;
+  border:1px solid #475569 !important;
+}
+.topToolBtn:hover{opacity:.9 !important;}
+@media(max-width:700px){
+  #rightAction{
+    gap:3px !important;
+    max-width:100% !important;
+    overflow-x:auto !important;
+  }
+  .topToolBtn{
+    font-size:9px !important;
+    padding:4px 5px !important;
+  }
+}
+</style>
+
+
+<style>
+/* ===== v23: restore inquiry table ===== */
+#tableCard{
+  display:block !important;
+  visibility:visible !important;
+}
+</style>
+
 </head>
 
 <body>
@@ -1271,7 +1314,7 @@ body.logged-out #loginBox{
 <header id="mainHeader" style="display:none;">
 
   <div id="leftInfo">
-📦 Suvidhi Inquiry Dashboard
+📦 Suvidhi Inquiry
       </div>
 
   <div id="centerTitle">
@@ -1279,6 +1322,10 @@ body.logged-out #loginBox{
   </div>
 
   <div id="rightAction">
+    <button type="button" class="topToolBtn" onclick="exportExcel()">📊 Excel</button>
+    <button type="button" class="topToolBtn" onclick="backupInquiryData()">💾 Backup</button>
+    <button type="button" class="topToolBtn" onclick="document.getElementById('restoreFileInput').click()">♻️ Restore</button>
+    <input id="restoreFileInput" type="file" accept=".json,application/json" style="display:none" onchange="restoreInquiryData(event)">
     <span id="logoutBtn" class="iconTip" data-tip="Logout from account" onclick="logout()">Logout</span>
   </div>
 </header>
@@ -1287,6 +1334,7 @@ body.logged-out #loginBox{
 
 <div id="topStatsBar" style="display:none;">
 
+  <div id="followupTitle">🔔 Today Follow-ups</div>
   
 
 
@@ -1381,6 +1429,7 @@ body.logged-out #loginBox{
     </div>
 
    <div class="card" id="tableCard">
+  <h3>📋 Live Inquiry Table</h3>
 <div id="summaryChips" style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;"></div>
 
   <!-- 🔹 Filter & Actions Bar -->
@@ -1515,18 +1564,20 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e=>console.warn("Auth persistence failed",e));
-document.body.classList.add("logged-out");
 document.getElementById("loginBox").style.display="none";
 
 auth.onAuthStateChanged(async (user) => {
   if (user) {
     currentUser = user;
-    document.body.classList.remove("logged-out");
     loadUserRole();
 showFirstTimePopup();   // 👈 ADD HERE
   } else {
-    // 🔐 Logged-out state: ONLY login screen is visible.
-    forceLoginScreen();
+    // 🔥 Proper login screen state
+    document.title = "🔐 Inquiry Login";
+    document.getElementById("mainHeader").style.display="none";
+    document.getElementById("topStatsBar").style.display="none";
+    document.getElementById("dashboard").style.display="none";
+    document.getElementById("loginBox").style.display="block";
   }
 });
 
@@ -1618,72 +1669,38 @@ function loadTodayFollowups(){
 
 let deferredPrompt = null;
 
-const INSTALL_REMINDER_KEY = "suvidhi_install_popup_last_shown";
-const INSTALL_REMINDER_24H = 24 * 60 * 60 * 1000;
-
-function isAppInstalled(){
-  return window.matchMedia("(display-mode: standalone)").matches ||
-         window.navigator.standalone === true ||
-         document.referrer.startsWith("android-app://");
-}
-
-function showInstallPopup24h(){
-  const popup = document.getElementById("installPopup");
-  if(!popup || isAppInstalled()) return;
-
-  const last = Number(localStorage.getItem(INSTALL_REMINDER_KEY) || 0);
-  if(Date.now() - last < INSTALL_REMINDER_24H) return;
-
-  // Show only after the browser has supplied the install prompt.
-  if(!deferredPrompt) return;
-
-  popup.style.display = "flex";
-  localStorage.setItem(INSTALL_REMINDER_KEY, String(Date.now()));
-}
-
 // Install event capture
-window.addEventListener("beforeinstallprompt", (e) => {
+window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-
-  // Show the popup only when logged in.
-  if(window.currentUser) showInstallPopup24h();
-});
-
-window.addEventListener("appinstalled", () => {
-  deferredPrompt = null;
-  closeInstallPopup();
-  localStorage.removeItem(INSTALL_REMINDER_KEY);
 });
 
 // Install button click
 document.addEventListener("click", async (e) => {
+
   if (e.target.id === "installBtn") {
+
     if (!deferredPrompt) {
-      closeInstallPopup();
+      alert("Install option not available yet");
       return;
     }
 
     deferredPrompt.prompt();
 
     const { outcome } = await deferredPrompt.userChoice;
+
     console.log("Install result:", outcome);
 
-    if(outcome === "accepted"){
-      localStorage.removeItem(INSTALL_REMINDER_KEY);
-    }else{
-      // Keep the timestamp so it won't appear again for 24 hours.
-      localStorage.setItem(INSTALL_REMINDER_KEY, String(Date.now()));
-    }
-
     deferredPrompt = null;
+
     closeInstallPopup();
   }
+
 });
 
+// Close popup
 function closeInstallPopup(){
-  const popup = document.getElementById("installPopup");
-  if(popup) popup.style.display = "none";
+  document.getElementById("installPopup").style.display = "none";
 }
 
 
@@ -1828,54 +1845,12 @@ async function signup(){
 }
 
 
-function forceLoginScreen(){
-  // Clear current session reference first so async dashboard callbacks
-  // cannot rebuild the dashboard after logout.
-  currentUser = null;
-  document.body.classList.add("logged-out");
-
-  const hideIds = [
-    "mainHeader",
-    "topStatsBar",
-    "dashboard",
-    "installPopup",
-    "todayFollowupsPopup",
-    "followupModal",
-    "partyHistoryModal"
-  ];
-
-  hideIds.forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.style.display="none";
-  });
-
-  const login=document.getElementById("loginBox");
-  if(login){
-    login.style.display="block";
-    login.hidden=false;
-  }
-  // Remove any stale modal/popup visibility left by mobile browser rendering.
-  document.querySelectorAll("body > div").forEach(el=>{
-    if(el.id !== "loginBox" &&
-       el.id !== "mainHeader" &&
-       el.id !== "topStatsBar" &&
-       el.id !== "dashboard"){
-      // Only hide known application overlays, never login.
-      if(/popup|modal/i.test(el.id || "")) el.style.display="none";
-    }
-  });
-
-  document.title="🔐 Inquiry Login";
-  window.scrollTo(0,0);
-}
-
 function logout(){
-  // Immediately switch UI to login screen.
-  forceLoginScreen();
-
-  auth.signOut().catch(e=>{
-    console.warn("Logout failed:",e);
-    showMsg(e.message || "Logout failed", false);
+  auth.signOut().then(()=>{
+    document.getElementById("mainHeader").style.display="none";
+    document.getElementById("topStatsBar").style.display="none";
+    document.getElementById("dashboard").style.display="none";
+    document.getElementById("loginBox").style.display="block";
   });
 }
 
@@ -1993,28 +1968,12 @@ function loadUserRole(){
       });
 
     } else {
-      if(!auth.currentUser || !currentUser || currentUser.uid !== auth.currentUser.uid){
-        forceLoginScreen();
-        return;
-      }
       applyUserProfile(doc.data());
     }
-  }).catch(e=>{
-    if(!auth.currentUser){
-      forceLoginScreen();
-      return;
-    }
-    console.warn("User profile load failed:", e);
   });
 }
 
 function applyUserProfile(data){
-  // Never rebuild the dashboard after the user has logged out.
-  if(!auth.currentUser || !currentUser || currentUser.uid !== auth.currentUser.uid){
-    forceLoginScreen();
-    return;
-  }
-
 document.title = "📦 Suvidhi Inquiry Dashboard";
   userRole = data.role || "salesman";
 
@@ -2027,9 +1986,6 @@ document.getElementById("topStatsBar").style.display="flex";
 
   document.getElementById("loginBox").style.display="none";
   document.getElementById("dashboard").style.display="block";
-
-  // 📲 Install reminder: maximum once every 24 hours.
-  setTimeout(showInstallPopup24h, 700);
 
 updateFilters().then(async()=>{
   await loadProductMaster();
@@ -2612,6 +2568,149 @@ if(Array.isArray(draft.products)&&draft.products.length){
   document.getElementById("productRows").innerHTML="";
   draft.products.forEach(p=>addProductRow(p));
 }else if(!document.querySelector(".productRow"))addProductRow();
+
+
+/* ===== Excel / Backup / Restore ===== */
+function excelSafe(value){
+  if(value===null || value===undefined) return "";
+  if(value && typeof value.toDate==="function"){
+    try{return value.toDate().toLocaleString();}catch(e){}
+  }
+  return String(value);
+}
+
+function exportExcel(){
+  const rows=(window.inquiries||[]).map(i=>({
+    Date:excelSafe(i.date),
+    "Sale / Purchase":i.salePurchase||"",
+    Product:i.product||"",
+    Qty:i.qty??"",
+    Rate:i.rate||"",
+    "Available With":i.availableWith||"",
+    Party:i.party||"",
+    "Mobile No":i.mobile||"",
+    "Allot To Salesman":getSalesmanName(i.salesmanId)||i.salesmanName||"",
+    "Follow-up Date":i.followUpDate||"",
+    "Follow-up Note":i.followUpNote||"",
+    "Follow-up Status":i.followUpStatus||"",
+    Remark:i.remark||"",
+    Status:i.status||""
+  }));
+
+  if(!rows.length){
+    showMsg("No inquiry data to export",false);
+    return;
+  }
+
+  const headers=Object.keys(rows[0]);
+  const esc=v=>String(v??"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+
+  const table = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta charset="UTF-8"></head>
+    <body>
+      <table border="1">
+        <thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead>
+        <tbody>
+          ${rows.map(r=>`<tr>${headers.map(h=>`<td>${esc(r[h])}</td>`).join("")}</tr>`).join("")}
+        </tbody>
+      </table>
+    </body></html>`;
+
+  const blob=new Blob(["\uFEFF",table],{type:"application/vnd.ms-excel;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=`Inquiry_Export_${new Date().toISOString().slice(0,10)}.xls`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function backupInquiryData(){
+  const data={
+    version:1,
+    exportedAt:new Date().toISOString(),
+    inquiries:(window.inquiries||[]).map(i=>{
+      const x={...i};
+      if(x.date && typeof x.date.toDate==="function"){
+        x.date=x.date.toDate().toISOString();
+      }
+      return x;
+    }),
+    products:[...(window.productNames||[])],
+    parties:[...partyMaster.values()].map(x=>({...x}))
+  };
+
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=`Inquiry_Backup_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  showMsg("Backup downloaded successfully");
+}
+
+async function restoreInquiryData(event){
+  const file=event.target.files && event.target.files[0];
+  event.target.value="";
+  if(!file) return;
+
+  try{
+    const text=await file.text();
+    const backup=JSON.parse(text);
+    if(!backup || !Array.isArray(backup.inquiries)){
+      throw new Error("Invalid inquiry backup file");
+    }
+
+    if(!confirm(`Restore ${backup.inquiries.length} inquiries? Existing records with the same ID will be replaced.`)){
+      return;
+    }
+
+    const batch=db.batch();
+
+    backup.inquiries.forEach(item=>{
+      if(!item || !item.id) return;
+      const data={...item};
+      delete data.id;
+
+      if(typeof data.date==="string" && data.date){
+        const d=new Date(data.date);
+        if(!isNaN(d.getTime())) data.date=d;
+      }
+
+      batch.set(db.collection("inquiries").doc(item.id),data,{merge:true});
+    });
+
+    await batch.commit();
+
+    if(Array.isArray(backup.products)){
+      window.productNames=new Set(backup.products.map(String).filter(Boolean));
+      localStorage.setItem("inquiryProducts",JSON.stringify([...window.productNames].sort()));
+    }
+
+    if(Array.isArray(backup.parties)){
+      for(const p of backup.parties){
+        if(p && p.name) await savePartyToMaster(p.name,p.mobile||"");
+      }
+    }
+
+    showMsg("Backup restored successfully");
+  }catch(e){
+    console.error(e);
+    showMsg(e.message||"Restore failed",false);
+  }
+}
 
 function exportCSV(){
   const rows=(window.inquiries||[]).map(i=>({
