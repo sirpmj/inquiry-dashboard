@@ -32,7 +32,7 @@ border-radius:0 0 8px 8px;
 
 
 
-.container{max-width:1200px;margin:auto;padding:12px;}
+.container{max-width:1400px;margin:auto;padding:12px;}
 .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:4px;box-shadow:0 4px 14px rgba(0,0,0,.06);}
 h3{margin:0 0 8px 0;font-size:16px;}
 label{display:block;font-weight:500;margin-top:4px;}
@@ -1509,6 +1509,21 @@ html,body{width:100%!important;max-width:100%!important;margin:0!important;paddi
 }
 </style>
 
+
+<style>
+/* FINAL MOBILE: username + logout fit */
+@media(max-width:700px){
+#mainHeader{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:"title tools" "user logout"!important;align-items:center!important;gap:4px 6px!important;padding:6px!important;width:100%!important;max-width:100%!important;overflow:hidden!important}
+#leftInfo{grid-area:title!important;min-width:0!important}
+#rightAction{grid-area:tools!important;display:flex!important;justify-content:flex-end!important;align-items:center!important;min-width:0!important;overflow:hidden!important}
+#centerTitle{grid-area:user!important;min-width:0!important;max-width:100%!important;width:auto!important;display:inline-flex!important;align-items:center!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:12px!important;line-height:1.2!important}
+#rightAction #logoutBtn{position:static!important;grid-area:logout!important;display:inline-flex!important;width:auto!important;min-width:58px!important;max-width:70px!important;height:28px!important;margin:0!important;padding:4px 7px!important;font-size:11px!important;flex:0 0 auto!important;justify-self:start!important;white-space:nowrap!important}
+html,body,#app,#dashboard,.container{width:100%!important;max-width:100%!important;box-sizing:border-box!important;overflow-x:hidden!important}
+input,select,textarea,button{max-width:100%!important;box-sizing:border-box!important}
+.card{max-width:100%!important;box-sizing:border-box!important}
+.tableWrap{max-width:100%!important}
+}
+</style>
 </head>
 
 <body>
