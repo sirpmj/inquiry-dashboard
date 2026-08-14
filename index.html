@@ -1295,6 +1295,84 @@ body.loggedOut #loginScreen{
 }
 </style>
 
+
+<style>
+/* ===== v24: mobile header only ===== */
+@media(max-width:700px){
+  #mainHeader{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto !important;
+    grid-template-areas:
+      "title tools"
+      "user logout" !important;
+    align-items:center !important;
+    gap:3px 5px !important;
+    width:100% !important;
+    box-sizing:border-box !important;
+  }
+
+  #leftInfo{
+    grid-area:title !important;
+    min-width:0 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  #rightAction{
+    grid-area:tools !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:3px !important;
+    min-width:0 !important;
+    white-space:nowrap !important;
+    overflow:visible !important;
+  }
+
+  #rightAction .topToolBtn{
+    flex:0 0 auto !important;
+    font-size:9px !important;
+    padding:4px 4px !important;
+    margin:0 !important;
+  }
+
+  #centerTitle{
+    grid-area:user !important;
+    min-width:0 !important;
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  #logoutBtn{
+    grid-area:logout !important;
+    justify-self:end !important;
+    white-space:nowrap !important;
+    font-size:10px !important;
+  }
+
+  /* If rightAction contains logout as its last child, place only tools on line 1
+     and move logout visually to line 2. */
+  #rightAction #logoutBtn{
+    position:fixed !important;
+    top:39px !important;
+    right:7px !important;
+  }
+
+  /* Remove the unwanted down-arrow */
+  #inquiryCardTitle::after{
+    content:"▼ Click to Add / Update" !important;
+  }
+}
+
+/* Remove any standalone down-arrow decoration from the lower section */
+#tableCard::before,
+#tableCard::after{
+  content:none !important;
+}
+</style>
+
 </head>
 
 <body>
@@ -1454,7 +1532,7 @@ body.loggedOut #loginScreen{
   </select>
 
   <button class="iconBtn iconTip" data-tip="Show only my inquiries" onclick="showMine=!showMine;renderTable()">🙋‍♂️</button>
-  <button class="iconBtn iconTip" data-tip="Export inquiries to CSV" onclick="exportCSV()">⬇️</button>
+  <button class="iconBtn iconTip" data-tip="Export inquiries to CSV" onclick="exportCSV()"></button>
 </div>
 
 
