@@ -1601,38 +1601,72 @@ function loadTodayFollowups(){
 
 let deferredPrompt = null;
 
+const INSTALL_REMINDER_KEY = "suvidhi_install_popup_last_shown";
+const INSTALL_REMINDER_24H = 24 * 60 * 60 * 1000;
+
+function isAppInstalled(){
+  return window.matchMedia("(display-mode: standalone)").matches ||
+         window.navigator.standalone === true ||
+         document.referrer.startsWith("android-app://");
+}
+
+function showInstallPopup24h(){
+  const popup = document.getElementById("installPopup");
+  if(!popup || isAppInstalled()) return;
+
+  const last = Number(localStorage.getItem(INSTALL_REMINDER_KEY) || 0);
+  if(Date.now() - last < INSTALL_REMINDER_24H) return;
+
+  // Show only after the browser has supplied the install prompt.
+  if(!deferredPrompt) return;
+
+  popup.style.display = "flex";
+  localStorage.setItem(INSTALL_REMINDER_KEY, String(Date.now()));
+}
+
 // Install event capture
-window.addEventListener('beforeinstallprompt', (e) => {
+window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
+
+  // Show the popup only when logged in.
+  if(window.currentUser) showInstallPopup24h();
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredPrompt = null;
+  closeInstallPopup();
+  localStorage.removeItem(INSTALL_REMINDER_KEY);
 });
 
 // Install button click
 document.addEventListener("click", async (e) => {
-
   if (e.target.id === "installBtn") {
-
     if (!deferredPrompt) {
-      alert("Install option not available yet");
+      closeInstallPopup();
       return;
     }
 
     deferredPrompt.prompt();
 
     const { outcome } = await deferredPrompt.userChoice;
-
     console.log("Install result:", outcome);
 
-    deferredPrompt = null;
+    if(outcome === "accepted"){
+      localStorage.removeItem(INSTALL_REMINDER_KEY);
+    }else{
+      // Keep the timestamp so it won't appear again for 24 hours.
+      localStorage.setItem(INSTALL_REMINDER_KEY, String(Date.now()));
+    }
 
+    deferredPrompt = null;
     closeInstallPopup();
   }
-
 });
 
-// Close popup
 function closeInstallPopup(){
-  document.getElementById("installPopup").style.display = "none";
+  const popup = document.getElementById("installPopup");
+  if(popup) popup.style.display = "none";
 }
 
 
@@ -1930,6 +1964,9 @@ document.getElementById("topStatsBar").style.display="flex";
 
   document.getElementById("loginBox").style.display="none";
   document.getElementById("dashboard").style.display="block";
+
+  // 📲 Install reminder: maximum once every 24 hours.
+  setTimeout(showInstallPopup24h, 700);
 
 updateFilters().then(async()=>{
   await loadProductMaster();
