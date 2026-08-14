@@ -32,7 +32,7 @@ border-radius:0 0 8px 8px;
 
 
 
-.container{max-width:1200px;margin:auto;padding:12px;}
+.container{max-width:1400px;margin:auto;padding:12px;}
 .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:4px;box-shadow:0 4px 14px rgba(0,0,0,.06);}
 h3{margin:0 0 8px 0;font-size:16px;}
 label{display:block;font-weight:500;margin-top:4px;}
@@ -1229,6 +1229,14 @@ align-items:flex-start;
 }
 </style>
 
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 </head>
 
 <body>
@@ -1500,12 +1508,8 @@ auth.onAuthStateChanged(async (user) => {
     loadUserRole();
 showFirstTimePopup();   // 👈 ADD HERE
   } else {
-    // 🔥 Proper login screen state
-    document.title = "🔐 Inquiry Login";
-    document.getElementById("mainHeader").style.display="none";
-    document.getElementById("topStatsBar").style.display="none";
-    document.getElementById("dashboard").style.display="none";
-    document.getElementById("loginBox").style.display="block";
+    // 🔐 Logged-out state: ONLY login screen is visible.
+    forceLoginScreen();
   }
 });
 
@@ -1773,12 +1777,24 @@ async function signup(){
 }
 
 
+function forceLoginScreen(){
+  const ids = ["mainHeader","topStatsBar","dashboard","installPopup","todayFollowupsPopup",
+               "followupModal","partyHistoryModal"];
+  ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.style.display="none";
+  });
+  const login=document.getElementById("loginBox");
+  if(login) login.style.display="block";
+  document.title="🔐 Inquiry Login";
+  window.scrollTo(0,0);
+}
+
 function logout(){
-  auth.signOut().then(()=>{
-    document.getElementById("mainHeader").style.display="none";
-    document.getElementById("topStatsBar").style.display="none";
-    document.getElementById("dashboard").style.display="none";
-    document.getElementById("loginBox").style.display="block";
+  forceLoginScreen();
+  auth.signOut().catch(e=>{
+    console.warn("Logout failed:",e);
+    showMsg(e.message || "Logout failed", false);
   });
 }
 
