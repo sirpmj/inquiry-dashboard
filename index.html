@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inquiry Pool</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0f172a">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
 *{box-sizing:border-box;}body{margin:0;font-family:'Poppins',sans-serif;background:#f4f6f9;color:#333;}
 header{
@@ -2081,6 +2084,7 @@ input,select,textarea,button{max-width:100%!important;box-sizing:border-box!impo
     box-shadow:0 10px 25px rgba(0,0,0,0.3);
   ">
 
+    <img src="./icon-192.png" alt="Inquiry Management" style="width:72px;height:72px;object-fit:contain;margin:0 auto 8px;display:block;border-radius:16px;">
     <h3>🎉 Welcome</h3>
 
     <p style="font-size:14px; margin:10px 0;">
@@ -2242,42 +2246,76 @@ function loadTodayFollowups(){
 }
 
 let deferredPrompt = null;
+const INSTALL_PROMPT_KEY = "inquiry_install_prompt_last_shown_v1";
+const INSTALL_ACCEPTED_KEY = "inquiry_install_accepted_v1";
+const INSTALL_PROMPT_INTERVAL = 24 * 60 * 60 * 1000;
 
-// Install event capture
-window.addEventListener('beforeinstallprompt', (e) => {
+function isAppInstalled(){
+  return window.matchMedia("(display-mode: standalone)").matches ||
+         window.navigator.standalone === true ||
+         localStorage.getItem(INSTALL_ACCEPTED_KEY) === "1";
+}
+
+function canShowInstallPopup(){
+  if(isAppInstalled()) return false;
+  const last = Number(localStorage.getItem(INSTALL_PROMPT_KEY) || 0);
+  return !last || (Date.now() - last >= INSTALL_PROMPT_INTERVAL);
+}
+
+function showInstallPopupIfDue(){
+  const popup = document.getElementById("installPopup");
+  if(!popup || !deferredPrompt || !canShowInstallPopup()) return;
+  localStorage.setItem(INSTALL_PROMPT_KEY, String(Date.now()));
+  popup.style.display = "flex";
+}
+
+// Capture the browser's install prompt, but do not show it more than once in 24 hours.
+window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
+  setTimeout(showInstallPopupIfDue, 700);
 });
 
 // Install button click
+// The browser's native install prompt is used; no app data or existing functionality is changed.
 document.addEventListener("click", async (e) => {
-
-  if (e.target.id === "installBtn") {
-
-    if (!deferredPrompt) {
-      alert("Install option not available yet");
-      return;
-    }
-
-    deferredPrompt.prompt();
-
-    const { outcome } = await deferredPrompt.userChoice;
-
-    console.log("Install result:", outcome);
-
-    deferredPrompt = null;
-
+  if(e.target.id !== "installBtn") return;
+  if(!deferredPrompt){
     closeInstallPopup();
+    return;
   }
-
+  try{
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if(outcome === "accepted"){
+      localStorage.setItem(INSTALL_ACCEPTED_KEY, "1");
+    }
+  }catch(err){
+    console.warn("Install prompt error:", err);
+  }
+  deferredPrompt = null;
+  closeInstallPopup();
 });
 
-// Close popup
 function closeInstallPopup(){
-  document.getElementById("installPopup").style.display = "none";
+  const popup = document.getElementById("installPopup");
+  if(popup) popup.style.display = "none";
 }
 
+// Register the service worker for PWA install/offline app shell.
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(err => {
+      console.warn("Service worker registration failed:", err);
+    });
+  });
+}
 
+// If the browser fires beforeinstallprompt after page load, the listener above handles it.
+// For a previously captured prompt, also check shortly after the page is ready.
+window.addEventListener("load", () => {
+  setTimeout(showInstallPopupIfDue, 1200);
+});
 
 
 let todayFollowupsPopupTimer = null;
