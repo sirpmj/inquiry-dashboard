@@ -733,6 +733,22 @@ align-items:flex-start;
 }
 
 </style>
+<style>
+/* ===== MOBILE ONLY: center login screen ===== */
+@media(max-width:700px){
+  #loginBox{
+    position:fixed !important;
+    top:50% !important;
+    left:50% !important;
+    transform:translate(-50%,-50%) !important;
+    width:calc(100% - 30px) !important;
+    max-width:340px !important;
+    margin:0 !important;
+    box-sizing:border-box !important;
+  }
+}
+</style>
+
 
 <style>
 /* v13: mobile header + follow-up + inquiry form alignment */
